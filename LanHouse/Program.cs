@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LanHouse
+namespace LanHouseSystem
 {
     internal static class Program
     {
@@ -16,7 +13,12 @@ namespace LanHouse
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            // Para usar com Login (quando tiver o FormLogin):
+            // Application.Run(new FormLogin());
+
+            // Para usar DIRETO no FormPrincipal (sem login):
+            Application.Run(new FormPrincipal());
         }
     }
 }

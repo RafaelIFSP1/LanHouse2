@@ -47,12 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
-    <Compile Include="FormCadastro.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormCadastro.Designer.cs">
-      <DependentUpon>FormCadastro.cs</DependentUpon>
-    </Compile>
+    <Compile Include="DatabaseHelper.cs" />
     <Compile Include="FormLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -67,9 +62,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FormCadastro.resx">
-      <DependentUpon>FormCadastro.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FormLogin.resx">
       <DependentUpon>FormLogin.cs</DependentUpon>
     </EmbeddedResource>
