@@ -1,396 +1,294 @@
 ﻿using System;
-using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace LanHouseSystem
 {
     public partial class FormPrincipal : Form
     {
-        private DatabaseHelper db;
-        private Timer timerSessoes;
+        private Usuario usuarioLogado;
 
-        public FormPrincipal()
+        // Declaração de TODOS os controles como campos da classe
+        private Panel panelMenu;
+        private Panel panelConteudo;
+        private Label lblBemVindo;
+        private Label lblEmail;
+        private Label lblTipoUsuario;
+        private Button btnComputadores;
+        private Button btnReservas;
+        private Button btnGerenciarUsuarios;
+        private Button btnRelatorios;
+        private Button btnSair;
+        private PictureBox pictureBox1;
+
+        public FormPrincipal(Usuario usuario)
         {
             InitializeComponent();
-            InitializeApplication();
+            usuarioLogado = usuario;
+            ConfigurarInterface();
         }
 
-        private void InitializeApplication()
+        private void InitializeComponent()
         {
-            try
-            {
-                db = new DatabaseHelper();
-                ConfigureDataGridViews();
-                ConfigureTimer();
-                CarregarDados();
-                UpdateStatusStrip("Sistema inicializado com sucesso");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao inicializar o sistema: {ex.Message}", "Erro de Inicialização",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.Close();
-            }
+            // Configuração básica do form
+            this.Text = "Lan House System - Dashboard";
+            this.Size = new Size(1000, 600);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.BackColor = Color.White;
+            this.FormClosed += new FormClosedEventHandler(FormPrincipal_FormClosed);
+
+            CriarMenuLateral();
+            CriarAreaConteudo();
         }
 
-        private void ConfigureDataGridViews()
+        private void CriarMenuLateral()
         {
-            // Configurar DataGridView dos Computadores
-            dataGridViewComputadores.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewComputadores.ReadOnly = true;
-            dataGridViewComputadores.MultiSelect = false;
-            dataGridViewComputadores.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewComputadores.AllowUserToAddRows = false;
-            dataGridViewComputadores.AllowUserToDeleteRows = false;
+            // Panel Menu Lateral
+            panelMenu = new Panel();
+            panelMenu.Size = new Size(250, 600);
+            panelMenu.BackColor = Color.FromArgb(33, 37, 41);
+            panelMenu.Location = new Point(0, 0);
+            this.Controls.Add(panelMenu);
 
-            // Configurar DataGridView das Sessões
-            dataGridViewSessoes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewSessoes.ReadOnly = true;
-            dataGridViewSessoes.MultiSelect = false;
-            dataGridViewSessoes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewSessoes.AllowUserToAddRows = false;
-            dataGridViewSessoes.AllowUserToDeleteRows = false;
+            // PictureBox Logo
+            pictureBox1 = new PictureBox();
+            pictureBox1.Size = new Size(150, 150);
+            pictureBox1.Location = new Point(50, 20);
+            pictureBox1.BackColor = Color.Transparent;
+            pictureBox1.Image = CreateSampleImage();
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            panelMenu.Controls.Add(pictureBox1);
+
+            // Label Bem-vindo
+            lblBemVindo = new Label();
+            lblBemVindo.Text = "Bem-vindo!";
+            lblBemVindo.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+            lblBemVindo.ForeColor = Color.White;
+            lblBemVindo.Size = new Size(200, 30);
+            lblBemVindo.Location = new Point(25, 180);
+            lblBemVindo.TextAlign = ContentAlignment.MiddleLeft;
+            panelMenu.Controls.Add(lblBemVindo);
+
+            // Label Email
+            lblEmail = new Label();
+            lblEmail.Text = "email@exemplo.com";
+            lblEmail.Font = new Font("Segoe UI", 9);
+            lblEmail.ForeColor = Color.LightGray;
+            lblEmail.Size = new Size(200, 20);
+            lblEmail.Location = new Point(25, 210);
+            lblEmail.TextAlign = ContentAlignment.MiddleLeft;
+            panelMenu.Controls.Add(lblEmail);
+
+            // Label Tipo Usuário
+            lblTipoUsuario = new Label();
+            lblTipoUsuario.Text = "Tipo de Usuário";
+            lblTipoUsuario.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            lblTipoUsuario.ForeColor = Color.FromArgb(0, 123, 255);
+            lblTipoUsuario.Size = new Size(200, 25);
+            lblTipoUsuario.Location = new Point(25, 235);
+            lblTipoUsuario.TextAlign = ContentAlignment.MiddleLeft;
+            panelMenu.Controls.Add(lblTipoUsuario);
+
+            // Botão Computadores
+            btnComputadores = new Button();
+            btnComputadores.Text = "💻 COMPUTADORES";
+            btnComputadores.Size = new Size(220, 45);
+            btnComputadores.Location = new Point(15, 280);
+            btnComputadores.BackColor = Color.FromArgb(0, 123, 255);
+            btnComputadores.ForeColor = Color.White;
+            btnComputadores.FlatStyle = FlatStyle.Flat;
+            btnComputadores.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnComputadores.TextAlign = ContentAlignment.MiddleLeft;
+            btnComputadores.Click += new EventHandler(btnComputadores_Click);
+            panelMenu.Controls.Add(btnComputadores);
+
+            // Botão Reservas
+            btnReservas = new Button();
+            btnReservas.Text = "📅 MINHAS RESERVAS";
+            btnReservas.Size = new Size(220, 45);
+            btnReservas.Location = new Point(15, 335);
+            btnReservas.BackColor = Color.FromArgb(111, 66, 193);
+            btnReservas.ForeColor = Color.White;
+            btnReservas.FlatStyle = FlatStyle.Flat;
+            btnReservas.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnReservas.TextAlign = ContentAlignment.MiddleLeft;
+            btnReservas.Click += new EventHandler(btnReservas_Click);
+            panelMenu.Controls.Add(btnReservas);
+
+            // Botão Gerenciar Usuários
+            btnGerenciarUsuarios = new Button();
+            btnGerenciarUsuarios.Text = "👥 GERENCIAR USUÁRIOS";
+            btnGerenciarUsuarios.Size = new Size(220, 45);
+            btnGerenciarUsuarios.Location = new Point(15, 390);
+            btnGerenciarUsuarios.BackColor = Color.FromArgb(220, 53, 69);
+            btnGerenciarUsuarios.ForeColor = Color.White;
+            btnGerenciarUsuarios.FlatStyle = FlatStyle.Flat;
+            btnGerenciarUsuarios.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnGerenciarUsuarios.TextAlign = ContentAlignment.MiddleLeft;
+            btnGerenciarUsuarios.Click += new EventHandler(btnGerenciarUsuarios_Click);
+            panelMenu.Controls.Add(btnGerenciarUsuarios);
+
+            // Botão Relatórios
+            btnRelatorios = new Button();
+            btnRelatorios.Text = "📊 RELATÓRIOS";
+            btnRelatorios.Size = new Size(220, 45);
+            btnRelatorios.Location = new Point(15, 445);
+            btnRelatorios.BackColor = Color.FromArgb(40, 167, 69);
+            btnRelatorios.ForeColor = Color.White;
+            btnRelatorios.FlatStyle = FlatStyle.Flat;
+            btnRelatorios.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnRelatorios.TextAlign = ContentAlignment.MiddleLeft;
+            btnRelatorios.Click += new EventHandler(btnRelatorios_Click);
+            panelMenu.Controls.Add(btnRelatorios);
+
+            // Botão Sair
+            btnSair = new Button();
+            btnSair.Text = "🚪 SAIR DO SISTEMA";
+            btnSair.Size = new Size(220, 45);
+            btnSair.Location = new Point(15, 520);
+            btnSair.BackColor = Color.FromArgb(108, 117, 125);
+            btnSair.ForeColor = Color.White;
+            btnSair.FlatStyle = FlatStyle.Flat;
+            btnSair.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnSair.TextAlign = ContentAlignment.MiddleLeft;
+            btnSair.Click += new EventHandler(btnSair_Click);
+            panelMenu.Controls.Add(btnSair);
         }
 
-        private void ConfigureTimer()
+        private void CriarAreaConteudo()
         {
-            timerSessoes = new Timer();
-            timerSessoes.Interval = 30000; // 30 segundos
-            timerSessoes.Tick += TimerSessoes_Tick;
-            timerSessoes.Start();
+            // Panel Conteúdo
+            panelConteudo = new Panel();
+            panelConteudo.Size = new Size(734, 560);
+            panelConteudo.BackColor = Color.FromArgb(248, 249, 250);
+            panelConteudo.Location = new Point(250, 0);
+            this.Controls.Add(panelConteudo);
+
+            // Label de Boas-vindas no conteúdo
+            Label lblDashboard = new Label();
+            lblDashboard.Text = "🏠 DASHBOARD PRINCIPAL";
+            lblDashboard.Font = new Font("Segoe UI", 24, FontStyle.Bold);
+            lblDashboard.ForeColor = Color.FromArgb(33, 37, 41);
+            lblDashboard.Size = new Size(500, 50);
+            lblDashboard.Location = new Point(100, 50);
+            lblDashboard.TextAlign = ContentAlignment.MiddleCenter;
+            panelConteudo.Controls.Add(lblDashboard);
+
+            Label lblInfo = new Label();
+            lblInfo.Text = "Selecione uma opção no menu lateral para começar";
+            lblInfo.Font = new Font("Segoe UI", 12);
+            lblInfo.ForeColor = Color.FromArgb(108, 117, 125);
+            lblInfo.Size = new Size(500, 30);
+            lblInfo.Location = new Point(117, 120);
+            lblInfo.TextAlign = ContentAlignment.MiddleCenter;
+            panelConteudo.Controls.Add(lblInfo);
         }
 
-        private void TimerSessoes_Tick(object sender, EventArgs e)
+        private void ConfigurarInterface()
         {
-            if (tabControl1.SelectedIndex == 1) // Se estiver na aba de Sessões
+            // Configurar informações do usuário logado
+            lblBemVindo.Text = $"Bem-vindo, {usuarioLogado.Nome}!";
+            lblEmail.Text = usuarioLogado.Email;
+
+            if (usuarioLogado.TipoUsuario == "Admin")
             {
-                AtualizarSessoesAutomaticamente();
-            }
-        }
-
-        private void CarregarDados()
-        {
-            try
-            {
-                Cursor = Cursors.WaitCursor;
-
-                // Carregar computadores disponíveis
-                DataTable computadores = db.GetComputadoresDisponiveis();
-                dataGridViewComputadores.DataSource = computadores;
-
-                // Carregar clientes
-                DataTable clientes = db.GetClientes();
-                comboBoxClientes.DataSource = clientes;
-                comboBoxClientes.DisplayMember = "Nome";
-                comboBoxClientes.ValueMember = "Id";
-
-                // Carregar sessões ativas
-                DataTable sessoes = db.GetSessoesAtivas();
-                dataGridViewSessoes.DataSource = sessoes;
-
-                UpdateStatusStrip($"Sistema carregado - {computadores.Rows.Count} computadores disponíveis, {sessoes.Rows.Count} sessões ativas");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao carregar dados: {ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-                UpdateStatusStrip("Erro ao carregar dados do sistema");
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
-
-        private void AtualizarSessoesAutomaticamente()
-        {
-            try
-            {
-                DataTable sessoes = db.GetSessoesAtivas();
-                dataGridViewSessoes.DataSource = sessoes;
-
-                if (sessoes.Rows.Count > 0)
-                {
-                    toolStripStatusLabel.Text = $"{sessoes.Rows.Count} sessões ativas - Última atualização: {DateTime.Now:HH:mm:ss}";
-                }
-            }
-            catch (Exception ex)
-            {
-                // Não mostrar mensagem para evitar spam, apenas logar no status
-                UpdateStatusStrip($"Erro na atualização automática: {ex.Message}");
-            }
-        }
-
-        private void UpdateStatusStrip(string message)
-        {
-            if (toolStripStatusLabel != null)
-            {
-                toolStripStatusLabel.Text = message;
-            }
-        }
-
-        private void btnIniciarSessao_Click(object sender, EventArgs e)
-        {
-            if (dataGridViewComputadores.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Selecione um computador para iniciar a sessão!", "Atenção",
-                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (comboBoxClientes.SelectedItem == null)
-            {
-                MessageBox.Show("Selecione um cliente para iniciar a sessão!", "Atenção",
-                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                int computadorId = Convert.ToInt32(dataGridViewComputadores.SelectedRows[0].Cells["Id"].Value);
-                int clienteId = Convert.ToInt32(comboBoxClientes.SelectedValue);
-                string computadorNome = dataGridViewComputadores.SelectedRows[0].Cells["Nome"].Value.ToString();
-                string clienteNome = comboBoxClientes.Text;
-
-                DialogResult confirmacao = MessageBox.Show(
-                    $"Deseja iniciar sessão para:\n\n" +
-                    $"Cliente: {clienteNome}\n" +
-                    $"Computador: {computadorNome}",
-                    "Confirmar Início de Sessão",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-
-                if (confirmacao == DialogResult.Yes)
-                {
-                    if (db.IniciarSessao(clienteId, computadorId))
-                    {
-                        MessageBox.Show("Sessão iniciada com sucesso! 🎮", "Sucesso",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        CarregarDados();
-                        UpdateStatusStrip($"Sessão iniciada - {clienteNome} no {computadorNome}");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Erro ao iniciar a sessão. Tente novamente.", "Erro",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao iniciar sessão: {ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnFinalizarSessao_Click(object sender, EventArgs e)
-        {
-            if (dataGridViewSessoes.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Selecione uma sessão ativa para finalizar!", "Atenção",
-                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                DataGridViewRow selectedRow = dataGridViewSessoes.SelectedRows[0];
-                int sessaoId = Convert.ToInt32(selectedRow.Cells["Id"].Value);
-                string clienteNome = selectedRow.Cells["Cliente"].Value.ToString();
-                string computadorNome = selectedRow.Cells["Computador"].Value.ToString();
-                int minutosDecorridos = Convert.ToInt32(selectedRow.Cells["MinutosDecorridos"].Value);
-
-                // Extrair ID do computador do nome (ex: "PC-01" -> ID 1)
-                int computadorId = ExtractComputerIdFromName(computadorNome);
-
-                TimeSpan tempoDecorrido = TimeSpan.FromMinutes(minutosDecorridos);
-                string tempoFormatado = $"{tempoDecorrido.Hours}h {tempoDecorrido.Minutes}m";
-
-                DialogResult confirmacao = MessageBox.Show(
-                    $"Deseja finalizar a sessão?\n\n" +
-                    $"Cliente: {clienteNome}\n" +
-                    $"Computador: {computadorNome}\n" +
-                    $"Tempo decorrido: {tempoFormatado}",
-                    "Confirmar Finalização de Sessão",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-
-                if (confirmacao == DialogResult.Yes)
-                {
-                    if (db.FinalizarSessao(sessaoId, computadorId))
-                    {
-                        MessageBox.Show("Sessão finalizada com sucesso! 💰", "Sucesso",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        CarregarDados();
-                        UpdateStatusStrip($"Sessão finalizada - {clienteNome}");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Erro ao finalizar a sessão. Tente novamente.", "Erro",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao finalizar sessão: {ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private int ExtractComputerIdFromName(string computerName)
-        {
-            try
-            {
-                // Remove "PC-" e converte para número
-                string idString = computerName.Replace("PC-", "");
-                return Convert.ToInt32(idString);
-            }
-            catch
-            {
-                throw new Exception($"Não foi possível extrair o ID do computador do nome: {computerName}");
-            }
-        }
-
-        private void btnCadastrarCliente_Click(object sender, EventArgs e)
-        {
-            try
-            {
-               // using (FormCadastroCliente formCliente = new FormCadastroCliente())
-                using (FormCadastro formCliente = new FormCadastro())
-
-                {
-                    DialogResult result = formCliente.ShowDialog();
-
-                    if (result == DialogResult.OK)
-                    {
-                        CarregarDados(); // Recarrega a lista de clientes
-                        UpdateStatusStrip("Novo cliente cadastrado com sucesso");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao abrir formulário de cadastro: {ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnAtualizarComputadores_Click(object sender, EventArgs e)
-        {
-            CarregarDados();
-            MessageBox.Show("Dados atualizados com sucesso! 🔄", "Atualização",
-                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void btnAtualizarSessoes_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                DataTable sessoes = db.GetSessoesAtivas();
-                dataGridViewSessoes.DataSource = sessoes;
-                UpdateStatusStrip($"Sessões atualizadas - {sessoes.Rows.Count} sessões ativas");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao atualizar sessões: {ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnLimparCliente_Click(object sender, EventArgs e)
-        {
-            LimparCamposCliente();
-        }
-
-        private void LimparCamposCliente()
-        {
-            txtNomeCliente.Text = "";
-            txtCPF.Text = "";
-            txtTelefone.Text = "";
-            txtEmailCliente.Text = "";
-            txtNomeCliente.Focus();
-        }
-
-        // MENU ITEMS
-        private void atualizarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            CarregarDados();
-        }
-
-        private void sairToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SairAplicacao();
-        }
-
-        private void relatorioSessoesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Relatório de sessões será gerado aqui!\n\n" +
-                          "Funcionalidade em desenvolvimento...", "Relatórios",
-                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void relatorioClientesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Relatório de clientes será gerado aqui!\n\n" +
-                          "Funcionalidade em desenvolvimento...", "Relatórios",
-                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void sobreToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(
-                "🏠 Sistema Lan House v2.0\n\n" +
-                "Desenvolvido para gerenciamento completo de cyber café\n" +
-                "© 2024 - Todos os direitos reservados\n\n" +
-                "Funcionalidades:\n" +
-                "• Controle de computadores\n" +
-                "• Gestão de clientes\n" +
-                "• Sistema de sessões\n" +
-                "• Cálculo automático de valores",
-                "Sobre o Sistema",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-        }
-
-        private void timerAtualizar_Tick(object sender, EventArgs e)
-        {
-            // Atualiza a data/hora no status strip
-            toolStripStatusLabelData.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-        }
-
-        private void FormPrincipal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            DialogResult result = MessageBox.Show(
-                "Deseja realmente sair do sistema?",
-                "Confirmação de Saída",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result == DialogResult.No)
-            {
-                e.Cancel = true;
+                lblTipoUsuario.Text = "👑 ADMINISTRADOR";
+                lblTipoUsuario.ForeColor = Color.FromArgb(220, 53, 69);
+                btnGerenciarUsuarios.Visible = true;
+                btnRelatorios.Visible = true;
             }
             else
             {
-                // Limpar recursos
-                timerSessoes?.Stop();
-                timerSessoes?.Dispose();
+                lblTipoUsuario.Text = "👤 USUÁRIO COMUM";
+                lblTipoUsuario.ForeColor = Color.FromArgb(0, 123, 255);
+                btnGerenciarUsuarios.Visible = false;
+                btnRelatorios.Visible = false;
             }
         }
 
-        private void SairAplicacao()
+        // === MÉTODOS PARA ACESSAR OS FORMS ===
+
+        private void btnComputadores_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                FormComputadores formComputadores = new FormComputadores();
+                formComputadores.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Computadores: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnReservas_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                FormReservas formReservas = new FormReservas(usuarioLogado);
+                formReservas.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Reservas: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnGerenciarUsuarios_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Verificar se é administrador
+                if (usuarioLogado.TipoUsuario != "Admin")
+                {
+                    MessageBox.Show("❌ Acesso negado!\n\nApenas administradores podem gerenciar usuários.",
+                                  "Permissão Insuficiente",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Warning);
+                    return;
+                }
+
+                FormGerenciarUsuarios formGerenciarUsuarios = new FormGerenciarUsuarios();
+                formGerenciarUsuarios.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Gerenciar Usuários: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnRelatorios_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Verificar se é administrador
+                if (usuarioLogado.TipoUsuario != "Admin")
+                {
+                    MessageBox.Show("❌ Acesso negado!\n\nApenas administradores podem acessar relatórios.",
+                                  "Permissão Insuficiente",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Warning);
+                    return;
+                }
+
+                FormRelatorios formRelatorios = new FormRelatorios();
+                formRelatorios.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao abrir Relatórios: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSair_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show(
-                "Deseja sair do sistema?",
-                "Confirmação",
+                "🚪 Tem certeza que deseja sair do sistema?",
+                "Confirmação de Saída",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
+                MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
@@ -398,38 +296,31 @@ namespace LanHouseSystem
             }
         }
 
-        // Eventos adicionais para melhor UX
-        private void dataGridViewComputadores_SelectionChanged(object sender, EventArgs e)
+        private void FormPrincipal_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (dataGridViewComputadores.SelectedRows.Count > 0)
-            {
-                UpdateStatusStrip("Computador selecionado - Pronto para iniciar sessão");
-            }
+            Application.Exit();
         }
 
-        private void dataGridViewSessoes_SelectionChanged(object sender, EventArgs e)
+        // Método para criar uma imagem de exemplo
+        private Image CreateSampleImage()
         {
-            if (dataGridViewSessoes.SelectedRows.Count > 0)
+            Bitmap bmp = new Bitmap(150, 150);
+            using (Graphics g = Graphics.FromImage(bmp))
             {
-                UpdateStatusStrip("Sessão selecionada - Pronto para finalizar");
-            }
-        }
+                g.Clear(Color.FromArgb(0, 123, 255));
+                g.FillRectangle(new SolidBrush(Color.FromArgb(0, 86, 179)), 0, 0, 150, 40);
 
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (tabControl1.SelectedIndex)
-            {
-                case 0:
-                    UpdateStatusStrip("Aba: Gerenciar Computadores");
-                    break;
-                case 1:
-                    UpdateStatusStrip("Aba: Sessões Ativas");
-                    AtualizarSessoesAutomaticamente();
-                    break;
-                case 2:
-                    UpdateStatusStrip("Aba: Cadastrar Clientes");
-                    break;
+                // Desenhar ícone de computador
+                g.FillRectangle(Brushes.White, 40, 60, 70, 50);
+                g.FillRectangle(Brushes.LightGray, 45, 65, 60, 35);
+                g.FillRectangle(Brushes.Black, 50, 115, 50, 5);
+                g.FillRectangle(Brushes.Gray, 65, 120, 20, 10);
+
+                // Texto
+                g.DrawString("LAN HOUSE", new Font("Segoe UI", 10, FontStyle.Bold), Brushes.White, new PointF(30, 10));
+                g.DrawString("SYSTEM", new Font("Segoe UI", 8, FontStyle.Regular), Brushes.White, new PointF(50, 135));
             }
+            return bmp;
         }
     }
 }

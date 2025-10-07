@@ -1,15 +1,28 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
 
-namespace LanHouse
+namespace LanHouseSystem
 {
-    public class Database
+    public static class Database
     {
-        public static string connectionString =
-            @"Data Source=sqlexpress;Initial Catalog=CJ3027287PR2;User ID=aluno;Password=aluno;";
+        public static string ConnectionString = @"Server=localhost\SQLEXPRESS;Database=LanHouseDB;Integrated Security=true;TrustServerCertificate=true;";
 
-        public static SqlConnection GetConnection()
+        public static bool TestarConexao()
         {
-            return new SqlConnection(connectionString);
+            try
+            {
+                using (var connection = new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro na conexão: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
     }
 }
