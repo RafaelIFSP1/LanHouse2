@@ -1,69 +1,53 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
-using SeuProjeto;
 
-namespace LanHouseSystem
+namespace lanhause
 {
     internal static class Program
     {
         [STAThread]
         static void Main()
         {
+            Debug.WriteLine("RAFAEL FRANCISCO DE LIMA DA SILVA");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            try
+            // Remove a mensagem de desenvolvimento agora que o banco está funcionando
+            // MessageBox.Show("Modo de desenvolvimento - Verificação de banco desativada",
+            //               "Info",
+            //               MessageBoxButtons.OK,
+            //               MessageBoxIcon.Information);
+
+            // Loop principal da aplicação
+            while (true)
             {
-                // Testa conexão com banco
-                if (!Database.TestarConexao())
+                using (FormLogin loginForm = new FormLogin())
                 {
-                    MessageBox.Show("Erro ao conectar com o banco de dados. A aplicação será fechada.",
-                                  "Erro de Conexão",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // Loop de login
-                while (true)
-                {
-                    using (FormLogin loginForm = new FormLogin())
+                    // Se usuário cancelou o login
+                    if (loginForm.ShowDialog() != DialogResult.OK)
                     {
-                        if (loginForm.ShowDialog() == DialogResult.OK)
+                        if (MessageBox.Show("Deseja sair do sistema?", "Confirmação",
+                                          MessageBoxButtons.YesNo,
+                                          MessageBoxIcon.Question) == DialogResult.Yes)
                         {
-                            // Login bem-sucedido - cria usuário e abre FormPrincipal
-                            Usuario usuarioLogado = new Usuario
-                            {
-                                Id = FormLogin.UsuarioId,
-                                Nome = FormLogin.UsuarioLogado,
-                                Email = FormLogin.EmailLogado,
-                                TipoUsuario = FormLogin.IsAdmin ? "Admin" : "Usuario"
-                            };
-
-                            // Abre o FormPrincipal
-                            FormPrincipal formPrincipal = new FormPrincipal(usuarioLogado);
-                            Application.Run(formPrincipal);
-                            break;
+                            break; // Sai do aplicativo
                         }
-                        else
+                        // Se escolheu "Não", continua no loop (volta para o login)
+                    }
+                    else // Login bem sucedido
+                    {
+                        // Abre o formulário principal
+                        using (FormPrincipal formPrincipal = new FormPrincipal())
                         {
-                            // Usuário cancelou
-                            if (MessageBox.Show("Deseja sair do sistema?", "Confirmação",
-                                              MessageBoxButtons.YesNo,
-                                              MessageBoxIcon.Question) == DialogResult.Yes)
-                            {
-                                break;
-                            }
+                            Application.Run(formPrincipal);
+
+                            // Quando o FormPrincipal é fechado, volta para a tela de login
+                            // Se quiser que o aplicativo feche completamente quando o
+                            // FormPrincipal for fechado, adicione "break;" aqui
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao iniciar a aplicação: {ex.Message}",
-                              "Erro",
-                              MessageBoxButtons.OK,
-                              MessageBoxIcon.Error);
             }
         }
     }

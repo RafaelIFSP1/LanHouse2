@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace LanHouseSystem
+namespace lanhause
 {
     public partial class FormGerenciarUsuarios : Form
     {
@@ -22,109 +22,145 @@ namespace LanHouseSystem
 
         private void InitializeComponent()
         {
-            this.Text = "👥 Gerenciar Usuários - Lan House System";
-            this.Size = new Size(900, 500);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.BackColor = Color.White;
-
+            this.lblTitulo = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.dataGridViewUsuarios = new System.Windows.Forms.DataGridView();
+            this.btnAdicionar = new System.Windows.Forms.Button();
+            this.btnEditar = new System.Windows.Forms.Button();
+            this.btnDesativar = new System.Windows.Forms.Button();
+            this.btnFechar = new System.Windows.Forms.Button();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewUsuarios)).BeginInit();
+            this.SuspendLayout();
+            // 
             // lblTitulo
-            lblTitulo = new Label();
-            lblTitulo.Text = "👥 GERENCIAR USUÁRIOS";
-            lblTitulo.Font = new Font("Segoe UI", 16, FontStyle.Bold);
-            lblTitulo.ForeColor = Color.FromArgb(220, 53, 69);
-            lblTitulo.Size = new Size(300, 30);
-            lblTitulo.Location = new Point(20, 20);
-            this.Controls.Add(lblTitulo);
-
+            // 
+            this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.lblTitulo.Location = new System.Drawing.Point(20, 20);
+            this.lblTitulo.Name = "lblTitulo";
+            this.lblTitulo.Size = new System.Drawing.Size(300, 30);
+            this.lblTitulo.TabIndex = 0;
+            this.lblTitulo.Text = "👥 GERENCIAR USUÁRIOS";
+            // 
             // groupBox1
-            groupBox1 = new GroupBox();
-            groupBox1.Text = "Lista de Usuários do Sistema";
-            groupBox1.Font = new Font("Segoe UI", 9, FontStyle.Bold);
-            groupBox1.Size = new Size(850, 350);
-            groupBox1.Location = new Point(20, 60);
-            this.Controls.Add(groupBox1);
-
+            // 
+            this.groupBox1.Controls.Add(this.dataGridViewUsuarios);
+            this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.groupBox1.Location = new System.Drawing.Point(20, 60);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(850, 350);
+            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Lista de Usuários do Sistema";
+            // 
             // dataGridViewUsuarios
-            dataGridViewUsuarios = new DataGridView();
-            dataGridViewUsuarios.Size = new Size(810, 300);
-            dataGridViewUsuarios.Location = new Point(20, 25);
-            dataGridViewUsuarios.ReadOnly = true;
-            dataGridViewUsuarios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewUsuarios.RowHeadersVisible = false;
-            dataGridViewUsuarios.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewUsuarios.BackgroundColor = Color.White;
+            // 
+            this.dataGridViewUsuarios.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewUsuarios.BackgroundColor = System.Drawing.Color.White;
+            this.dataGridViewUsuarios.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewUsuarios.Location = new System.Drawing.Point(20, 25);
+            this.dataGridViewUsuarios.Name = "dataGridViewUsuarios";
+            this.dataGridViewUsuarios.ReadOnly = true;
+            this.dataGridViewUsuarios.RowHeadersVisible = false;
+            this.dataGridViewUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridViewUsuarios.Size = new System.Drawing.Size(810, 300);
+            this.dataGridViewUsuarios.TabIndex = 0;
+            // 
+            // btnAdicionar
+            // 
+            this.btnAdicionar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.btnAdicionar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdicionar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnAdicionar.ForeColor = System.Drawing.Color.White;
+            this.btnAdicionar.Location = new System.Drawing.Point(450, 430);
+            this.btnAdicionar.Name = "btnAdicionar";
+            this.btnAdicionar.Size = new System.Drawing.Size(140, 40);
+            this.btnAdicionar.TabIndex = 2;
+            this.btnAdicionar.Text = "➕ ADICIONAR";
+            this.btnAdicionar.UseVisualStyleBackColor = false;
+            this.btnAdicionar.Click += new System.EventHandler(this.btnAdicionar_Click);
+            // 
+            // btnEditar
+            // 
+            this.btnEditar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
+            this.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEditar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnEditar.ForeColor = System.Drawing.Color.Black;
+            this.btnEditar.Location = new System.Drawing.Point(600, 430);
+            this.btnEditar.Name = "btnEditar";
+            this.btnEditar.Size = new System.Drawing.Size(140, 40);
+            this.btnEditar.TabIndex = 3;
+            this.btnEditar.Text = "✏️ EDITAR";
+            this.btnEditar.UseVisualStyleBackColor = false;
+            this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
+            // 
+            // btnDesativar
+            // 
+            this.btnDesativar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.btnDesativar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDesativar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnDesativar.ForeColor = System.Drawing.Color.White;
+            this.btnDesativar.Location = new System.Drawing.Point(750, 430);
+            this.btnDesativar.Name = "btnDesativar";
+            this.btnDesativar.Size = new System.Drawing.Size(140, 40);
+            this.btnDesativar.TabIndex = 4;
+            this.btnDesativar.Text = "🚫 DESATIVAR";
+            this.btnDesativar.UseVisualStyleBackColor = false;
+            this.btnDesativar.Click += new System.EventHandler(this.btnDesativar_Click);
+            // 
+            // btnFechar
+            // 
+            this.btnFechar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.btnFechar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnFechar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnFechar.ForeColor = System.Drawing.Color.White;
+            this.btnFechar.Location = new System.Drawing.Point(750, 430);
+            this.btnFechar.Name = "btnFechar";
+            this.btnFechar.Size = new System.Drawing.Size(120, 40);
+            this.btnFechar.TabIndex = 5;
+            this.btnFechar.Text = "🔙 VOLTAR";
+            this.btnFechar.UseVisualStyleBackColor = false;
+            this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
+            // 
+            // FormGerenciarUsuarios
+            // 
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(900, 500);
+            this.Controls.Add(this.lblTitulo);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.btnAdicionar);
+            this.Controls.Add(this.btnEditar);
+            this.Controls.Add(this.btnDesativar);
+            this.Controls.Add(this.btnFechar);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.Name = "FormGerenciarUsuarios";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "👥 Gerenciar Usuários - Lan House System";
+            this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewUsuarios)).EndInit();
+            this.ResumeLayout(false);
 
-            // Configurar colunas
+        }
+
+        private void CarregarUsuarios()
+        {
+            dataGridViewUsuarios.Columns.Clear();
+
             dataGridViewUsuarios.Columns.Add("ID", "ID");
             dataGridViewUsuarios.Columns.Add("Nome", "NOME COMPLETO");
             dataGridViewUsuarios.Columns.Add("Email", "EMAIL");
             dataGridViewUsuarios.Columns.Add("Tipo", "TIPO DE USUÁRIO");
             dataGridViewUsuarios.Columns.Add("Status", "STATUS");
 
-            groupBox1.Controls.Add(dataGridViewUsuarios);
-
-            // btnAdicionar
-            btnAdicionar = new Button();
-            btnAdicionar.Text = "➕ ADICIONAR";
-            btnAdicionar.Size = new Size(140, 40);
-            btnAdicionar.Location = new Point(450, 430);
-            btnAdicionar.BackColor = Color.FromArgb(40, 167, 69);
-            btnAdicionar.ForeColor = Color.White;
-            btnAdicionar.FlatStyle = FlatStyle.Flat;
-            btnAdicionar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnAdicionar.Click += btnAdicionar_Click;
-            this.Controls.Add(btnAdicionar);
-
-            // btnEditar
-            btnEditar = new Button();
-            btnEditar.Text = "✏️ EDITAR";
-            btnEditar.Size = new Size(140, 40);
-            btnEditar.Location = new Point(600, 430);
-            btnEditar.BackColor = Color.FromArgb(255, 193, 7);
-            btnEditar.ForeColor = Color.Black;
-            btnEditar.FlatStyle = FlatStyle.Flat;
-            btnEditar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnEditar.Click += btnEditar_Click;
-            this.Controls.Add(btnEditar);
-
-            // btnDesativar
-            btnDesativar = new Button();
-            btnDesativar.Text = "🚫 DESATIVAR";
-            btnDesativar.Size = new Size(140, 40);
-            btnDesativar.Location = new Point(750, 430);
-            btnDesativar.BackColor = Color.FromArgb(220, 53, 69);
-            btnDesativar.ForeColor = Color.White;
-            btnDesativar.FlatStyle = FlatStyle.Flat;
-            btnDesativar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnDesativar.Click += btnDesativar_Click;
-            this.Controls.Add(btnDesativar);
-
-            // btnFechar
-            btnFechar = new Button();
-            btnFechar.Text = "🔙 VOLTAR";
-            btnFechar.Size = new Size(120, 40);
-            btnFechar.Location = new Point(750, 430);
-            btnFechar.BackColor = Color.FromArgb(108, 117, 125);
-            btnFechar.ForeColor = Color.White;
-            btnFechar.FlatStyle = FlatStyle.Flat;
-            btnFechar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnFechar.Click += btnFechar_Click;
-            this.Controls.Add(btnFechar);
-        }
-
-        private void CarregarUsuarios()
-        {
             dataGridViewUsuarios.Rows.Clear();
 
-            // Usuários de exemplo
             dataGridViewUsuarios.Rows.Add(1, "Administrador Principal", "admin@lanhouse.com", "👑 ADMINISTRADOR", "🟢 ATIVO");
             dataGridViewUsuarios.Rows.Add(2, "João Silva", "joao.silva@email.com", "👤 USUÁRIO", "🟢 ATIVO");
             dataGridViewUsuarios.Rows.Add(3, "Maria Santos", "maria.santos@email.com", "👤 USUÁRIO", "🟢 ATIVO");
             dataGridViewUsuarios.Rows.Add(4, "Carlos Oliveira", "carlos@email.com", "👑 ADMINISTRADOR", "🔴 INATIVO");
 
-            // Colorir status e tipo
             foreach (DataGridViewRow row in dataGridViewUsuarios.Rows)
             {
                 if (row.Cells["Status"].Value.ToString().Contains("ATIVO"))

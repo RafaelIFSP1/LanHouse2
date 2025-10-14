@@ -6,7 +6,7 @@ namespace LanHouseSystem
 {
     public static class Database
     {
-        public static string ConnectionString = @"Server=localhost\SQLEXPRESS;Database=LanHouseDB;Integrated Security=true;TrustServerCertificate=true;";
+        public static string ConnectionString = @"Data Source=sqlexpress;Initial Catalog=CJ3027287PR2;User ID=aluno;Password=aluno;";
 
         public static bool TestarConexao()
         {

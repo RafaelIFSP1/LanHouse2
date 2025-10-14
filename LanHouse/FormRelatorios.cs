@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace LanHouseSystem
+namespace lanhause
 {
     public partial class FormRelatorios : Form
     {
@@ -21,6 +21,7 @@ namespace LanHouseSystem
         public FormRelatorios()
         {
             InitializeComponent();
+            CarregarRelatorioExemplo();
         }
 
         private void InitializeComponent()
@@ -106,7 +107,6 @@ namespace LanHouseSystem
             this.dateTimePickerInicio.Name = "dateTimePickerInicio";
             this.dateTimePickerInicio.Size = new System.Drawing.Size(120, 23);
             this.dateTimePickerInicio.TabIndex = 3;
-            this.dateTimePickerInicio.Value = new System.DateTime(2025, 9, 7, 12, 42, 28, 369);
             // 
             // lblAte
             // 
@@ -124,7 +124,6 @@ namespace LanHouseSystem
             this.dateTimePickerFim.Name = "dateTimePickerFim";
             this.dateTimePickerFim.Size = new System.Drawing.Size(120, 23);
             this.dateTimePickerFim.TabIndex = 5;
-            this.dateTimePickerFim.Value = new System.DateTime(2025, 10, 7, 12, 42, 28, 372);
             // 
             // dataGridViewRelatorio
             // 
@@ -149,6 +148,7 @@ namespace LanHouseSystem
             this.btnGerarRelatorio.TabIndex = 3;
             this.btnGerarRelatorio.Text = "📊 GERAR RELATÓRIO";
             this.btnGerarRelatorio.UseVisualStyleBackColor = false;
+            this.btnGerarRelatorio.Click += new System.EventHandler(this.btnGerarRelatorio_Click);
             // 
             // btnExportar
             // 
@@ -162,6 +162,7 @@ namespace LanHouseSystem
             this.btnExportar.TabIndex = 4;
             this.btnExportar.Text = "📤 EXPORTAR EXCEL";
             this.btnExportar.UseVisualStyleBackColor = false;
+            this.btnExportar.Click += new System.EventHandler(this.btnExportar_Click);
             // 
             // btnFechar
             // 
@@ -175,6 +176,7 @@ namespace LanHouseSystem
             this.btnFechar.TabIndex = 5;
             this.btnFechar.Text = "🔙 VOLTAR";
             this.btnFechar.UseVisualStyleBackColor = false;
+            this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
             // 
             // FormRelatorios
             // 
@@ -201,7 +203,6 @@ namespace LanHouseSystem
         {
             dataGridViewRelatorio.Columns.Clear();
 
-            // Exemplo de relatório de uso
             dataGridViewRelatorio.Columns.Add("Computador", "COMPUTADOR");
             dataGridViewRelatorio.Columns.Add("HorasUso", "HORAS DE USO");
             dataGridViewRelatorio.Columns.Add("Reservas", "TOTAL RESERVAS");

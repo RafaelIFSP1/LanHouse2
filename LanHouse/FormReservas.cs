@@ -2,11 +2,10 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace LanHouseSystem
+namespace lanhause
 {
     public partial class FormReservas : Form
     {
-        private Usuario usuario;
         private DataGridView dataGridViewReservas;
         private Button btnNovaReserva;
         private Button btnCancelarReserva;
@@ -14,10 +13,9 @@ namespace LanHouseSystem
         private Label lblTitulo;
         private GroupBox groupBox1;
 
-        public FormReservas(Usuario usuarioLogado)
+        public FormReservas()
         {
             InitializeComponent();
-            usuario = usuarioLogado;
             CarregarReservas();
         }
 
@@ -29,11 +27,6 @@ namespace LanHouseSystem
             this.btnNovaReserva = new System.Windows.Forms.Button();
             this.btnCancelarReserva = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReservas)).BeginInit();
             this.SuspendLayout();
@@ -63,12 +56,7 @@ namespace LanHouseSystem
             // 
             this.dataGridViewReservas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewReservas.BackgroundColor = System.Drawing.Color.White;
-            this.dataGridViewReservas.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn2,
-            this.dataGridViewTextBoxColumn3,
-            this.dataGridViewTextBoxColumn4,
-            this.dataGridViewTextBoxColumn5});
+            this.dataGridViewReservas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewReservas.Location = new System.Drawing.Point(20, 25);
             this.dataGridViewReservas.Name = "dataGridViewReservas";
             this.dataGridViewReservas.ReadOnly = true;
@@ -89,6 +77,7 @@ namespace LanHouseSystem
             this.btnNovaReserva.TabIndex = 2;
             this.btnNovaReserva.Text = "➕ NOVA RESERVA";
             this.btnNovaReserva.UseVisualStyleBackColor = false;
+            this.btnNovaReserva.Click += new System.EventHandler(this.btnNovaReserva_Click);
             // 
             // btnCancelarReserva
             // 
@@ -102,6 +91,7 @@ namespace LanHouseSystem
             this.btnCancelarReserva.TabIndex = 3;
             this.btnCancelarReserva.Text = "❌ CANCELAR RESERVA";
             this.btnCancelarReserva.UseVisualStyleBackColor = false;
+            this.btnCancelarReserva.Click += new System.EventHandler(this.btnCancelarReserva_Click);
             // 
             // btnFechar
             // 
@@ -115,37 +105,7 @@ namespace LanHouseSystem
             this.btnFechar.TabIndex = 4;
             this.btnFechar.Text = "🔙 VOLTAR";
             this.btnFechar.UseVisualStyleBackColor = false;
-            this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click_1);
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.HeaderText = "COMPUTADOR";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.HeaderText = "DATA INÍCIO";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.HeaderText = "DATA FIM";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "STATUS";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn5
-            // 
-            this.dataGridViewTextBoxColumn5.HeaderText = "VALOR";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
-            this.dataGridViewTextBoxColumn5.ReadOnly = true;
+            this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
             // 
             // FormReservas
             // 
@@ -169,14 +129,20 @@ namespace LanHouseSystem
 
         private void CarregarReservas()
         {
+            dataGridViewReservas.Columns.Clear();
+
+            dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
+            dataGridViewReservas.Columns.Add("DataInicio", "DATA INÍCIO");
+            dataGridViewReservas.Columns.Add("DataFim", "DATA FIM");
+            dataGridViewReservas.Columns.Add("Status", "STATUS");
+            dataGridViewReservas.Columns.Add("Valor", "VALOR");
+
             dataGridViewReservas.Rows.Clear();
 
-            // Reservas de exemplo
             dataGridViewReservas.Rows.Add("PC-001", "07/01/2025 14:00", "07/01/2025 16:00", "🟢 ATIVA", "R$ 10,00");
             dataGridViewReservas.Rows.Add("PC-003", "06/01/2025 10:00", "06/01/2025 12:00", "🔵 CONCLUÍDA", "R$ 6,00");
             dataGridViewReservas.Rows.Add("PC-004", "08/01/2025 18:00", "08/01/2025 20:00", "🟢 ATIVA", "R$ 10,00");
 
-            // Colorir status
             foreach (DataGridViewRow row in dataGridViewReservas.Rows)
             {
                 if (row.Cells["Status"].Value.ToString().Contains("ATIVA"))
@@ -188,9 +154,11 @@ namespace LanHouseSystem
 
         private void btnNovaReserva_Click(object sender, EventArgs e)
         {
-            FormComputadores formComputadores = new FormComputadores();
-            formComputadores.ShowDialog();
-            CarregarReservas(); // Recarrega após possível nova reserva
+            MessageBox.Show("➕ Funcionalidade: Nova Reserva\n\n" +
+                          "Abrir formulário para criar nova reserva...",
+                          "Nova Reserva",
+                          MessageBoxButtons.OK,
+                          MessageBoxIcon.Information);
         }
 
         private void btnCancelarReserva_Click(object sender, EventArgs e)
@@ -237,17 +205,6 @@ namespace LanHouseSystem
         private void btnFechar_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-
-        private void btnFechar_Click_1(object sender, EventArgs e)
-        {
-
         }
     }
 }

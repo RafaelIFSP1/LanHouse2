@@ -1,6 +1,6 @@
-﻿namespace LanHouseSystem
+﻿namespace lanhause
 {
-    partial class FormCadastroUsuario
+    partial class FormCadastro
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -40,7 +40,7 @@
             this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
             this.lblTitulo.Location = new System.Drawing.Point(80, 20);
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(240, 26);
+            this.lblTitulo.Size = new System.Drawing.Size(230, 26);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Cadastro de Usuário";
             // 
@@ -50,7 +50,7 @@
             this.lblNome.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNome.Location = new System.Drawing.Point(30, 30);
             this.lblNome.Name = "lblNome";
-            this.lblNome.Size = new System.Drawing.Size(45, 15);
+            this.lblNome.Size = new System.Drawing.Size(44, 15);
             this.lblNome.TabIndex = 1;
             this.lblNome.Text = "Nome:";
             // 
@@ -105,10 +105,9 @@
             // lblConfirmarSenha
             // 
             this.lblConfirmarSenha.AutoSize = true;
-            this.lblConfirmarSenha.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblConfirmarSenha.Location = new System.Drawing.Point(30, 135);
             this.lblConfirmarSenha.Name = "lblConfirmarSenha";
-            this.lblConfirmarSenha.Size = new System.Drawing.Size(94, 15);
+            this.lblConfirmarSenha.Size = new System.Drawing.Size(86, 13);
             this.lblConfirmarSenha.TabIndex = 7;
             this.lblConfirmarSenha.Text = "Confirmar senha:";
             // 
@@ -183,8 +182,9 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(380, 240);
             this.panel1.TabIndex = 8;
+            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
-            // FormCadastroUsuario
+            // FormCadastro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -195,9 +195,10 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FormCadastroUsuario";
+            this.Name = "FormCadastro";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Cadastro de Usuário - LanHouse System";
+            this.Load += new System.EventHandler(this.FormCadastro_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
