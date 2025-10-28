@@ -1,173 +1,158 @@
 ﻿using System;
-using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
+using System.IO;
 using System.Windows.Forms;
 
-namespace LanHouseSystem
+namespace lanhause
 {
-    public class DatabaseHelper
+    public static class DatabaseHelper
     {
-        private string connectionString = @"Data Source=sqlexpress;Initial Catalog=LanHouseDB;User ID=aluno;Password=aluno;";
+        private static string databasePath = Path.Combine(Application.StartupPath, "lanhouse.db");
+        private static string connectionString = $"Data Source={databasePath};Version=3;";
 
-        public DataTable GetComputadoresDisponiveis()
+        public static void InitializeDatabase()
         {
-            DataTable dt = new DataTable();
-            try
+            if (!File.Exists(databasePath))
             {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                SQLiteConnection.CreateFile(databasePath);
+            }
+
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                // Tabela de computadores
+                string createComputadoresTable = @"
+                    CREATE TABLE IF NOT EXISTS Computadores (
+                        Id TEXT PRIMARY KEY,
+                        Nome TEXT NOT NULL,
+                        Processador TEXT NOT NULL,
+                        RAM TEXT NOT NULL,
+                        Status TEXT NOT NULL,
+                        PrecoHora DECIMAL(10,2) NOT NULL DEFAULT 5.00
+                    )";
+
+                // Tabela de reservas
+                string createReservasTable = @"
+                    CREATE TABLE IF NOT EXISTS Reservas (
+                        Id TEXT PRIMARY KEY,
+                        ComputadorId TEXT NOT NULL,
+                        ClienteNome TEXT NOT NULL,
+                        ClienteEmail TEXT NOT NULL,
+                        DataReserva DATE NOT NULL,
+                        HoraInicio TIME NOT NULL,
+                        HoraFim TIME NOT NULL,
+                        Status TEXT NOT NULL,
+                        ValorTotal DECIMAL(10,2) NOT NULL,
+                        DataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (ComputadorId) REFERENCES Computadores(Id)
+                    )";
+
+                // Tabela de uso/horas (NOVA TABELA)
+                string createUsoTable = @"
+                    CREATE TABLE IF NOT EXISTS UsoComputadores (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ComputadorId TEXT NOT NULL,
+                        DataUso DATE NOT NULL,
+                        HorasUtilizadas DECIMAL(5,2) NOT NULL,
+                        ValorGerado DECIMAL(10,2) NOT NULL,
+                        FOREIGN KEY (ComputadorId) REFERENCES Computadores(Id)
+                    )";
+
+                using (var command = new SQLiteCommand(createComputadoresTable, connection))
                 {
-                    conn.Open();
-                    string query = "SELECT * FROM Computadores WHERE Disponivel = 1";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    da.Fill(dt);
+                    command.ExecuteNonQuery();
                 }
+
+                using (var command = new SQLiteCommand(createReservasTable, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                using (var command = new SQLiteCommand(createUsoTable, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                // Inserir computadores exemplo
+                InserirComputadoresExemplo(connection);
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao carregar computadores: {ex.Message}");
-            }
-            return dt;
         }
 
-        public DataTable GetClientes()
+        private static void InserirComputadoresExemplo(SQLiteConnection connection)
         {
-            DataTable dt = new DataTable();
-            try
+            string checkComputadores = "SELECT COUNT(*) FROM Computadores";
+            using (var command = new SQLiteCommand(checkComputadores, connection))
             {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                long count = (long)command.ExecuteScalar();
+                if (count == 0)
                 {
-                    conn.Open();
-                    string query = "SELECT Id, Nome, CPF, Telefone FROM Clientes";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    da.Fill(dt);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao carregar clientes: {ex.Message}");
-            }
-            return dt;
-        }
+                    string insertComputadores = @"
+                        INSERT INTO Computadores (Id, Nome, Processador, RAM, Status, PrecoHora) VALUES
+                        ('PC-001', 'Computador 1', 'Intel i5', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
+                        ('PC-002', 'Computador 2', 'Intel i7', '16GB DDR4', '🟢 DISPONÍVEL', 7.00),
+                        ('PC-003', 'Computador 3', 'AMD Ryzen 5', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
+                        ('PC-004', 'Computador 4', 'Intel i3', '4GB DDR4', '🔴 EM MANUTENÇÃO', 3.00),
+                        ('PC-005', 'Computador 5', 'Intel i5', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
+                        ('PC-006', 'Computador 6', 'AMD Ryzen 7', '16GB DDR4', '🟢 DISPONÍVEL', 8.00)";
 
-        public bool IniciarSessao(int clienteId, int computadorId)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    // Inicia sessão
-                    string query = @"INSERT INTO Sessoes (ClienteId, ComputadorId, DataInicio, Ativo) 
-                                   VALUES (@ClienteId, @ComputadorId, GETDATE(), 1);
-                                   UPDATE Computadores SET Disponivel = 0 WHERE Id = @ComputadorId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (var commandInsert = new SQLiteCommand(insertComputadores, connection))
                     {
-                        cmd.Parameters.AddWithValue("@ClienteId", clienteId);
-                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-
-                        return cmd.ExecuteNonQuery() > 0;
+                        commandInsert.ExecuteNonQuery();
                     }
                 }
             }
-            catch (Exception ex)
+        }
+
+        // Método para registrar uso do computador
+        public static void RegistrarUsoComputador(string computadorId, DateTime dataUso, decimal horas, decimal valor)
+        {
+            using (var connection = new SQLiteConnection(connectionString))
             {
-                MessageBox.Show($"Erro ao iniciar sessão: {ex.Message}");
-                return false;
+                connection.Open();
+                string query = @"
+                    INSERT INTO UsoComputadores (ComputadorId, DataUso, HorasUtilizadas, ValorGerado)
+                    VALUES (@ComputadorId, @DataUso, @HorasUtilizadas, @ValorGerado)";
+
+                using (var command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ComputadorId", computadorId);
+                    command.Parameters.AddWithValue("@DataUso", dataUso.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@HorasUtilizadas", horas);
+                    command.Parameters.AddWithValue("@ValorGerado", valor);
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
-        public bool FinalizarSessao(int sessaoId, int computadorId)
+        // Método para obter relatório de uso CORRIGIDO
+        public static SQLiteDataReader ObterRelatorioUso()
         {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
+            var connection = GetConnection();
+            connection.Open();
 
-                    // Calcula valor
-                    string queryValor = @"SELECT DATEDIFF(MINUTE, DataInicio, GETDATE()) * (PrecoHora/60.0)
-                                        FROM Sessoes s 
-                                        INNER JOIN Computadores c ON s.ComputadorId = c.Id 
-                                        WHERE s.Id = @SessaoId";
+            string query = @"
+        SELECT 
+            c.Nome as ComputadorNome,
+            c.PrecoHora,
+            COUNT(r.Id) as TotalReservas,
+            SUM(CASE WHEN r.Status != '❌ CANCELADA' THEN r.ValorTotal ELSE 0 END) as ReceitaTotal,
+            SUM(CASE WHEN r.Status != '❌ CANCELADA' THEN 
+                (julianday(r.HoraFim) - julianday(r.HoraInicio)) * 24 
+                ELSE 0 END) as TotalHorasUtilizadas
+        FROM Computadores c
+        LEFT JOIN Reservas r ON c.Id = r.ComputadorId
+        GROUP BY c.Id, c.Nome, c.PrecoHora
+        ORDER BY c.Nome";
 
-                    SqlCommand cmdValor = new SqlCommand(queryValor, conn);
-                    cmdValor.Parameters.AddWithValue("@SessaoId", sessaoId);
-                    decimal valorTotal = Convert.ToDecimal(cmdValor.ExecuteScalar());
-
-                    // Finaliza sessão
-                    string query = @"UPDATE Sessoes SET DataFim = GETDATE(), ValorTotal = @ValorTotal, Ativo = 0 
-                                   WHERE Id = @SessaoId;
-                                   UPDATE Computadores SET Disponivel = 1 WHERE Id = @ComputadorId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SessaoId", sessaoId);
-                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        cmd.Parameters.AddWithValue("@ValorTotal", valorTotal);
-
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao finalizar sessão: {ex.Message}");
-                return false;
-            }
+            var command = new SQLiteCommand(query, connection);
+            return command.ExecuteReader();
         }
 
-        public DataTable GetSessoesAtivas()
+
+        public static SQLiteConnection GetConnection()
         {
-            DataTable dt = new DataTable();
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    string query = @"SELECT s.Id, c.Nome as Cliente, pc.Nome as Computador, s.DataInicio,
-                                   DATEDIFF(MINUTE, s.DataInicio, GETDATE()) as MinutosDecorridos
-                                   FROM Sessoes s
-                                   INNER JOIN Clientes c ON s.ClienteId = c.Id
-                                   INNER JOIN Computadores pc ON s.ComputadorId = pc.Id
-                                   WHERE s.Ativo = 1";
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                    da.Fill(dt);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao carregar sessões: {ex.Message}");
-            }
-            return dt;
-        }
-
-        public bool CadastrarCliente(string nome, string cpf, string telefone, string email)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    string query = "INSERT INTO Clientes (Nome, CPF, Telefone, Email) VALUES (@Nome, @CPF, @Telefone, @Email)";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Nome", nome);
-                        cmd.Parameters.AddWithValue("@CPF", cpf);
-                        cmd.Parameters.AddWithValue("@Telefone", telefone);
-                        cmd.Parameters.AddWithValue("@Email", email);
-
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao cadastrar cliente: {ex.Message}");
-                return false;
-            }
+            return new SQLiteConnection(connectionString);
         }
     }
 }

@@ -79,19 +79,28 @@ namespace lanhause
                     {
                         if (reader.Read())
                         {
-                            // CORREÇÃO: Use GetInt32 com o nome correto da coluna
                             int id = reader.GetInt32(reader.GetOrdinal("Id"));
                             string nome = reader["Nome"].ToString();
                             string senhaBanco = reader["Senha"].ToString();
                             string tipoUsuario = reader["TipoUsuario"].ToString();
 
-                            // CORREÇÃO: Compare as senhas corretamente
                             if (senha == senhaBanco)
                             {
                                 UsuarioLogado = nome;
                                 EmailLogado = email;
-                                IsAdmin = (tipoUsuario.ToLower() == "admin");
+
+                                // CORREÇÃO AQUI: Verificar se é "Administrador" (com A maiúsculo)
+                                IsAdmin = (tipoUsuario.ToLower() == "administrador");
                                 UsuarioId = id;
+
+                                // Mostrar mensagem de sucesso
+                                MessageBox.Show($"✅ Login realizado com sucesso!\n\n" +
+                                              $"Bem-vindo, {UsuarioLogado}!\n" +
+                                              $"Tipo: {(IsAdmin ? "Administrador" : "Usuário Comum")}",
+                                              "Login Bem-sucedido",
+                                              MessageBoxButtons.OK,
+                                              MessageBoxIcon.Information);
+
                                 return true;
                             }
                         }
@@ -117,14 +126,14 @@ namespace lanhause
         private void linkCadastrar_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             FormCadastro formCadastro = new FormCadastro();
-            formCadastro.ShowDialog(); // Remove Hide/Show para simplificar
+            formCadastro.ShowDialog();
         }
 
         private void FormLogin_Load(object sender, EventArgs e)
         {
-            // Para teste rápido, preenche automaticamente
-            // txtEmail.Text = "admin@email.com";
-            // txtSenha.Text = "123456";
+            // Para teste rápido, preenche automaticamente com o email do admin
+            txtEmail.Text = "admin@gmail.com";
+            txtSenha.Text = "admin@123456";
             txtEmail.Focus();
         }
     }

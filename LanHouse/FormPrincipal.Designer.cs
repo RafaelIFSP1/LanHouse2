@@ -17,7 +17,6 @@
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormPrincipal));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.arquivoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sairToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -27,6 +26,7 @@
             this.ajudaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sobreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelCabecalho = new System.Windows.Forms.Panel();
+            this.lblAdminBadge = new System.Windows.Forms.Label();
             this.lblTipoUsuario = new System.Windows.Forms.Label();
             this.lblBemVindo = new System.Windows.Forms.Label();
             this.panelBotoes = new System.Windows.Forms.Panel();
@@ -81,14 +81,14 @@
             // cadastrarUsuarioToolStripMenuItem
             // 
             this.cadastrarUsuarioToolStripMenuItem.Name = "cadastrarUsuarioToolStripMenuItem";
-            this.cadastrarUsuarioToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.cadastrarUsuarioToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.cadastrarUsuarioToolStripMenuItem.Text = "Cadastrar Usuário";
             this.cadastrarUsuarioToolStripMenuItem.Click += new System.EventHandler(this.cadastrarUsuarioToolStripMenuItem_Click);
             // 
             // gerenciarUsuariosToolStripMenuItem
             // 
             this.gerenciarUsuariosToolStripMenuItem.Name = "gerenciarUsuariosToolStripMenuItem";
-            this.gerenciarUsuariosToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.gerenciarUsuariosToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.gerenciarUsuariosToolStripMenuItem.Text = "Gerenciar Usuários";
             this.gerenciarUsuariosToolStripMenuItem.Click += new System.EventHandler(this.gerenciarUsuariosToolStripMenuItem_Click);
             // 
@@ -111,6 +111,7 @@
             // panelCabecalho
             // 
             this.panelCabecalho.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.panelCabecalho.Controls.Add(this.lblAdminBadge);
             this.panelCabecalho.Controls.Add(this.lblTipoUsuario);
             this.panelCabecalho.Controls.Add(this.lblBemVindo);
             this.panelCabecalho.Dock = System.Windows.Forms.DockStyle.Top;
@@ -119,6 +120,21 @@
             this.panelCabecalho.Size = new System.Drawing.Size(1000, 80);
             this.panelCabecalho.TabIndex = 1;
             // 
+            // lblAdminBadge
+            // 
+            this.lblAdminBadge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblAdminBadge.AutoSize = true;
+            this.lblAdminBadge.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.lblAdminBadge.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAdminBadge.ForeColor = System.Drawing.Color.White;
+            this.lblAdminBadge.Location = new System.Drawing.Point(179, 15);
+            this.lblAdminBadge.Name = "lblAdminBadge";
+            this.lblAdminBadge.Padding = new System.Windows.Forms.Padding(5, 2, 5, 2);
+            this.lblAdminBadge.Size = new System.Drawing.Size(134, 19);
+            this.lblAdminBadge.TabIndex = 2;
+            this.lblAdminBadge.Text = "👑 ADMINISTRADOR";
+            this.lblAdminBadge.Visible = false;
+            // 
             // lblTipoUsuario
             // 
             this.lblTipoUsuario.AutoSize = true;
@@ -126,7 +142,7 @@
             this.lblTipoUsuario.ForeColor = System.Drawing.Color.White;
             this.lblTipoUsuario.Location = new System.Drawing.Point(30, 45);
             this.lblTipoUsuario.Name = "lblTipoUsuario";
-            this.lblTipoUsuario.Size = new System.Drawing.Size(47, 20);
+            this.lblTipoUsuario.Size = new System.Drawing.Size(46, 20);
             this.lblTipoUsuario.TabIndex = 1;
             this.lblTipoUsuario.Text = "Tipo: ";
             // 
@@ -170,7 +186,7 @@
             this.btnReservas.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.btnReservas.Size = new System.Drawing.Size(200, 40);
             this.btnReservas.TabIndex = 3;
-            this.btnReservas.Text = "   Reservas";
+            this.btnReservas.Text = "   📅 Reservas";
             this.btnReservas.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnReservas.UseVisualStyleBackColor = false;
             this.btnReservas.Click += new System.EventHandler(this.btnReservas_Click);
@@ -191,7 +207,7 @@
             this.btnComputadores.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.btnComputadores.Size = new System.Drawing.Size(200, 40);
             this.btnComputadores.TabIndex = 2;
-            this.btnComputadores.Text = "   Computadores";
+            this.btnComputadores.Text = "   💻 Computadores";
             this.btnComputadores.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnComputadores.UseVisualStyleBackColor = false;
             this.btnComputadores.Click += new System.EventHandler(this.btnComputadores_Click);
@@ -212,7 +228,7 @@
             this.btnRelatorios.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.btnRelatorios.Size = new System.Drawing.Size(200, 40);
             this.btnRelatorios.TabIndex = 1;
-            this.btnRelatorios.Text = "   Relatórios";
+            this.btnRelatorios.Text = "   📊 Relatórios";
             this.btnRelatorios.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnRelatorios.UseVisualStyleBackColor = false;
             this.btnRelatorios.Click += new System.EventHandler(this.btnRelatorios_Click);
@@ -233,7 +249,7 @@
             this.btnGerenciarUsuarios.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.btnGerenciarUsuarios.Size = new System.Drawing.Size(200, 40);
             this.btnGerenciarUsuarios.TabIndex = 0;
-            this.btnGerenciarUsuarios.Text = "   Gerenciar Usuários";
+            this.btnGerenciarUsuarios.Text = "   👥 Gerenciar Usuários";
             this.btnGerenciarUsuarios.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnGerenciarUsuarios.UseVisualStyleBackColor = false;
             this.btnGerenciarUsuarios.Click += new System.EventHandler(this.btnGerenciarUsuarios_Click);
@@ -282,5 +298,6 @@
         private System.Windows.Forms.Button btnRelatorios;
         private System.Windows.Forms.Button btnComputadores;
         private System.Windows.Forms.Button btnReservas;
+        private System.Windows.Forms.Label lblAdminBadge;
     }
 }

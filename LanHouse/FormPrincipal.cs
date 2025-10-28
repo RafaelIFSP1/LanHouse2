@@ -15,6 +15,9 @@ namespace lanhause
     {
         public FormPrincipal()
         {
+            // Inicializar banco de dados
+            DatabaseHelper.InitializeDatabase();
+
             InitializeComponent();
             this.DoubleBuffered = true;
         }
@@ -23,21 +26,45 @@ namespace lanhause
         {
             lblBemVindo.Text = $"Bem-vindo, {FormLogin.UsuarioLogado}!";
 
+            // MOSTRAR "Administrador" SE FOR ADMIN, SENÃO "Usuário Comum"
             string tipoUsuario = FormLogin.IsAdmin ? "Administrador" : "Usuário Comum";
             lblTipoUsuario.Text = $"Tipo: {tipoUsuario}";
 
             AplicarTemaUsuario();
+            ConfigurarPermissoesUsuario();
         }
 
         private void AplicarTemaUsuario()
         {
             if (FormLogin.IsAdmin)
             {
-                panelCabecalho.BackColor = Color.FromArgb(0, 122, 204);
+                // Tema para Administrador - Azul mais escuro
+                panelCabecalho.BackColor = Color.FromArgb(0, 91, 158); // Azul escuro
+                menuStrip1.BackColor = Color.FromArgb(30, 30, 30); // Preto mais escuro
             }
             else
             {
-                panelCabecalho.BackColor = Color.FromArgb(16, 110, 190);
+                // Tema para Usuário Comum - Azul normal
+                panelCabecalho.BackColor = Color.FromArgb(0, 122, 204); // Azul padrão
+                menuStrip1.BackColor = Color.FromArgb(45, 45, 48); // Cinza escuro padrão
+            }
+        }
+
+        private void ConfigurarPermissoesUsuario()
+        {
+            if (!FormLogin.IsAdmin)
+            {
+                // OCULTAR funcionalidades administrativas para usuários comuns
+                gerenciarUsuariosToolStripMenuItem.Visible = false;
+                btnGerenciarUsuarios.Visible = false;
+                btnRelatorios.Visible = false; // ADICIONE ESTA LINHA
+            }
+            else
+            {
+                // Administrador tem acesso a tudo
+                gerenciarUsuariosToolStripMenuItem.Visible = true;
+                btnGerenciarUsuarios.Visible = true;
+                btnRelatorios.Visible = true; // ADICIONE ESTA LINHA (opcional, para clareza)
             }
         }
 
@@ -52,6 +79,14 @@ namespace lanhause
 
         private void cadastrarUsuarioToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Só permite cadastrar usuário se for administrador
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem cadastrar novos usuários!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             FormCadastro formCadastro = new FormCadastro();
             formCadastro.ShowDialog();
         }
@@ -91,6 +126,14 @@ namespace lanhause
 
         private void AbrirFormGerenciarUsuarios()
         {
+            // Só permite gerenciar usuários se for administrador
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem gerenciar usuários!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 FormGerenciarUsuarios form = new FormGerenciarUsuarios();

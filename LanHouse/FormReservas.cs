@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Data.SQLite;
+using System.Data;
 
 namespace lanhause
 {
-    public partial class FormReservas : Form
+    public class FormReservas : Form
     {
         private DataGridView dataGridViewReservas;
-        private Button btnNovaReserva;
-        private Button btnCancelarReserva;
-        private Button btnFechar;
+        private Button btnNovaReserva, btnEditarReserva, btnCancelarReserva, btnFechar, btnRelatorio;
         private Label lblTitulo;
         private GroupBox groupBox1;
 
@@ -21,186 +21,396 @@ namespace lanhause
 
         private void InitializeComponent()
         {
-            this.lblTitulo = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.dataGridViewReservas = new System.Windows.Forms.DataGridView();
-            this.btnNovaReserva = new System.Windows.Forms.Button();
-            this.btnCancelarReserva = new System.Windows.Forms.Button();
-            this.btnFechar = new System.Windows.Forms.Button();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReservas)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // lblTitulo
-            // 
-            this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(111)))), ((int)(((byte)(66)))), ((int)(((byte)(193)))));
-            this.lblTitulo.Location = new System.Drawing.Point(20, 20);
-            this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(300, 30);
-            this.lblTitulo.TabIndex = 0;
-            this.lblTitulo.Text = "📅 MINHAS RESERVAS";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.dataGridViewReservas);
-            this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.groupBox1.Location = new System.Drawing.Point(20, 60);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(750, 350);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Reservas Ativas e Histórico";
-            // 
-            // dataGridViewReservas
-            // 
-            this.dataGridViewReservas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridViewReservas.BackgroundColor = System.Drawing.Color.White;
-            this.dataGridViewReservas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewReservas.Location = new System.Drawing.Point(20, 25);
-            this.dataGridViewReservas.Name = "dataGridViewReservas";
-            this.dataGridViewReservas.ReadOnly = true;
-            this.dataGridViewReservas.RowHeadersVisible = false;
-            this.dataGridViewReservas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewReservas.Size = new System.Drawing.Size(710, 300);
-            this.dataGridViewReservas.TabIndex = 0;
-            // 
-            // btnNovaReserva
-            // 
-            this.btnNovaReserva.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
-            this.btnNovaReserva.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNovaReserva.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnNovaReserva.ForeColor = System.Drawing.Color.White;
-            this.btnNovaReserva.Location = new System.Drawing.Point(246, 430);
-            this.btnNovaReserva.Name = "btnNovaReserva";
-            this.btnNovaReserva.Size = new System.Drawing.Size(180, 40);
-            this.btnNovaReserva.TabIndex = 2;
-            this.btnNovaReserva.Text = "➕ NOVA RESERVA";
-            this.btnNovaReserva.UseVisualStyleBackColor = false;
-            this.btnNovaReserva.Click += new System.EventHandler(this.btnNovaReserva_Click);
-            // 
-            // btnCancelarReserva
-            // 
-            this.btnCancelarReserva.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.btnCancelarReserva.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancelarReserva.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnCancelarReserva.ForeColor = System.Drawing.Color.White;
-            this.btnCancelarReserva.Location = new System.Drawing.Point(432, 430);
-            this.btnCancelarReserva.Name = "btnCancelarReserva";
-            this.btnCancelarReserva.Size = new System.Drawing.Size(200, 40);
-            this.btnCancelarReserva.TabIndex = 3;
-            this.btnCancelarReserva.Text = "❌ CANCELAR RESERVA";
-            this.btnCancelarReserva.UseVisualStyleBackColor = false;
-            this.btnCancelarReserva.Click += new System.EventHandler(this.btnCancelarReserva_Click);
-            // 
-            // btnFechar
-            // 
-            this.btnFechar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
-            this.btnFechar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnFechar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnFechar.ForeColor = System.Drawing.Color.White;
-            this.btnFechar.Location = new System.Drawing.Point(638, 430);
-            this.btnFechar.Name = "btnFechar";
-            this.btnFechar.Size = new System.Drawing.Size(120, 40);
-            this.btnFechar.TabIndex = 4;
-            this.btnFechar.Text = "🔙 VOLTAR";
-            this.btnFechar.UseVisualStyleBackColor = false;
-            this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
-            // 
-            // FormReservas
-            // 
-            this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(788, 512);
-            this.Controls.Add(this.lblTitulo);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.btnNovaReserva);
-            this.Controls.Add(this.btnCancelarReserva);
-            this.Controls.Add(this.btnFechar);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            // Configuração básica do form
+            this.Text = "📅 Reservas - Lan House System";
+            this.Size = new Size(1000, 600);
+            this.BackColor = Color.White;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.Name = "FormReservas";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "📅 Minhas Reservas - Lan House System";
-            this.groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReservas)).EndInit();
-            this.ResumeLayout(false);
+            this.StartPosition = FormStartPosition.CenterScreen;
 
+            // Label título
+            lblTitulo = new Label();
+            lblTitulo.Text = "📅 GERENCIAR RESERVAS";
+            lblTitulo.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+            lblTitulo.ForeColor = Color.FromArgb(111, 66, 193);
+            lblTitulo.Location = new Point(20, 20);
+            lblTitulo.Size = new Size(400, 30);
+            this.Controls.Add(lblTitulo);
+
+            // GroupBox
+            groupBox1 = new GroupBox();
+            groupBox1.Text = "Lista de Reservas";
+            groupBox1.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+            groupBox1.Location = new Point(20, 60);
+            groupBox1.Size = new Size(960, 400);
+            this.Controls.Add(groupBox1);
+
+            // DataGridView
+            dataGridViewReservas = new DataGridView();
+            dataGridViewReservas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewReservas.BackgroundColor = Color.White;
+            dataGridViewReservas.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewReservas.Location = new Point(20, 25);
+            dataGridViewReservas.Size = new Size(920, 350);
+            dataGridViewReservas.ReadOnly = true;
+            dataGridViewReservas.RowHeadersVisible = false;
+            dataGridViewReservas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            groupBox1.Controls.Add(dataGridViewReservas);
+
+            // Botão Nova Reserva
+            btnNovaReserva = new Button();
+            btnNovaReserva.Text = "➕ NOVA RESERVA";
+            btnNovaReserva.BackColor = Color.FromArgb(40, 167, 69);
+            btnNovaReserva.FlatStyle = FlatStyle.Flat;
+            btnNovaReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnNovaReserva.ForeColor = Color.White;
+            btnNovaReserva.Location = new Point(20, 480);
+            btnNovaReserva.Size = new Size(160, 40);
+            btnNovaReserva.Click += new EventHandler(btnNovaReserva_Click);
+            this.Controls.Add(btnNovaReserva);
+
+            // Botão Editar
+            btnEditarReserva = new Button();
+            btnEditarReserva.Text = "✏️ EDITAR";
+            btnEditarReserva.BackColor = Color.FromArgb(255, 193, 7);
+            btnEditarReserva.FlatStyle = FlatStyle.Flat;
+            btnEditarReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnEditarReserva.ForeColor = Color.Black;
+            btnEditarReserva.Location = new Point(190, 480);
+            btnEditarReserva.Size = new Size(140, 40);
+            btnEditarReserva.Click += new EventHandler(btnEditarReserva_Click);
+            this.Controls.Add(btnEditarReserva);
+
+            // Botão Cancelar
+            btnCancelarReserva = new Button();
+            btnCancelarReserva.Text = "❌ CANCELAR";
+            btnCancelarReserva.BackColor = Color.FromArgb(220, 53, 69);
+            btnCancelarReserva.FlatStyle = FlatStyle.Flat;
+            btnCancelarReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnCancelarReserva.ForeColor = Color.White;
+            btnCancelarReserva.Location = new Point(340, 480);
+            btnCancelarReserva.Size = new Size(140, 40);
+            btnCancelarReserva.Click += new EventHandler(btnCancelarReserva_Click);
+            this.Controls.Add(btnCancelarReserva);
+
+            // Botão Relatório
+            btnRelatorio = new Button();
+            btnRelatorio.Text = "📊 RELATÓRIO";
+            btnRelatorio.BackColor = Color.FromArgb(111, 66, 193);
+            btnRelatorio.FlatStyle = FlatStyle.Flat;
+            btnRelatorio.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnRelatorio.ForeColor = Color.White;
+            btnRelatorio.Location = new Point(490, 480);
+            btnRelatorio.Size = new Size(140, 40);
+            btnRelatorio.Click += new EventHandler(btnRelatorio_Click);
+            this.Controls.Add(btnRelatorio);
+
+            // Botão Fechar
+            btnFechar = new Button();
+            btnFechar.Text = "🔙 VOLTAR";
+            btnFechar.BackColor = Color.FromArgb(108, 117, 125);
+            btnFechar.FlatStyle = FlatStyle.Flat;
+            btnFechar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnFechar.ForeColor = Color.White;
+            btnFechar.Location = new Point(860, 480);
+            btnFechar.Size = new Size(120, 40);
+            btnFechar.Click += new EventHandler(btnFechar_Click); // ADICIONEI O EVENTO CLICK AQUI
+            this.Controls.Add(btnFechar);
         }
 
         private void CarregarReservas()
         {
-            dataGridViewReservas.Columns.Clear();
+            try
+            {
+                dataGridViewReservas.Columns.Clear();
+                dataGridViewReservas.Rows.Clear();
 
-            dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
-            dataGridViewReservas.Columns.Add("DataInicio", "DATA INÍCIO");
-            dataGridViewReservas.Columns.Add("DataFim", "DATA FIM");
-            dataGridViewReservas.Columns.Add("Status", "STATUS");
-            dataGridViewReservas.Columns.Add("Valor", "VALOR");
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
 
-            dataGridViewReservas.Rows.Clear();
+                    // CONSULTA SIMPLIFICADA - EVITAR CONVERSÕES AUTOMÁTICAS
+                    string query = @"
+                SELECT 
+                    r.Id as ReservaId,
+                    r.ClienteNome,
+                    c.Nome as ComputadorNome,
+                    r.DataReserva as DataStr,
+                    r.HoraInicio,
+                    r.HoraFim,
+                    r.Status,
+                    r.ValorTotal
+                FROM Reservas r
+                JOIN Computadores c ON r.ComputadorId = c.Id
+                ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
 
-            dataGridViewReservas.Rows.Add("PC-001", "07/01/2025 14:00", "07/01/2025 16:00", "🟢 ATIVA", "R$ 10,00");
-            dataGridViewReservas.Rows.Add("PC-003", "06/01/2025 10:00", "06/01/2025 12:00", "🔵 CONCLUÍDA", "R$ 6,00");
-            dataGridViewReservas.Rows.Add("PC-004", "08/01/2025 18:00", "08/01/2025 20:00", "🟢 ATIVA", "R$ 10,00");
+                    using (var command = new SQLiteCommand(query, connection))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Adicionar colunas
+                        dataGridViewReservas.Columns.Add("Id", "ID");
+                        dataGridViewReservas.Columns.Add("Cliente", "CLIENTE");
+                        dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
+                        dataGridViewReservas.Columns.Add("Data", "DATA");
+                        dataGridViewReservas.Columns.Add("Horario", "HORÁRIO");
+                        dataGridViewReservas.Columns.Add("Status", "STATUS");
+                        dataGridViewReservas.Columns.Add("Valor", "VALOR");
 
+                        while (reader.Read())
+                        {
+                            // LER TODOS OS CAMPOS COMO STRING PARA EVITAR CONVERSÃO AUTOMÁTICA
+                            string id = reader["ReservaId"].ToString();
+                            string cliente = reader["ClienteNome"].ToString();
+                            string computador = reader["ComputadorNome"].ToString();
+                            string dataStr = reader["DataStr"].ToString(); // Já vem como string
+                            string horaInicio = reader["HoraInicio"].ToString();
+                            string horaFim = reader["HoraFim"].ToString();
+                            string status = reader["Status"].ToString();
+                            string valorTotal = reader["ValorTotal"].ToString();
+
+                            string horario = $"{horaInicio} - {horaFim}";
+
+                            // FORMATAR DATA SE ESTIVER NO FORMATO yyyy-MM-dd
+                            if (dataStr.Length == 10 && dataStr.Contains("-"))
+                            {
+                                try
+                                {
+                                    string[] partes = dataStr.Split('-');
+                                    if (partes.Length == 3 && partes[0].Length == 4)
+                                    {
+                                        dataStr = $"{partes[2]}/{partes[1]}/{partes[0]}";
+                                    }
+                                }
+                                catch
+                                {
+                                    // Manter o formato original se der erro
+                                }
+                            }
+
+                            // FORMATAR VALOR
+                            string valorFormatado = "R$ 0,00";
+                            if (decimal.TryParse(valorTotal, out decimal valor))
+                            {
+                                valorFormatado = $"R$ {valor:F2}";
+                            }
+
+                            dataGridViewReservas.Rows.Add(
+                                id,
+                                cliente,
+                                computador,
+                                dataStr,
+                                horario,
+                                status,
+                                valorFormatado
+                            );
+                        }
+                    }
+                }
+
+                AplicarCoresStatus();
+            }
+            catch (Exception ex)
+            {
+                // VERSÃO DE EMERGÊNCIA - CARREGAR SEM DADOS
+                dataGridViewReservas.Columns.Clear();
+                dataGridViewReservas.Rows.Clear();
+
+                dataGridViewReservas.Columns.Add("Id", "ID");
+                dataGridViewReservas.Columns.Add("Cliente", "CLIENTE");
+                dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
+                dataGridViewReservas.Columns.Add("Data", "DATA");
+                dataGridViewReservas.Columns.Add("Horario", "HORÁRIO");
+                dataGridViewReservas.Columns.Add("Status", "STATUS");
+                dataGridViewReservas.Columns.Add("Valor", "VALOR");
+
+                dataGridViewReservas.Rows.Add("ERRO", "Erro ao carregar", "dados", "-", "-", "Verifique console", "-");
+
+                // Não mostrar MessageBox para não interromper o usuário
+                Console.WriteLine($"Erro silencioso ao carregar reservas: {ex.Message}");
+            }
+        }
+        private void AplicarCoresStatus()
+        {
             foreach (DataGridViewRow row in dataGridViewReservas.Rows)
             {
-                if (row.Cells["Status"].Value.ToString().Contains("ATIVA"))
-                    row.Cells["Status"].Style.ForeColor = Color.Green;
-                else
-                    row.Cells["Status"].Style.ForeColor = Color.Blue;
+                if (row.Cells["Status"].Value != null)
+                {
+                    string status = row.Cells["Status"].Value.ToString();
+                    if (status.Contains("CONFIRMADA"))
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.Green;
+                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
+                    }
+                    else if (status.Contains("PENDENTE"))
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.Orange;
+                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
+                    }
+                    else if (status.Contains("CANCELADA"))
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.Red;
+                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
+                    }
+                    else if (status.Contains("CONCLUÍDA"))
+                    {
+                        row.Cells["Status"].Style.ForeColor = Color.Blue;
+                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
+                    }
+                }
             }
         }
 
         private void btnNovaReserva_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("➕ Funcionalidade: Nova Reserva\n\n" +
-                          "Abrir formulário para criar nova reserva...",
-                          "Nova Reserva",
-                          MessageBoxButtons.OK,
-                          MessageBoxIcon.Information);
+            // ABRIR FORM NOVA RESERVA
+            FormNovaReserva formNovaReserva = new FormNovaReserva();
+            DialogResult result = formNovaReserva.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                // Recarregar a lista se uma nova reserva foi criada
+                CarregarReservas();
+                MessageBox.Show("Nova reserva criada com sucesso!", "Sucesso",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnEditarReserva_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewReservas.CurrentRow != null)
+            {
+                string reservaId = dataGridViewReservas.CurrentRow.Cells["Id"].Value?.ToString() ?? "";
+                MessageBox.Show($"✏️ Editando reserva: {reservaId}\n\n" +
+                              "Funcionalidade de edição em desenvolvimento...",
+                              "Editar Reserva", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("⚠️ Selecione uma reserva para editar.",
+                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void btnCancelarReserva_Click(object sender, EventArgs e)
         {
             if (dataGridViewReservas.CurrentRow != null)
             {
-                string computador = dataGridViewReservas.CurrentRow.Cells["Computador"].Value.ToString();
-                string status = dataGridViewReservas.CurrentRow.Cells["Status"].Value.ToString();
+                string reservaId = dataGridViewReservas.CurrentRow.Cells["Id"].Value?.ToString() ?? "";
+                string cliente = dataGridViewReservas.CurrentRow.Cells["Cliente"].Value?.ToString() ?? "";
+                string statusAtual = dataGridViewReservas.CurrentRow.Cells["Status"].Value?.ToString() ?? "";
 
-                if (status.Contains("ATIVA"))
+                if (statusAtual.Contains("CANCELADA"))
                 {
-                    DialogResult result = MessageBox.Show(
-                        $"Tem certeza que deseja cancelar a reserva do computador {computador}?",
-                        "Confirmar Cancelamento",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
+                    MessageBox.Show("Esta reserva já está cancelada.", "Reserva Cancelada",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
-                    if (result == DialogResult.Yes)
+                DialogResult result = MessageBox.Show(
+                    $"Tem certeza que deseja cancelar a reserva?\n\n" +
+                    $"Cliente: {cliente}\n" +
+                    $"Reserva: {reservaId}",
+                    "Confirmar Cancelamento",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
                     {
-                        MessageBox.Show($"✅ Reserva do computador {computador} cancelada com sucesso!",
-                                      "Reserva Cancelada",
-                                      MessageBoxButtons.OK,
-                                      MessageBoxIcon.Information);
+                        using (var connection = DatabaseHelper.GetConnection())
+                        {
+                            connection.Open();
+                            string query = "UPDATE Reservas SET Status = '❌ CANCELADA' WHERE Id = @Id";
+
+                            using (var command = new SQLiteCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("@Id", reservaId);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        MessageBox.Show($"✅ Reserva cancelada com sucesso!", "Cancelamento Concluído",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
                         CarregarReservas();
                     }
-                }
-                else
-                {
-                    MessageBox.Show("⚠️ Apenas reservas ATIVAS podem ser canceladas.",
-                                  "Reserva Não Cancelável",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Warning);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erro ao cancelar reserva: {ex.Message}", "Erro",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
             else
             {
                 MessageBox.Show("⚠️ Selecione uma reserva para cancelar.",
-                              "Seleção Necessária",
-                              MessageBoxButtons.OK,
-                              MessageBoxIcon.Exclamation);
+                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
+
+       
+       private void btnRelatorio_Click(object sender, EventArgs e)
+{
+    try
+    {
+        string relatorio = "📊 RELATÓRIO COMPLETO - COMPUTADORES\n\n";
+        decimal receitaGeral = 0;
+        decimal horasTotais = 0;
+        int reservasTotais = 0;
+
+        using (var reader = DatabaseHelper.ObterRelatorioUso())
+        {
+            while (reader.Read())
+            {
+                string computador = reader["ComputadorNome"].ToString();
+                int totalReservas = Convert.ToInt32(reader["TotalReservas"]);
+                decimal receita = reader["ReceitaTotal"] != DBNull.Value ?
+                                Convert.ToDecimal(reader["ReceitaTotal"]) : 0;
+                decimal horas = Convert.ToDecimal(reader["TotalHorasUtilizadas"]);
+                decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
+
+                receitaGeral += receita;
+                horasTotais += horas;
+                reservasTotais += totalReservas;
+
+                relatorio += $"🖥️ {computador}\n";
+                relatorio += $"   📅 Reservas: {totalReservas}\n";
+                relatorio += $"   ⏱️ Horas Utilizadas: {horas:F1}h\n";
+                relatorio += $"   💰 Receita: R$ {receita:F2}\n";
+                relatorio += $"   💵 Preço/Hora: R$ {precoHora:F2}\n";
+                
+                // Calcular valor médio por hora
+                if (horas > 0)
+                {
+                    decimal valorMedioHora = receita / horas;
+                    relatorio += $"   📊 Média/Hora: R$ {valorMedioHora:F2}\n";
+                }
+                relatorio += "\n";
+            }
+        }
+
+        relatorio += $"📈 RESUMO GERAL:\n";
+        relatorio += $"   📅 Total de Reservas: {reservasTotais}\n";
+        relatorio += $"   ⏱️ Total de Horas: {horasTotais:F1}h\n";
+        relatorio += $"   💰 Receita Total: R$ {receitaGeral:F2}\n";
+        
+        // Calcular média geral
+        if (horasTotais > 0)
+        {
+            decimal mediaGeralHora = receitaGeral / horasTotais;
+            relatorio += $"   📊 Média Geral/Hora: R$ {mediaGeralHora:F2}";
+        }
+
+        MessageBox.Show(relatorio, "Relatório Completo",
+                      MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Erro ao gerar relatório: {ex.Message}", "Erro",
+                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
 
         private void btnFechar_Click(object sender, EventArgs e)
         {
