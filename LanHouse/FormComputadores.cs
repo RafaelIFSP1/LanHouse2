@@ -1,32 +1,12 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace lanhause
 {
-    public class FormComputadores : Form
+    public partial class FormComputadores : Form
     {
-        private Panel panelCabecalho;
-        private Label lblTitulo;
-        private Panel panelLista;
-        private ListView listViewComputadores;
-        private Panel panelDetalhes;
-        private Button btnFechar;
-        private Button btnAdicionar;
-        private Button btnEditar;
-        private Button btnManutencao;
-        private Button btnAjustarStatus;
-
-        // Controles de detalhes
-        private Label lblDetalhesTitulo;
-        private Label lblInfoProcessador;
-        private Label lblInfoRAM;
-        private Label lblInfoStatus;
-        private Label lblInfoPreco;
-        private Label lblInfoReservas;
-        private Label lblInfoUso;
-        private Label lblStatusVisual;
-
         public FormComputadores()
         {
             InitializeComponent();
@@ -34,370 +14,175 @@ namespace lanhause
             MostrarPrimeiroComputador();
         }
 
-        private void InitializeComponent()
-        {
-            this.panelCabecalho = new System.Windows.Forms.Panel();
-            this.lblTitulo = new System.Windows.Forms.Label();
-            this.panelLista = new System.Windows.Forms.Panel();
-            this.listViewComputadores = new System.Windows.Forms.ListView();
-            this.panelDetalhes = new System.Windows.Forms.Panel();
-            this.lblDetalhesTitulo = new System.Windows.Forms.Label();
-            this.lblProcessadorTitulo = new System.Windows.Forms.Label();
-            this.lblInfoProcessador = new System.Windows.Forms.Label();
-            this.lblRAMPtitulo = new System.Windows.Forms.Label();
-            this.lblInfoRAM = new System.Windows.Forms.Label();
-            this.lblStatusTitulo = new System.Windows.Forms.Label();
-            this.lblInfoStatus = new System.Windows.Forms.Label();
-            this.lblPrecoTitulo = new System.Windows.Forms.Label();
-            this.lblInfoPreco = new System.Windows.Forms.Label();
-            this.lblReservasTitulo = new System.Windows.Forms.Label();
-            this.lblInfoReservas = new System.Windows.Forms.Label();
-            this.lblUsoTitulo = new System.Windows.Forms.Label();
-            this.lblInfoUso = new System.Windows.Forms.Label();
-            this.lblStatusVisual = new System.Windows.Forms.Label();
-            this.btnFechar = new System.Windows.Forms.Button();
-            this.btnAjustarStatus = new System.Windows.Forms.Button();
-            this.btnAdicionar = new System.Windows.Forms.Button();
-            this.btnEditar = new System.Windows.Forms.Button();
-            this.btnManutencao = new System.Windows.Forms.Button();
-            this.panelCabecalho.SuspendLayout();
-            this.panelLista.SuspendLayout();
-            this.panelDetalhes.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // panelCabecalho
-            // 
-            this.panelCabecalho.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.panelCabecalho.Controls.Add(this.lblTitulo);
-            this.panelCabecalho.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelCabecalho.Location = new System.Drawing.Point(0, 0);
-            this.panelCabecalho.Name = "panelCabecalho";
-            this.panelCabecalho.Size = new System.Drawing.Size(984, 80);
-            this.panelCabecalho.TabIndex = 0;
-            // 
-            // lblTitulo
-            // 
-            this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblTitulo.ForeColor = System.Drawing.Color.White;
-            this.lblTitulo.Location = new System.Drawing.Point(30, 25);
-            this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(400, 30);
-            this.lblTitulo.TabIndex = 0;
-            this.lblTitulo.Text = "🖥️ GERENCIAR COMPUTADORES";
-            // 
-            // panelLista
-            // 
-            this.panelLista.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(55)))));
-            this.panelLista.Controls.Add(this.listViewComputadores);
-            this.panelLista.Location = new System.Drawing.Point(20, 100);
-            this.panelLista.Name = "panelLista";
-            this.panelLista.Size = new System.Drawing.Size(300, 400);
-            this.panelLista.TabIndex = 1;
-            // 
-            // listViewComputadores
-            // 
-            this.listViewComputadores.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(55)))));
-            this.listViewComputadores.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.listViewComputadores.ForeColor = System.Drawing.Color.White;
-            this.listViewComputadores.FullRowSelect = true;
-            this.listViewComputadores.HideSelection = false;
-            this.listViewComputadores.Location = new System.Drawing.Point(10, 10);
-            this.listViewComputadores.Name = "listViewComputadores";
-            this.listViewComputadores.Size = new System.Drawing.Size(280, 380);
-            this.listViewComputadores.TabIndex = 0;
-            this.listViewComputadores.UseCompatibleStateImageBehavior = false;
-            this.listViewComputadores.View = System.Windows.Forms.View.Details;
-            // 
-            // panelDetalhes
-            // 
-            this.panelDetalhes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.panelDetalhes.Controls.Add(this.lblDetalhesTitulo);
-            this.panelDetalhes.Controls.Add(this.lblProcessadorTitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoProcessador);
-            this.panelDetalhes.Controls.Add(this.lblRAMPtitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoRAM);
-            this.panelDetalhes.Controls.Add(this.lblStatusTitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoStatus);
-            this.panelDetalhes.Controls.Add(this.lblPrecoTitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoPreco);
-            this.panelDetalhes.Controls.Add(this.lblReservasTitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoReservas);
-            this.panelDetalhes.Controls.Add(this.lblUsoTitulo);
-            this.panelDetalhes.Controls.Add(this.lblInfoUso);
-            this.panelDetalhes.Controls.Add(this.lblStatusVisual);
-            this.panelDetalhes.Location = new System.Drawing.Point(340, 100);
-            this.panelDetalhes.Name = "panelDetalhes";
-            this.panelDetalhes.Size = new System.Drawing.Size(630, 400);
-            this.panelDetalhes.TabIndex = 2;
-            // 
-            // lblDetalhesTitulo
-            // 
-            this.lblDetalhesTitulo.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
-            this.lblDetalhesTitulo.ForeColor = System.Drawing.Color.White;
-            this.lblDetalhesTitulo.Location = new System.Drawing.Point(20, 20);
-            this.lblDetalhesTitulo.Name = "lblDetalhesTitulo";
-            this.lblDetalhesTitulo.Size = new System.Drawing.Size(400, 35);
-            this.lblDetalhesTitulo.TabIndex = 0;
-            this.lblDetalhesTitulo.Text = "Detalhes do Computador";
-            // 
-            // lblProcessadorTitulo
-            // 
-            this.lblProcessadorTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblProcessadorTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblProcessadorTitulo.Location = new System.Drawing.Point(20, 70);
-            this.lblProcessadorTitulo.Name = "lblProcessadorTitulo";
-            this.lblProcessadorTitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblProcessadorTitulo.TabIndex = 1;
-            this.lblProcessadorTitulo.Text = "Processador:";
-            // 
-            // lblInfoProcessador
-            // 
-            this.lblInfoProcessador.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoProcessador.ForeColor = System.Drawing.Color.White;
-            this.lblInfoProcessador.Location = new System.Drawing.Point(180, 70);
-            this.lblInfoProcessador.Name = "lblInfoProcessador";
-            this.lblInfoProcessador.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoProcessador.TabIndex = 2;
-            this.lblInfoProcessador.Text = "Intel i5-10400F";
-            // 
-            // lblRAMPtitulo
-            // 
-            this.lblRAMPtitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblRAMPtitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblRAMPtitulo.Location = new System.Drawing.Point(20, 110);
-            this.lblRAMPtitulo.Name = "lblRAMPtitulo";
-            this.lblRAMPtitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblRAMPtitulo.TabIndex = 3;
-            this.lblRAMPtitulo.Text = "Memória RAM:";
-            // 
-            // lblInfoRAM
-            // 
-            this.lblInfoRAM.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoRAM.ForeColor = System.Drawing.Color.White;
-            this.lblInfoRAM.Location = new System.Drawing.Point(180, 110);
-            this.lblInfoRAM.Name = "lblInfoRAM";
-            this.lblInfoRAM.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoRAM.TabIndex = 4;
-            this.lblInfoRAM.Text = "8GB DDR4 2666MHz";
-            // 
-            // lblStatusTitulo
-            // 
-            this.lblStatusTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblStatusTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblStatusTitulo.Location = new System.Drawing.Point(20, 150);
-            this.lblStatusTitulo.Name = "lblStatusTitulo";
-            this.lblStatusTitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblStatusTitulo.TabIndex = 5;
-            this.lblStatusTitulo.Text = "Status:";
-            // 
-            // lblInfoStatus
-            // 
-            this.lblInfoStatus.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoStatus.ForeColor = System.Drawing.Color.White;
-            this.lblInfoStatus.Location = new System.Drawing.Point(180, 150);
-            this.lblInfoStatus.Name = "lblInfoStatus";
-            this.lblInfoStatus.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoStatus.TabIndex = 6;
-            this.lblInfoStatus.Text = "🟢 DISPONÍVEL";
-            // 
-            // lblPrecoTitulo
-            // 
-            this.lblPrecoTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblPrecoTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblPrecoTitulo.Location = new System.Drawing.Point(20, 190);
-            this.lblPrecoTitulo.Name = "lblPrecoTitulo";
-            this.lblPrecoTitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblPrecoTitulo.TabIndex = 7;
-            this.lblPrecoTitulo.Text = "Preço/Hora:";
-            // 
-            // lblInfoPreco
-            // 
-            this.lblInfoPreco.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoPreco.ForeColor = System.Drawing.Color.White;
-            this.lblInfoPreco.Location = new System.Drawing.Point(180, 190);
-            this.lblInfoPreco.Name = "lblInfoPreco";
-            this.lblInfoPreco.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoPreco.TabIndex = 8;
-            this.lblInfoPreco.Text = "R$ 5,00";
-            // 
-            // lblReservasTitulo
-            // 
-            this.lblReservasTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblReservasTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblReservasTitulo.Location = new System.Drawing.Point(20, 230);
-            this.lblReservasTitulo.Name = "lblReservasTitulo";
-            this.lblReservasTitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblReservasTitulo.TabIndex = 9;
-            this.lblReservasTitulo.Text = "Reservas Hoje:";
-            // 
-            // lblInfoReservas
-            // 
-            this.lblInfoReservas.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoReservas.ForeColor = System.Drawing.Color.White;
-            this.lblInfoReservas.Location = new System.Drawing.Point(180, 230);
-            this.lblInfoReservas.Name = "lblInfoReservas";
-            this.lblInfoReservas.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoReservas.TabIndex = 10;
-            this.lblInfoReservas.Text = "3 reservas";
-            // 
-            // lblUsoTitulo
-            // 
-            this.lblUsoTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblUsoTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
-            this.lblUsoTitulo.Location = new System.Drawing.Point(20, 270);
-            this.lblUsoTitulo.Name = "lblUsoTitulo";
-            this.lblUsoTitulo.Size = new System.Drawing.Size(150, 20);
-            this.lblUsoTitulo.TabIndex = 11;
-            this.lblUsoTitulo.Text = "Horas de Uso:";
-            // 
-            // lblInfoUso
-            // 
-            this.lblInfoUso.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblInfoUso.ForeColor = System.Drawing.Color.White;
-            this.lblInfoUso.Location = new System.Drawing.Point(180, 270);
-            this.lblInfoUso.Name = "lblInfoUso";
-            this.lblInfoUso.Size = new System.Drawing.Size(300, 20);
-            this.lblInfoUso.TabIndex = 12;
-            this.lblInfoUso.Text = "12,5 horas";
-            // 
-            // lblStatusVisual
-            // 
-            this.lblStatusVisual.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
-            this.lblStatusVisual.ForeColor = System.Drawing.Color.Green;
-            this.lblStatusVisual.Location = new System.Drawing.Point(20, 320);
-            this.lblStatusVisual.Name = "lblStatusVisual";
-            this.lblStatusVisual.Size = new System.Drawing.Size(300, 30);
-            this.lblStatusVisual.TabIndex = 13;
-            this.lblStatusVisual.Text = "● STATUS: DISPONÍVEL";
-            // 
-            // btnFechar
-            // 
-            this.btnFechar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
-            this.btnFechar.FlatAppearance.BorderSize = 0;
-            this.btnFechar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnFechar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnFechar.ForeColor = System.Drawing.Color.White;
-            this.btnFechar.Location = new System.Drawing.Point(20, 509);
-            this.btnFechar.Name = "btnFechar";
-            this.btnFechar.Size = new System.Drawing.Size(120, 40);
-            this.btnFechar.TabIndex = 3;
-            this.btnFechar.Text = "🔙 VOLTAR";
-            this.btnFechar.UseVisualStyleBackColor = false;
-            // 
-            // btnAjustarStatus
-            // 
-            this.btnAjustarStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(13)))), ((int)(((byte)(110)))), ((int)(((byte)(253)))));
-            this.btnAjustarStatus.FlatAppearance.BorderSize = 0;
-            this.btnAjustarStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAjustarStatus.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnAjustarStatus.ForeColor = System.Drawing.Color.White;
-            this.btnAjustarStatus.Location = new System.Drawing.Point(350, 509);
-            this.btnAjustarStatus.Name = "btnAjustarStatus";
-            this.btnAjustarStatus.Size = new System.Drawing.Size(160, 40);
-            this.btnAjustarStatus.TabIndex = 4;
-            this.btnAjustarStatus.Text = "🔄 AJUSTAR STATUS";
-            this.btnAjustarStatus.UseVisualStyleBackColor = false;
-            // 
-            // btnAdicionar
-            // 
-            this.btnAdicionar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
-            this.btnAdicionar.FlatAppearance.BorderSize = 0;
-            this.btnAdicionar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdicionar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnAdicionar.ForeColor = System.Drawing.Color.White;
-            this.btnAdicionar.Location = new System.Drawing.Point(524, 509);
-            this.btnAdicionar.Name = "btnAdicionar";
-            this.btnAdicionar.Size = new System.Drawing.Size(140, 40);
-            this.btnAdicionar.TabIndex = 5;
-            this.btnAdicionar.Text = "➕ ADICIONAR";
-            this.btnAdicionar.UseVisualStyleBackColor = false;
-            // 
-            // btnEditar
-            // 
-            this.btnEditar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
-            this.btnEditar.FlatAppearance.BorderSize = 0;
-            this.btnEditar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnEditar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnEditar.ForeColor = System.Drawing.Color.Black;
-            this.btnEditar.Location = new System.Drawing.Point(680, 509);
-            this.btnEditar.Name = "btnEditar";
-            this.btnEditar.Size = new System.Drawing.Size(140, 40);
-            this.btnEditar.TabIndex = 6;
-            this.btnEditar.Text = "✏️ EDITAR";
-            this.btnEditar.UseVisualStyleBackColor = false;
-            // 
-            // btnManutencao
-            // 
-            this.btnManutencao.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(126)))), ((int)(((byte)(20)))));
-            this.btnManutencao.FlatAppearance.BorderSize = 0;
-            this.btnManutencao.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnManutencao.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnManutencao.ForeColor = System.Drawing.Color.White;
-            this.btnManutencao.Location = new System.Drawing.Point(830, 509);
-            this.btnManutencao.Name = "btnManutencao";
-            this.btnManutencao.Size = new System.Drawing.Size(140, 40);
-            this.btnManutencao.TabIndex = 7;
-            this.btnManutencao.Text = "🔧 MANUTENÇÃO";
-            this.btnManutencao.UseVisualStyleBackColor = false;
-            // 
-            // FormComputadores
-            // 
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.ClientSize = new System.Drawing.Size(984, 561);
-            this.Controls.Add(this.panelCabecalho);
-            this.Controls.Add(this.panelLista);
-            this.Controls.Add(this.panelDetalhes);
-            this.Controls.Add(this.btnFechar);
-            this.Controls.Add(this.btnAjustarStatus);
-            this.Controls.Add(this.btnAdicionar);
-            this.Controls.Add(this.btnEditar);
-            this.Controls.Add(this.btnManutencao);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.Name = "FormComputadores";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "🖥️ Computadores - Lan House System";
-            this.panelCabecalho.ResumeLayout(false);
-            this.panelLista.ResumeLayout(false);
-            this.panelDetalhes.ResumeLayout(false);
-            this.ResumeLayout(false);
-
-        }
-
-        // Resto dos métodos permanecem iguais...
         private void CarregarComputadores()
         {
             if (listViewComputadores == null) return;
 
             listViewComputadores.Items.Clear();
+            listViewComputadores.Columns.Clear();
 
-            string[][] computadores = new string[][]
+            // Configurar colunas do ListView com estilo discreto
+            listViewComputadores.Columns.Add("Computador", 250);
+            listViewComputadores.View = View.Details;
+            listViewComputadores.FullRowSelect = true;
+            listViewComputadores.BorderStyle = BorderStyle.None;
+            listViewComputadores.BackColor = Color.FromArgb(45, 45, 48);
+            listViewComputadores.ForeColor = Color.FromArgb(200, 200, 200);
+            listViewComputadores.Font = new Font("Segoe UI", 10);
+
+            try
             {
-                new string[] { "Computador 1", "🟢 DISPONÍVEL" },
-                new string[] { "Computador 2", "🟡 EM USO" },
-                new string[] { "Computador 3", "🟢 DISPONÍVEL" },
-                new string[] { "Computador 4", "🔴 EM MANUTENÇÃO" },
-                new string[] { "Computador 5", "🟡 EM USO" },
-                new string[] { "Computador 6", "🟢 DISPONÍVEL" }
-            };
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT Id, Nome, Processador, RAM, Status, PrecoHora FROM Computadores ORDER BY Id";
 
-            for (int i = 0; i < computadores.Length; i++)
-            {
-                ListViewItem item = new ListViewItem(computadores[i]);
+                    using (var cmd = new SqlCommand(query, connection))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = reader["Id"].ToString();
+                            string nome = reader["Nome"].ToString();
+                            string processador = reader["Processador"].ToString();
+                            string ram = reader["RAM"].ToString();
+                            string status = reader["Status"].ToString();
+                            decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
 
-                if (computadores[i][1].Contains("DISPONÍVEL"))
-                    item.BackColor = Color.FromArgb(40, 167, 69);
-                else if (computadores[i][1].Contains("EM USO"))
-                    item.BackColor = Color.FromArgb(255, 193, 7);
-                else if (computadores[i][1].Contains("MANUTENÇÃO"))
-                    item.BackColor = Color.FromArgb(220, 53, 69);
+                            // Formatar o nome como "PC - 01", "PC - 02", etc.
+                            string nomeFormatado = $"PC - {id.PadLeft(2, '0')}";
 
-                item.ForeColor = Color.White;
-                listViewComputadores.Items.Add(item);
+                            // Status discreto sem emojis
+                            string statusDiscreto = ObterStatusDiscreto(status);
+
+                            ListViewItem item = new ListViewItem(nomeFormatado);
+                            item.SubItems.Add(statusDiscreto);
+
+                            // Armazenar dados completos para mostrar nos detalhes
+                            item.Tag = new
+                            {
+                                Id = id,
+                                NomeOriginal = nome,
+                                Processador = processador,
+                                RAM = ram,
+                                Status = status,
+                                PrecoHora = precoHora,
+                                NomeFormatado = nomeFormatado
+                            };
+
+                            // Cores discretas
+                            item.BackColor = ObterCorFundoDiscreta(status);
+                            item.ForeColor = ObterCorTextoDiscreta(status);
+                            item.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+
+                            listViewComputadores.Items.Add(item);
+                        }
+                    }
+                }
+
+                if (listViewComputadores.Items.Count > 0)
+                    listViewComputadores.Items[0].Selected = true;
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar computadores:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-            if (listViewComputadores.Items.Count > 0)
-                listViewComputadores.Items[0].Selected = true;
+        private string ObterStatusDiscreto(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return "Disponível";
+                case "EM USO":
+                case "OCUPADO":
+                    return "Em Uso";
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return "Manutenção";
+                default:
+                    return status;
+            }
+        }
+
+        private Color ObterCorFundoDiscreta(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return Color.FromArgb(60, 60, 65); // Cinza escuro
+                case "EM USO":
+                case "OCUPADO":
+                    return Color.FromArgb(70, 70, 75); // Cinza médio
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return Color.FromArgb(80, 60, 60); // Vermelho escuro
+                default:
+                    return Color.FromArgb(60, 60, 65); // Cinza escuro padrão
+            }
+        }
+
+        private Color ObterCorTextoDiscreta(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return Color.FromArgb(100, 200, 100); // Verde suave
+                case "EM USO":
+                case "OCUPADO":
+                    return Color.FromArgb(255, 200, 100); // Laranja suave
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return Color.FromArgb(255, 100, 100); // Vermelho suave
+                default:
+                    return Color.FromArgb(200, 200, 200); // Cinza claro padrão
+            }
+        }
+
+        private string ObterStatusComEmoji(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return "🟢 DISPONÍVEL";
+                case "EM USO":
+                case "OCUPADO":
+                    return "🟡 EM USO";
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return "🔴 EM MANUTENÇÃO";
+                default:
+                    return "⚪ " + status;
+            }
+        }
+
+        private Color ObterCorStatus(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return Color.FromArgb(40, 167, 69); // Verde
+                case "EM USO":
+                case "OCUPADO":
+                    return Color.FromArgb(255, 193, 7);  // Amarelo/Laranja
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return Color.FromArgb(220, 53, 69);  // Vermelho
+                default:
+                    return Color.FromArgb(108, 117, 125); // Cinza
+            }
         }
 
         private void MostrarPrimeiroComputador()
@@ -416,29 +201,138 @@ namespace lanhause
             }
         }
 
-        private void MostrarDetalhesComputador(ListViewItem item)
+
+
+
+
+
+
+        private void CarregarEstatisticasComputador(string computadorId)
         {
-            if (lblDetalhesTitulo == null) return;
-
-            string nomeComputador = item.Text;
-            string status = item.SubItems[1].Text;
-
-            lblDetalhesTitulo.Text = nomeComputador;
-
-            if (lblInfoStatus != null) lblInfoStatus.Text = status;
-
-            if (lblStatusVisual != null)
+            try
             {
-                lblStatusVisual.Text = $"● STATUS: {status.Replace("🟢", "").Replace("🟡", "").Replace("🔴", "").Trim()}";
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
 
-                if (status.Contains("DISPONÍVEL"))
-                    lblStatusVisual.ForeColor = Color.Green;
-                else if (status.Contains("EM USO"))
-                    lblStatusVisual.ForeColor = Color.Orange;
-                else if (status.Contains("MANUTENÇÃO"))
-                    lblStatusVisual.ForeColor = Color.Red;
+                    // Reservas de hoje
+                    string queryReservas = @"
+                SELECT COUNT(*) as TotalReservas
+                FROM Reservas 
+                WHERE ComputadorId = @ComputadorId 
+                AND DataReserva = CAST(GETDATE() AS DATE)
+                AND Status IN ('CONFIRMADA', 'CONCLUÍDA')";
+
+                    using (var cmd = new SqlCommand(queryReservas, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        int totalReservas = Convert.ToInt32(cmd.ExecuteScalar());
+                        lblInfoReservas.Text = $"{totalReservas} reserva{(totalReservas != 1 ? "s" : "")}";
+                    }
+
+                    // Horas de uso (apenas reservas concluídas)
+                    string queryHorasUso = @"
+                SELECT ISNULL(SUM(
+                    CASE 
+                        WHEN HoraFim > HoraInicio THEN
+                            DATEDIFF(MINUTE, 
+                                CAST(HoraInicio AS datetime), 
+                                CAST(HoraFim AS datetime)
+                            ) / 60.0
+                        ELSE
+                            (24 - CAST(LEFT(HoraInicio, 2) AS int) + CAST(LEFT(HoraFim, 2) AS int)) +
+                            (CAST(RIGHT(HoraFim, 2) AS int) - CAST(RIGHT(HoraInicio, 2) AS int)) / 60.0
+                    END
+                ), 0) as TotalHoras
+                FROM Reservas 
+                WHERE ComputadorId = @ComputadorId 
+                AND Status = 'CONCLUÍDA'
+                AND DataReserva >= DATEADD(DAY, -30, GETDATE())";
+
+                    using (var cmd = new SqlCommand(queryHorasUso, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        decimal totalHoras = Convert.ToDecimal(cmd.ExecuteScalar());
+                        lblInfoUso.Text = $"{totalHoras:F1} horas (30 dias)";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Se der erro, mostra valores padrão
+                lblInfoReservas.Text = "0 reservas";
+                lblInfoUso.Text = "0 horas";
+                Console.WriteLine($"Erro ao carregar estatísticas: {ex.Message}");
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        private void MostrarDetalhesComputador(ListViewItem item)
+        {
+            if (lblDetalhesTitulo == null || item.Tag == null) return;
+
+            try
+            {
+                // Recuperar dados do Tag
+                var dados = item.Tag as dynamic;
+                string id = dados.Id;
+                string nomeOriginal = dados.NomeOriginal;
+                string processador = dados.Processador;
+                string ram = dados.RAM;
+                string status = dados.Status;
+                decimal precoHora = dados.PrecoHora;
+                string nomeFormatado = dados.NomeFormatado;
+
+                // Atualizar interface com dados reais
+                lblDetalhesTitulo.Text = nomeFormatado;
+                lblDetalhesTitulo.ForeColor = Color.FromArgb(220, 220, 220);
+
+                lblInfoProcessador.Text = processador;
+                lblInfoProcessador.ForeColor = Color.FromArgb(180, 180, 180);
+
+                lblInfoRAM.Text = ram;
+                lblInfoRAM.ForeColor = Color.FromArgb(180, 180, 180);
+
+                lblInfoPreco.Text = $"R$ {precoHora:F2}";
+                lblInfoPreco.ForeColor = Color.FromArgb(180, 180, 180);
+
+                // Status discreto
+                string statusDiscreto = ObterStatusDiscreto(status);
+                lblInfoStatus.Text = statusDiscreto;
+                lblInfoStatus.ForeColor = ObterCorTextoDiscreta(status);
+
+                // Atualizar status visual discreto
+                if (lblStatusVisual != null)
+                {
+                    lblStatusVisual.Text = $"● {statusDiscreto.ToUpper()}";
+                    lblStatusVisual.ForeColor = ObterCorTextoDiscreta(status);
+                    lblStatusVisual.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+                }
+
+                // Carregar estatísticas em tempo real
+                CarregarEstatisticasComputador(id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar detalhes:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
 
         private void btnAjustarStatus_Click(object sender, EventArgs e)
         {
@@ -475,13 +369,24 @@ namespace lanhause
             }
         }
 
+
+
         private void AlterarStatusComputador(ListViewItem item, string novoStatus)
         {
-            string computador = item.Text;
+            if (item.Tag == null) return;
+
+            var dados = item.Tag as dynamic;
+            string computadorId = dados.Id;
+            string nomeFormatado = dados.NomeFormatado;
+
+            // Extrair apenas o texto do status (sem emoji)
+            string novoSatusBanco = novoStatus
+                .Replace("🟢", "").Replace("🟡", "").Replace("🔴", "")
+                .Trim();
 
             DialogResult result = MessageBox.Show(
                 $"Confirmar alteração de status:\n\n" +
-                $"Computador: {computador}\n" +
+                $"Computador: {nomeFormatado}\n" +
                 $"Novo Status: {novoStatus}",
                 "Confirmar Alteração de Status",
                 MessageBoxButtons.YesNo,
@@ -489,19 +394,47 @@ namespace lanhause
 
             if (result == DialogResult.Yes)
             {
-                item.SubItems[1].Text = novoStatus;
+                try
+                {
+                    using (var connection = DatabaseHelper.GetConnection())
+                    {
+                        connection.Open();
+                        string query = "UPDATE Computadores SET Status = @Status WHERE Id = @Id";
 
-                if (novoStatus.Contains("DISPONÍVEL"))
-                    item.BackColor = Color.FromArgb(40, 167, 69);
-                else if (novoStatus.Contains("EM USO"))
-                    item.BackColor = Color.FromArgb(255, 193, 7);
-                else if (novoStatus.Contains("MANUTENÇÃO"))
-                    item.BackColor = Color.FromArgb(220, 53, 69);
+                        using (var cmd = new SqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Status", novoSatusBanco);
+                            cmd.Parameters.AddWithValue("@Id", computadorId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
 
-                MostrarDetalhesComputador(item);
+                    // Atualizar interface
+                    item.SubItems[1].Text = novoStatus;
+                    item.BackColor = ObterCorStatus(novoSatusBanco);
 
-                MessageBox.Show($"✅ Status do computador {computador} atualizado para: {novoStatus}",
-                              "Status Atualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Atualizar dados no Tag
+                    item.Tag = new
+                    {
+                        Id = dados.Id,
+                        NomeOriginal = dados.NomeOriginal,
+                        Processador = dados.Processador,
+                        RAM = dados.RAM,
+                        Status = novoSatusBanco,
+                        PrecoHora = dados.PrecoHora,
+                        NomeFormatado = dados.NomeFormatado
+                    };
+
+                    MostrarDetalhesComputador(item);
+
+                    MessageBox.Show($"✅ Status do computador {nomeFormatado} atualizado para: {novoStatus}",
+                                  "Status Atualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao atualizar status:\n{ex.Message}", "Erro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -596,11 +529,9 @@ namespace lanhause
             // Código de carga adicional se necessário
         }
 
-        private Label lblProcessadorTitulo;
-        private Label lblRAMPtitulo;
-        private Label lblStatusTitulo;
-        private Label lblPrecoTitulo;
-        private Label lblReservasTitulo;
-        private Label lblUsoTitulo;
+        private void panelCabecalho_Paint(object sender, PaintEventArgs e)
+        {
+            // Código de pintura do cabeçalho se necessário
+        }
     }
 }

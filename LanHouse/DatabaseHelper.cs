@@ -214,6 +214,58 @@ namespace lanhause
         }
 
         /// <summary>
+        /// Obtém detalhes da reserva que está causando conflito
+        /// </summary>
+        public static string ObterDetalhesConflito(string computadorId, DateTime data, string horaInicio, string horaFim)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT ClienteNome, HoraInicio, HoraFim 
+                        FROM Reservas 
+                        WHERE ComputadorId = @ComputadorId 
+                        AND DataReserva = @DataReserva 
+                        AND Status NOT IN ('❌ CANCELADA', '✅ CONCLUÍDA')
+                        AND (
+                            (@HoraInicio >= HoraInicio AND @HoraInicio < HoraFim) OR
+                            (@HoraFim > HoraInicio AND @HoraFim <= HoraFim) OR
+                            (@HoraInicio <= HoraInicio AND @HoraFim >= HoraFim)
+                        )";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        cmd.Parameters.AddWithValue("@DataReserva", data.Date);
+                        cmd.Parameters.AddWithValue("@HoraInicio", horaInicio);
+                        cmd.Parameters.AddWithValue("@HoraFim", horaFim);
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string cliente = reader["ClienteNome"].ToString();
+                                string horaIniConflito = reader["HoraInicio"].ToString();
+                                string horaFimConflito = reader["HoraFim"].ToString();
+
+                                return $"Cliente: {cliente}\nHorário: {horaIniConflito} - {horaFimConflito}";
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao obter detalhes do conflito: {ex.Message}");
+            }
+
+            return "Horário indisponível (reserva existente)";
+        }
+
+        /// <summary>
         /// Registra o uso de um computador para fins de relatório
         /// </summary>
         public static void RegistrarUsoComputador(string computadorId, string reservaId,
@@ -289,6 +341,7 @@ namespace lanhause
                 }
             }
         }
+
         /// <summary>
         /// Atualiza o status de um computador
         /// </summary>
