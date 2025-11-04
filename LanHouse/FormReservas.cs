@@ -414,10 +414,9 @@ namespace lanhause
 
                         // Atualiza o status para cancelada e zera o valor
                         string query = @"UPDATE Reservas 
-                               SET Status = '❌ CANCELADA', 
-                                   ValorTotal = 0,
-                                   DataAtualizacao = GETDATE() 
-                               WHERE Id = @Id";
+               SET Status = '❌ CANCELADA', 
+                   ValorTotal = 0
+               WHERE Id = @Id";
 
                         using (var cmd = new SqlCommand(query, connection))
                         {
@@ -619,7 +618,7 @@ namespace lanhause
                                 cmdUso.ExecuteNonQuery();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             // Pode ignorar se a tabela não existir ou não tiver registros
                             Console.WriteLine("Info: Nenhum registro em UsoComputadores para esta reserva");

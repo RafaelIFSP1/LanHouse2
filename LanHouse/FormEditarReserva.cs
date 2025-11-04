@@ -124,8 +124,9 @@ namespace lanhause
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
-                    // CORREÇÃO: Use texto em vez de número
-                    string query = "SELECT Id, Nome, PrecoHora FROM Computadores WHERE Status = 'DISPONÍVEL'";
+
+                    // MOSTRA TODOS OS COMPUTADORES (sem filtro de status)
+                    string query = "SELECT Id, Nome, PrecoHora FROM Computadores";
 
                     using (var cmd = new SqlCommand(query, connection))
                     using (var reader = cmd.ExecuteReader())
@@ -142,7 +143,19 @@ namespace lanhause
                     }
                 }
 
-                // ... resto do código permanece igual
+                // Selecionar computador atual da reserva
+                string pcId = txtClienteNome.Tag?.ToString();
+                if (pcId != null)
+                {
+                    for (int i = 0; i < cmbComputadores.Items.Count; i++)
+                    {
+                        if (((ComputadorItem)cmbComputadores.Items[i]).Id == pcId)
+                        {
+                            cmbComputadores.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -150,7 +163,6 @@ namespace lanhause
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void CarregarHorarios()
         {
             cmbHoraInicio.Items.Clear();
@@ -217,75 +229,10 @@ namespace lanhause
             return TimeSpan.Zero;
         }
 
-        private void BtnSalvar_Click(object sender, EventArgs e)
-        {
-            if (!ValidarDados()) return;
 
-            try
-            {
-                var pc = (ComputadorItem)cmbComputadores.SelectedItem;
-                string horaIni = cmbHoraInicio.SelectedItem.ToString();
-                string horaFim = cmbHoraFim.SelectedItem.ToString();
 
-                // Verificar disponibilidade
-                if (!DatabaseHelper.ComputadorDisponivelNoHorario(
-                    pc.Id, dtpData.Value, horaIni, horaFim, reservaId))
-                {
-                    MessageBox.Show("❌ Este computador não está disponível no horário selecionado!",
-                                  "Conflito de Horário", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
 
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    connection.Open();
 
-                    string query = @"
-                        UPDATE Reservas SET
-                            ComputadorId = @ComputadorId,
-                            ClienteNome = @ClienteNome,
-                            ClienteEmail = @ClienteEmail,
-                            DataReserva = @DataReserva,
-                            HoraInicio = @HoraInicio,
-                            HoraFim = @HoraFim,
-                            ValorTotal = @ValorTotal,
-                            DataAtualizacao = GETDATE()
-                        WHERE Id = @Id";
-
-                    using (var cmd = new SqlCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@ComputadorId", pc.Id);
-                        cmd.Parameters.AddWithValue("@ClienteNome", txtClienteNome.Text.Trim());
-                        cmd.Parameters.AddWithValue("@ClienteEmail", txtClienteEmail.Text.Trim());
-                        cmd.Parameters.AddWithValue("@DataReserva", dtpData.Value.Date);
-                        cmd.Parameters.AddWithValue("@HoraInicio", horaIni);
-                        cmd.Parameters.AddWithValue("@HoraFim", horaFim);
-                        cmd.Parameters.AddWithValue("@ValorTotal", valorTotal);
-                        cmd.Parameters.AddWithValue("@Id", reservaId);
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-
-                        if (rowsAffected > 0)
-                        {
-                            MessageBox.Show("✅ Reserva atualizada com sucesso!", "Sucesso",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            this.DialogResult = DialogResult.OK;
-                            this.Close();
-                        }
-                        else
-                        {
-                            MessageBox.Show("❌ Nenhuma reserva foi atualizada!", "Erro",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao salvar:\n{ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private bool ValidarDados()
         {
@@ -346,6 +293,82 @@ namespace lanhause
             return true;
         }
 
+
+
+
+
+
+
+        private void BtnSalvar_Click(object sender, EventArgs e)
+        {
+            if (!ValidarDados()) return;
+
+            try
+            {
+                var pc = (ComputadorItem)cmbComputadores.SelectedItem;
+                string horaIni = cmbHoraInicio.SelectedItem.ToString();
+                string horaFim = cmbHoraFim.SelectedItem.ToString();
+
+                // Verificar disponibilidade
+                if (!DatabaseHelper.ComputadorDisponivelNoHorario(
+                    pc.Id, dtpData.Value, horaIni, horaFim, reservaId))
+                {
+                    MessageBox.Show("❌ Este computador não está disponível no horário selecionado!",
+                                  "Conflito de Horário", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+
+                    // CORREÇÃO: Removida a coluna DataAtualizacao
+                    string query = @"
+                UPDATE Reservas SET
+                    ComputadorId = @ComputadorId,
+                    ClienteNome = @ClienteNome,
+                    ClienteEmail = @ClienteEmail,
+                    DataReserva = @DataReserva,
+                    HoraInicio = @HoraInicio,
+                    HoraFim = @HoraFim,
+                    ValorTotal = @ValorTotal
+                WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", pc.Id);
+                        cmd.Parameters.AddWithValue("@ClienteNome", txtClienteNome.Text.Trim());
+                        cmd.Parameters.AddWithValue("@ClienteEmail", txtClienteEmail.Text.Trim());
+                        cmd.Parameters.AddWithValue("@DataReserva", dtpData.Value.Date);
+                        cmd.Parameters.AddWithValue("@HoraInicio", horaIni);
+                        cmd.Parameters.AddWithValue("@HoraFim", horaFim);
+                        cmd.Parameters.AddWithValue("@ValorTotal", valorTotal);
+                        cmd.Parameters.AddWithValue("@Id", reservaId);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            MessageBox.Show("✅ Reserva atualizada com sucesso!", "Sucesso",
+                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            this.DialogResult = DialogResult.OK;
+                            this.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show("❌ Nenhuma reserva foi atualizada!", "Erro",
+                                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao salvar:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private bool IsValidEmail(string email)
         {
             try
@@ -378,5 +401,11 @@ namespace lanhause
         {
             CalcularValor();
         }
+
+
+
+
+
+
     }
 }
