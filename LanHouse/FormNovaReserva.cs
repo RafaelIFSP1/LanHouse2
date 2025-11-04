@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Data.SQLite;
+using System.Data.SqlClient;
 
 namespace lanhause
 {
-    public class FormNovaReserva : Form
+    public partial class FormNovaReserva : Form
     {
         private ComboBox cmbComputadores;
         private TextBox txtClienteNome;
@@ -30,157 +30,236 @@ namespace lanhause
 
         private void InitializeComponent()
         {
-            // Configuração básica do form
-            this.Text = "➕ Nova Reserva - Lan House System";
-            this.Size = new Size(500, 500);
-            this.BackColor = Color.White;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.lblTitulo = new System.Windows.Forms.Label();
+            this.lblComputador = new System.Windows.Forms.Label();
+            this.cmbComputadores = new System.Windows.Forms.ComboBox();
+            this.lblClienteNome = new System.Windows.Forms.Label();
+            this.txtClienteNome = new System.Windows.Forms.TextBox();
+            this.lblClienteEmail = new System.Windows.Forms.Label();
+            this.txtClienteEmail = new System.Windows.Forms.TextBox();
+            this.lblData = new System.Windows.Forms.Label();
+            this.dtpData = new System.Windows.Forms.DateTimePicker();
+            this.lblHoraInicio = new System.Windows.Forms.Label();
+            this.cmbHoraInicio = new System.Windows.Forms.ComboBox();
+            this.lblHoraFim = new System.Windows.Forms.Label();
+            this.cmbHoraFim = new System.Windows.Forms.ComboBox();
+            this.lblHorasTitulo = new System.Windows.Forms.Label();
+            this.lblHoras = new System.Windows.Forms.Label();
+            this.lblValorTitulo = new System.Windows.Forms.Label();
+            this.lblValor = new System.Windows.Forms.Label();
+            this.btnConfirmar = new System.Windows.Forms.Button();
+            this.btnCancelar = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            // 
+            // lblTitulo
+            // 
+            this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.lblTitulo.Location = new System.Drawing.Point(20, 20);
+            this.lblTitulo.Name = "lblTitulo";
+            this.lblTitulo.Size = new System.Drawing.Size(300, 30);
+            this.lblTitulo.TabIndex = 0;
+            this.lblTitulo.Text = "➕ NOVA RESERVA";
+            // 
+            // lblComputador
+            // 
+            this.lblComputador.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblComputador.Location = new System.Drawing.Point(20, 70);
+            this.lblComputador.Name = "lblComputador";
+            this.lblComputador.Size = new System.Drawing.Size(250, 20);
+            this.lblComputador.TabIndex = 1;
+            this.lblComputador.Text = "🖥️ SELECIONE O PC A SER USADO:";
+            // 
+            // cmbComputadores
+            // 
+            this.cmbComputadores.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbComputadores.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.cmbComputadores.Location = new System.Drawing.Point(20, 95);
+            this.cmbComputadores.Name = "cmbComputadores";
+            this.cmbComputadores.Size = new System.Drawing.Size(300, 23);
+            this.cmbComputadores.TabIndex = 2;
+            this.cmbComputadores.SelectedIndexChanged += new System.EventHandler(this.cmbComputadores_SelectedIndexChanged);
+            // 
+            // lblClienteNome
+            // 
+            this.lblClienteNome.Location = new System.Drawing.Point(20, 140);
+            this.lblClienteNome.Name = "lblClienteNome";
+            this.lblClienteNome.Size = new System.Drawing.Size(100, 20);
+            this.lblClienteNome.TabIndex = 3;
+            this.lblClienteNome.Text = "👤 Nome do Cliente:";
+            // 
+            // txtClienteNome
+            // 
+            this.txtClienteNome.Location = new System.Drawing.Point(120, 137);
+            this.txtClienteNome.Name = "txtClienteNome";
+            this.txtClienteNome.Size = new System.Drawing.Size(200, 20);
+            this.txtClienteNome.TabIndex = 4;
+            // 
+            // lblClienteEmail
+            // 
+            this.lblClienteEmail.Location = new System.Drawing.Point(20, 180);
+            this.lblClienteEmail.Name = "lblClienteEmail";
+            this.lblClienteEmail.Size = new System.Drawing.Size(100, 20);
+            this.lblClienteEmail.TabIndex = 5;
+            this.lblClienteEmail.Text = "📧 E-mail:";
+            // 
+            // txtClienteEmail
+            // 
+            this.txtClienteEmail.Location = new System.Drawing.Point(120, 177);
+            this.txtClienteEmail.Name = "txtClienteEmail";
+            this.txtClienteEmail.Size = new System.Drawing.Size(200, 20);
+            this.txtClienteEmail.TabIndex = 6;
+            // 
+            // lblData
+            // 
+            this.lblData.Location = new System.Drawing.Point(20, 220);
+            this.lblData.Name = "lblData";
+            this.lblData.Size = new System.Drawing.Size(100, 20);
+            this.lblData.TabIndex = 7;
+            this.lblData.Text = "📅 Data:";
+            // 
+            // dtpData
+            // 
+            this.dtpData.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpData.Location = new System.Drawing.Point(120, 217);
+            this.dtpData.MinDate = new System.DateTime(2025, 11, 4, 0, 0, 0, 0);
+            this.dtpData.Name = "dtpData";
+            this.dtpData.Size = new System.Drawing.Size(120, 20);
+            this.dtpData.TabIndex = 8;
+            this.dtpData.ValueChanged += new System.EventHandler(this.dtpData_ValueChanged);
+            // 
+            // lblHoraInicio
+            // 
+            this.lblHoraInicio.Location = new System.Drawing.Point(20, 260);
+            this.lblHoraInicio.Name = "lblHoraInicio";
+            this.lblHoraInicio.Size = new System.Drawing.Size(100, 20);
+            this.lblHoraInicio.TabIndex = 9;
+            this.lblHoraInicio.Text = "⏰ Hora Início:";
+            // 
+            // cmbHoraInicio
+            // 
+            this.cmbHoraInicio.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbHoraInicio.Location = new System.Drawing.Point(120, 257);
+            this.cmbHoraInicio.Name = "cmbHoraInicio";
+            this.cmbHoraInicio.Size = new System.Drawing.Size(100, 21);
+            this.cmbHoraInicio.TabIndex = 10;
+            this.cmbHoraInicio.SelectedIndexChanged += new System.EventHandler(this.cmbHorarios_SelectedIndexChanged);
+            // 
+            // lblHoraFim
+            // 
+            this.lblHoraFim.Location = new System.Drawing.Point(20, 300);
+            this.lblHoraFim.Name = "lblHoraFim";
+            this.lblHoraFim.Size = new System.Drawing.Size(100, 20);
+            this.lblHoraFim.TabIndex = 11;
+            this.lblHoraFim.Text = "⏱️ Hora Fim:";
+            // 
+            // cmbHoraFim
+            // 
+            this.cmbHoraFim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbHoraFim.Location = new System.Drawing.Point(120, 297);
+            this.cmbHoraFim.Name = "cmbHoraFim";
+            this.cmbHoraFim.Size = new System.Drawing.Size(100, 21);
+            this.cmbHoraFim.TabIndex = 12;
+            this.cmbHoraFim.SelectedIndexChanged += new System.EventHandler(this.cmbHorarios_SelectedIndexChanged);
+            // 
+            // lblHorasTitulo
+            // 
+            this.lblHorasTitulo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblHorasTitulo.Location = new System.Drawing.Point(20, 340);
+            this.lblHorasTitulo.Name = "lblHorasTitulo";
+            this.lblHorasTitulo.Size = new System.Drawing.Size(100, 20);
+            this.lblHorasTitulo.TabIndex = 13;
+            this.lblHorasTitulo.Text = "⏳ Horas Totais:";
+            // 
+            // lblHoras
+            // 
+            this.lblHoras.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblHoras.ForeColor = System.Drawing.Color.Blue;
+            this.lblHoras.Location = new System.Drawing.Point(120, 337);
+            this.lblHoras.Name = "lblHoras";
+            this.lblHoras.Size = new System.Drawing.Size(150, 25);
+            this.lblHoras.TabIndex = 14;
+            this.lblHoras.Text = "0 horas";
+            // 
+            // lblValorTitulo
+            // 
+            this.lblValorTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblValorTitulo.Location = new System.Drawing.Point(20, 370);
+            this.lblValorTitulo.Name = "lblValorTitulo";
+            this.lblValorTitulo.Size = new System.Drawing.Size(100, 20);
+            this.lblValorTitulo.TabIndex = 15;
+            this.lblValorTitulo.Text = "💰 Valor Total:";
+            // 
+            // lblValor
+            // 
+            this.lblValor.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblValor.ForeColor = System.Drawing.Color.Green;
+            this.lblValor.Location = new System.Drawing.Point(120, 367);
+            this.lblValor.Name = "lblValor";
+            this.lblValor.Size = new System.Drawing.Size(150, 25);
+            this.lblValor.TabIndex = 16;
+            this.lblValor.Text = "R$ 0,00";
+            // 
+            // btnConfirmar
+            // 
+            this.btnConfirmar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.btnConfirmar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConfirmar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnConfirmar.ForeColor = System.Drawing.Color.White;
+            this.btnConfirmar.Location = new System.Drawing.Point(80, 420);
+            this.btnConfirmar.Name = "btnConfirmar";
+            this.btnConfirmar.Size = new System.Drawing.Size(140, 40);
+            this.btnConfirmar.TabIndex = 17;
+            this.btnConfirmar.Text = "✅ CONFIRMAR";
+            this.btnConfirmar.UseVisualStyleBackColor = false;
+            this.btnConfirmar.Click += new System.EventHandler(this.btnConfirmar_Click);
+            // 
+            // btnCancelar
+            // 
+            this.btnCancelar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancelar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnCancelar.ForeColor = System.Drawing.Color.White;
+            this.btnCancelar.Location = new System.Drawing.Point(230, 420);
+            this.btnCancelar.Name = "btnCancelar";
+            this.btnCancelar.Size = new System.Drawing.Size(140, 40);
+            this.btnCancelar.TabIndex = 18;
+            this.btnCancelar.Text = "❌ CANCELAR";
+            this.btnCancelar.UseVisualStyleBackColor = false;
+            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            // 
+            // FormNovaReserva
+            // 
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(450, 480);
+            this.Controls.Add(this.lblTitulo);
+            this.Controls.Add(this.lblComputador);
+            this.Controls.Add(this.cmbComputadores);
+            this.Controls.Add(this.lblClienteNome);
+            this.Controls.Add(this.txtClienteNome);
+            this.Controls.Add(this.lblClienteEmail);
+            this.Controls.Add(this.txtClienteEmail);
+            this.Controls.Add(this.lblData);
+            this.Controls.Add(this.dtpData);
+            this.Controls.Add(this.lblHoraInicio);
+            this.Controls.Add(this.cmbHoraInicio);
+            this.Controls.Add(this.lblHoraFim);
+            this.Controls.Add(this.cmbHoraFim);
+            this.Controls.Add(this.lblHorasTitulo);
+            this.Controls.Add(this.lblHoras);
+            this.Controls.Add(this.lblValorTitulo);
+            this.Controls.Add(this.lblValor);
+            this.Controls.Add(this.btnConfirmar);
+            this.Controls.Add(this.btnCancelar);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Name = "FormNovaReserva";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "➕ Nova Reserva - Lan House System";
+            this.Load += new System.EventHandler(this.FormNovaReserva_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
-            // Título
-            var lblTitulo = new Label();
-            lblTitulo.Text = "➕ NOVA RESERVA";
-            lblTitulo.Font = new Font("Segoe UI", 14, FontStyle.Bold);
-            lblTitulo.ForeColor = Color.FromArgb(40, 167, 69);
-            lblTitulo.Location = new Point(20, 20);
-            lblTitulo.Size = new Size(300, 30);
-            this.Controls.Add(lblTitulo);
-
-            // Computador
-            var lblComputador = new Label();
-            lblComputador.Text = "Computador:";
-            lblComputador.Location = new Point(20, 70);
-            lblComputador.Size = new Size(100, 20);
-            this.Controls.Add(lblComputador);
-
-            cmbComputadores = new ComboBox();
-            cmbComputadores.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbComputadores.Location = new Point(120, 67);
-            cmbComputadores.Size = new Size(200, 25);
-         
-            this.Controls.Add(cmbComputadores);
-
-            // Cliente
-            var lblClienteNome = new Label();
-            lblClienteNome.Text = "Nome do Cliente:";
-            lblClienteNome.Location = new Point(20, 110);
-            lblClienteNome.Size = new Size(100, 20);
-            this.Controls.Add(lblClienteNome);
-
-            txtClienteNome = new TextBox();
-            txtClienteNome.Location = new Point(120, 107);
-            txtClienteNome.Size = new Size(200, 25);
-            this.Controls.Add(txtClienteNome);
-
-            // Email
-            var lblClienteEmail = new Label();
-            lblClienteEmail.Text = "E-mail:";
-            lblClienteEmail.Location = new Point(20, 150);
-            lblClienteEmail.Size = new Size(100, 20);
-            this.Controls.Add(lblClienteEmail);
-
-            txtClienteEmail = new TextBox();
-            txtClienteEmail.Location = new Point(120, 147);
-            txtClienteEmail.Size = new Size(200, 25);
-            this.Controls.Add(txtClienteEmail);
-
-            // Data
-            var lblData = new Label();
-            lblData.Text = "Data:";
-            lblData.Location = new Point(20, 190);
-            lblData.Size = new Size(100, 20);
-            this.Controls.Add(lblData);
-
-            dtpData = new DateTimePicker();
-            dtpData.Format = DateTimePickerFormat.Short;
-            dtpData.Location = new Point(120, 187);
-            dtpData.Size = new Size(120, 25);
-            dtpData.MinDate = DateTime.Today;
-            this.Controls.Add(dtpData);
-
-            // Hora Início
-            var lblHoraInicio = new Label();
-            lblHoraInicio.Text = "Hora Início:";
-            lblHoraInicio.Location = new Point(20, 230);
-            lblHoraInicio.Size = new Size(100, 20);
-            this.Controls.Add(lblHoraInicio);
-
-            cmbHoraInicio = new ComboBox();
-            cmbHoraInicio.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbHoraInicio.Location = new Point(120, 227);
-            cmbHoraInicio.Size = new Size(100, 25);
-           
-            this.Controls.Add(cmbHoraInicio);
-
-            // Hora Fim
-            var lblHoraFim = new Label();
-            lblHoraFim.Text = "Hora Fim:";
-            lblHoraFim.Location = new Point(20, 270);
-            lblHoraFim.Size = new Size(100, 20);
-            this.Controls.Add(lblHoraFim);
-
-            cmbHoraFim = new ComboBox();
-            cmbHoraFim.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbHoraFim.Location = new Point(120, 267);
-            cmbHoraFim.Size = new Size(100, 25);
-         
-            this.Controls.Add(cmbHoraFim);
-
-            // Horas Totais
-            var lblHorasTitulo = new Label();
-            lblHorasTitulo.Text = "Horas Totais:";
-            lblHorasTitulo.Font = new Font("Segoe UI", 9, FontStyle.Bold);
-            lblHorasTitulo.Location = new Point(20, 310);
-            lblHorasTitulo.Size = new Size(100, 20);
-            this.Controls.Add(lblHorasTitulo);
-
-            lblHoras = new Label();
-            lblHoras.Text = "0 horas";
-            lblHoras.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            lblHoras.ForeColor = Color.Blue;
-            lblHoras.Location = new Point(120, 307);
-            lblHoras.Size = new Size(150, 25);
-            this.Controls.Add(lblHoras);
-
-            // Valor
-            var lblValorTitulo = new Label();
-            lblValorTitulo.Text = "Valor Total:";
-            lblValorTitulo.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            lblValorTitulo.Location = new Point(20, 340);
-            lblValorTitulo.Size = new Size(100, 20);
-            this.Controls.Add(lblValorTitulo);
-
-            lblValor = new Label();
-            lblValor.Text = "R$ 0,00";
-            lblValor.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-            lblValor.ForeColor = Color.Green;
-            lblValor.Location = new Point(120, 337);
-            lblValor.Size = new Size(150, 25);
-            this.Controls.Add(lblValor);
-
-            // Botões
-            btnConfirmar = new Button();
-            btnConfirmar.Text = "✅ CONFIRMAR";
-            btnConfirmar.BackColor = Color.FromArgb(40, 167, 69);
-            btnConfirmar.FlatStyle = FlatStyle.Flat;
-            btnConfirmar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnConfirmar.ForeColor = Color.White;
-            btnConfirmar.Location = new Point(120, 380);
-            btnConfirmar.Size = new Size(140, 40);
-            btnConfirmar.Click += new EventHandler(btnConfirmar_Click);
-            this.Controls.Add(btnConfirmar);
-
-            btnCancelar = new Button();
-            btnCancelar.Text = "❌ CANCELAR";
-            btnCancelar.BackColor = Color.FromArgb(108, 117, 125);
-            btnCancelar.FlatStyle = FlatStyle.Flat;
-            btnCancelar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnCancelar.ForeColor = Color.White;
-            btnCancelar.Location = new Point(270, 380);
-            btnCancelar.Size = new Size(140, 40);
-            btnCancelar.Click += new EventHandler(btnCancelar_Click);
-            this.Controls.Add(btnCancelar);
         }
 
         private void CarregarComputadores()
@@ -192,32 +271,102 @@ namespace lanhause
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
-                    string query = "SELECT Id, Nome, PrecoHora FROM Computadores WHERE Status = '🟢 DISPONÍVEL'";
+                    string query = "SELECT Id, Nome, PrecoHora FROM Computadores WHERE Status = '🟢 DISPONÍVEL' ORDER BY Nome";
 
-                    using (var command = new SQLiteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            string display = $"{reader["Nome"]} (R$ {reader["PrecoHora"]}/h)";
+                            string nomeComputador = reader["Nome"].ToString();
+                            decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
+
+                            string display = $"{nomeComputador} - R$ {precoHora:F2}/hora";
+
                             cmbComputadores.Items.Add(new ComputadorItem
                             {
                                 Display = display,
                                 Id = reader["Id"].ToString(),
-                                PrecoHora = Convert.ToDecimal(reader["PrecoHora"])
+                                PrecoHora = precoHora
                             });
                         }
                     }
                 }
 
-                if (cmbComputadores.Items.Count > 0)
-                    cmbComputadores.SelectedIndex = 0;
+                // Se não encontrou computadores no banco, cria os 5 PCs padrão
+                if (cmbComputadores.Items.Count == 0)
+                {
+                    CriarComputadoresPadrao();
+                }
+
+                // Adiciona um item padrão no topo
+                cmbComputadores.Items.Insert(0, new ComputadorItem
+                {
+                    Display = "🖥️ SELECIONE UM COMPUTADOR",
+                    Id = "",
+                    PrecoHora = 0
+                });
+
+                cmbComputadores.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Erro ao carregar computadores: {ex.Message}", "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Em caso de erro, cria os PCs padrão
+                CriarComputadoresPadrao();
             }
+        }
+
+        private void CriarComputadoresPadrao()
+        {
+            cmbComputadores.Items.Clear();
+
+            // Adiciona os 5 PCs padrão
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "🖥️ SELECIONE UM COMPUTADOR",
+                Id = "",
+                PrecoHora = 0
+            });
+
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "💻 PC Gamer 1 - R$ 8,00/hora",
+                Id = "PC-001",
+                PrecoHora = 8.00m
+            });
+
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "💻 PC Gamer 2 - R$ 8,00/hora",
+                Id = "PC-002",
+                PrecoHora = 8.00m
+            });
+
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "💻 PC Standard 1 - R$ 5,00/hora",
+                Id = "PC-003",
+                PrecoHora = 5.00m
+            });
+
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "💻 PC Standard 2 - R$ 5,00/hora",
+                Id = "PC-004",
+                PrecoHora = 5.00m
+            });
+
+            cmbComputadores.Items.Add(new ComputadorItem
+            {
+                Display = "💻 PC Básico 1 - R$ 3,00/hora",
+                Id = "PC-005",
+                PrecoHora = 3.00m
+            });
+
+            cmbComputadores.SelectedIndex = 0;
         }
 
         private void CarregarHorarios()
@@ -242,6 +391,7 @@ namespace lanhause
         private void CalcularValor()
         {
             if (cmbComputadores.SelectedItem is ComputadorItem computador &&
+                computador.PrecoHora > 0 &&
                 cmbHoraInicio.SelectedItem != null &&
                 cmbHoraFim.SelectedItem != null)
             {
@@ -300,37 +450,31 @@ namespace lanhause
 
                         string query = @"
                             INSERT INTO Reservas (Id, ComputadorId, ClienteNome, ClienteEmail, 
-                                                DataReserva, HoraInicio, HoraFim, Status, ValorTotal)
+                                                DataReserva, HoraInicio, HoraFim, Status, ValorTotal, UsuarioId)
                             VALUES (@Id, @ComputadorId, @ClienteNome, @ClienteEmail, 
-                                    @DataReserva, @HoraInicio, @HoraFim, @Status, @ValorTotal)";
+                                    @DataReserva, @HoraInicio, @HoraFim, @Status, @ValorTotal, @UsuarioId)";
 
-                        using (var command = new SQLiteCommand(query, connection))
+                        using (var command = new SqlCommand(query, connection))
                         {
                             command.Parameters.AddWithValue("@Id", reservaId);
                             command.Parameters.AddWithValue("@ComputadorId", computador.Id);
-                            command.Parameters.AddWithValue("@ClienteNome", txtClienteNome.Text);
-                            command.Parameters.AddWithValue("@ClienteEmail", txtClienteEmail.Text);
+                            command.Parameters.AddWithValue("@ClienteNome", txtClienteNome.Text.Trim());
+                            command.Parameters.AddWithValue("@ClienteEmail", txtClienteEmail.Text.Trim());
                             command.Parameters.AddWithValue("@DataReserva", dtpData.Value.ToString("yyyy-MM-dd"));
                             command.Parameters.AddWithValue("@HoraInicio", cmbHoraInicio.SelectedItem.ToString());
                             command.Parameters.AddWithValue("@HoraFim", cmbHoraFim.SelectedItem.ToString());
                             command.Parameters.AddWithValue("@Status", "🟢 CONFIRMADA");
                             command.Parameters.AddWithValue("@ValorTotal", valorTotal);
+                            command.Parameters.AddWithValue("@UsuarioId", FormLogin.UsuarioId.ToString());
 
                             command.ExecuteNonQuery();
                         }
-
-                        // REGISTRAR USO DO COMPUTADOR com horas reais
-                        DatabaseHelper.RegistrarUsoComputador(
-                            computador.Id,
-                            dtpData.Value,
-                            horasReais,
-                            valorTotal
-                        );
                     }
 
                     MessageBox.Show($"✅ Reserva confirmada com sucesso!\n\n" +
                                   $"Código: {reservaId}\n" +
                                   $"Cliente: {txtClienteNome.Text}\n" +
+                                  $"Computador: {((ComputadorItem)cmbComputadores.SelectedItem).Display.Split('-')[0].Trim()}\n" +
                                   $"Horas: {horasTotais}h\n" +
                                   $"Valor: R$ {valorTotal:F2}",
                                   "Reserva Confirmada",
@@ -366,10 +510,12 @@ namespace lanhause
                 return false;
             }
 
-            if (cmbComputadores.SelectedItem == null)
+            if (cmbComputadores.SelectedItem == null ||
+                ((ComputadorItem)cmbComputadores.SelectedItem).PrecoHora == 0)
             {
-                MessageBox.Show("⚠️ Selecione um computador.", "Validação",
+                MessageBox.Show("⚠️ Selecione um computador válido.", "Validação",
                               MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                cmbComputadores.Focus();
                 return false;
             }
 
@@ -389,6 +535,37 @@ namespace lanhause
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        // Event handlers para calcular valor automaticamente
+        private void cmbComputadores_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            CalcularValor();
+        }
+
+        private void cmbHorarios_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            CalcularValor();
+        }
+
+        private void dtpData_ValueChanged(object sender, EventArgs e)
+        {
+            CalcularValor();
+        }
+
+        private void FormNovaReserva_Load(object sender, EventArgs e)
+        {
+            // Configurações adicionais no load se necessário
+        }
+
+        private Label lblTitulo;
+        private Label lblComputador;
+        private Label lblClienteNome;
+        private Label lblClienteEmail;
+        private Label lblData;
+        private Label lblHoraInicio;
+        private Label lblHoraFim;
+        private Label lblHorasTitulo;
+        private Label lblValorTitulo;
     }
 
     public class ComputadorItem

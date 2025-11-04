@@ -193,6 +193,7 @@ namespace lanhause
             this.Name = "FormRelatorios";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "📊 Relatórios - Lan House System";
+            this.Load += new System.EventHandler(this.FormRelatorios_Load);
             this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewRelatorio)).EndInit();
             this.ResumeLayout(false);
@@ -244,5 +245,10 @@ namespace lanhause
         }
 
         private Label lblAte;
+
+        private void FormRelatorios_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -1,420 +1,659 @@
 ﻿using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Data.SQLite;
-using System.Data;
 
 namespace lanhause
 {
-    public class FormReservas : Form
+    public partial class FormReservas : Form
     {
-        private DataGridView dataGridViewReservas;
-        private Button btnNovaReserva, btnEditarReserva, btnCancelarReserva, btnFechar, btnRelatorio;
-        private Label lblTitulo;
-        private GroupBox groupBox1;
+        private bool isAdmin;
+        private string usuarioLogadoId;
 
         public FormReservas()
         {
             InitializeComponent();
+            isAdmin = FormLogin.IsAdmin;
+
+            // CONVERTE int PARA string
+            usuarioLogadoId = FormLogin.UsuarioId.ToString();
+
+            ConfigurarColunasDataGridView();
             CarregarReservas();
         }
 
-        private void InitializeComponent()
+        private void FormReservas_Load(object sender, EventArgs e)
         {
-            // Configuração básica do form
-            this.Text = "📅 Reservas - Lan House System";
-            this.Size = new Size(1000, 600);
-            this.BackColor = Color.White;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
+            ConfigurarPermissoes();
+        }
 
-            // Label título
-            lblTitulo = new Label();
-            lblTitulo.Text = "📅 GERENCIAR RESERVAS";
-            lblTitulo.Font = new Font("Segoe UI", 16, FontStyle.Bold);
-            lblTitulo.ForeColor = Color.FromArgb(111, 66, 193);
-            lblTitulo.Location = new Point(20, 20);
-            lblTitulo.Size = new Size(400, 30);
-            this.Controls.Add(lblTitulo);
+        private void ConfigurarColunasDataGridView()
+        {
+            // Limpa colunas existentes
+            dgvReservas.Columns.Clear();
 
-            // GroupBox
-            groupBox1 = new GroupBox();
-            groupBox1.Text = "Lista de Reservas";
-            groupBox1.Font = new Font("Segoe UI", 9, FontStyle.Bold);
-            groupBox1.Location = new Point(20, 60);
-            groupBox1.Size = new Size(960, 400);
-            this.Controls.Add(groupBox1);
+            // Adiciona colunas manualmente
+            dgvReservas.Columns.Add("Id", "ID");
+            dgvReservas.Columns.Add("Cliente", "CLIENTE");
+            dgvReservas.Columns.Add("Email", "E-MAIL");
+            dgvReservas.Columns.Add("Computador", "COMPUTADOR");
+            dgvReservas.Columns.Add("Data", "DATA");
+            dgvReservas.Columns.Add("Horario", "HORÁRIO");
+            dgvReservas.Columns.Add("Status", "STATUS");
+            dgvReservas.Columns.Add("Valor", "VALOR");
+            dgvReservas.Columns.Add("UsuarioCriador", "CRIADO POR");
 
-            // DataGridView
-            dataGridViewReservas = new DataGridView();
-            dataGridViewReservas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewReservas.BackgroundColor = Color.White;
-            dataGridViewReservas.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewReservas.Location = new Point(20, 25);
-            dataGridViewReservas.Size = new Size(920, 350);
-            dataGridViewReservas.ReadOnly = true;
-            dataGridViewReservas.RowHeadersVisible = false;
-            dataGridViewReservas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            groupBox1.Controls.Add(dataGridViewReservas);
+            // Oculta a coluna do usuário criador
+            dgvReservas.Columns["UsuarioCriador"].Visible = false;
 
-            // Botão Nova Reserva
-            btnNovaReserva = new Button();
-            btnNovaReserva.Text = "➕ NOVA RESERVA";
-            btnNovaReserva.BackColor = Color.FromArgb(40, 167, 69);
-            btnNovaReserva.FlatStyle = FlatStyle.Flat;
-            btnNovaReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnNovaReserva.ForeColor = Color.White;
-            btnNovaReserva.Location = new Point(20, 480);
-            btnNovaReserva.Size = new Size(160, 40);
-            btnNovaReserva.Click += new EventHandler(btnNovaReserva_Click);
-            this.Controls.Add(btnNovaReserva);
+            // Configuração das colunas
+            foreach (DataGridViewColumn coluna in dgvReservas.Columns)
+            {
+                coluna.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+        }
 
-            // Botão Editar
-            btnEditarReserva = new Button();
-            btnEditarReserva.Text = "✏️ EDITAR";
-            btnEditarReserva.BackColor = Color.FromArgb(255, 193, 7);
-            btnEditarReserva.FlatStyle = FlatStyle.Flat;
-            btnEditarReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnEditarReserva.ForeColor = Color.Black;
-            btnEditarReserva.Location = new Point(190, 480);
-            btnEditarReserva.Size = new Size(140, 40);
-            btnEditarReserva.Click += new EventHandler(btnEditarReserva_Click);
-            this.Controls.Add(btnEditarReserva);
-
-            // Botão Cancelar
-            btnCancelarReserva = new Button();
-            btnCancelarReserva.Text = "❌ CANCELAR";
-            btnCancelarReserva.BackColor = Color.FromArgb(220, 53, 69);
-            btnCancelarReserva.FlatStyle = FlatStyle.Flat;
-            btnCancelarReserva.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnCancelarReserva.ForeColor = Color.White;
-            btnCancelarReserva.Location = new Point(340, 480);
-            btnCancelarReserva.Size = new Size(140, 40);
-            btnCancelarReserva.Click += new EventHandler(btnCancelarReserva_Click);
-            this.Controls.Add(btnCancelarReserva);
-
-            // Botão Relatório
-            btnRelatorio = new Button();
-            btnRelatorio.Text = "📊 RELATÓRIO";
-            btnRelatorio.BackColor = Color.FromArgb(111, 66, 193);
-            btnRelatorio.FlatStyle = FlatStyle.Flat;
-            btnRelatorio.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnRelatorio.ForeColor = Color.White;
-            btnRelatorio.Location = new Point(490, 480);
-            btnRelatorio.Size = new Size(140, 40);
-            btnRelatorio.Click += new EventHandler(btnRelatorio_Click);
-            this.Controls.Add(btnRelatorio);
-
-            // Botão Fechar
-            btnFechar = new Button();
-            btnFechar.Text = "🔙 VOLTAR";
-            btnFechar.BackColor = Color.FromArgb(108, 117, 125);
-            btnFechar.FlatStyle = FlatStyle.Flat;
-            btnFechar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnFechar.ForeColor = Color.White;
-            btnFechar.Location = new Point(860, 480);
-            btnFechar.Size = new Size(120, 40);
-            btnFechar.Click += new EventHandler(btnFechar_Click); // ADICIONEI O EVENTO CLICK AQUI
-            this.Controls.Add(btnFechar);
+        private void ConfigurarPermissoes()
+        {
+            if (!isAdmin)
+            {
+                btnRelatorio.Visible = false;
+                btnApagarReserva.Visible = false;
+            }
         }
 
         private void CarregarReservas()
         {
             try
             {
-                dataGridViewReservas.Columns.Clear();
-                dataGridViewReservas.Rows.Clear();
+                dgvReservas.Rows.Clear();
 
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
 
-                    // CONSULTA SIMPLIFICADA - EVITAR CONVERSÕES AUTOMÁTICAS
                     string query = @"
                 SELECT 
-                    r.Id as ReservaId,
-                    r.ClienteNome,
+                    r.Id, r.ClienteNome, r.ClienteEmail,
                     c.Nome as ComputadorNome,
-                    r.DataReserva as DataStr,
-                    r.HoraInicio,
-                    r.HoraFim,
-                    r.Status,
-                    r.ValorTotal
+                    r.DataReserva, r.HoraInicio, r.HoraFim,
+                    r.Status, r.ValorTotal,
+                    r.UsuarioId as UsuarioCriador
                 FROM Reservas r
                 JOIN Computadores c ON r.ComputadorId = c.Id
-                ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
+                WHERE 1=1";
 
-                    using (var command = new SQLiteCommand(query, connection))
-                    using (var reader = command.ExecuteReader())
+                    query += " ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
+
+                    using (var cmd = new SqlCommand(query, connection))
                     {
-                        // Adicionar colunas
-                        dataGridViewReservas.Columns.Add("Id", "ID");
-                        dataGridViewReservas.Columns.Add("Cliente", "CLIENTE");
-                        dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
-                        dataGridViewReservas.Columns.Add("Data", "DATA");
-                        dataGridViewReservas.Columns.Add("Horario", "HORÁRIO");
-                        dataGridViewReservas.Columns.Add("Status", "STATUS");
-                        dataGridViewReservas.Columns.Add("Valor", "VALOR");
+                        if (cmbFiltroStatus.SelectedIndex > 0)
+                            cmd.Parameters.AddWithValue("@Status", cmbFiltroStatus.Text);
 
-                        while (reader.Read())
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            // LER TODOS OS CAMPOS COMO STRING PARA EVITAR CONVERSÃO AUTOMÁTICA
-                            string id = reader["ReservaId"].ToString();
-                            string cliente = reader["ClienteNome"].ToString();
-                            string computador = reader["ComputadorNome"].ToString();
-                            string dataStr = reader["DataStr"].ToString(); // Já vem como string
-                            string horaInicio = reader["HoraInicio"].ToString();
-                            string horaFim = reader["HoraFim"].ToString();
-                            string status = reader["Status"].ToString();
-                            string valorTotal = reader["ValorTotal"].ToString();
-
-                            string horario = $"{horaInicio} - {horaFim}";
-
-                            // FORMATAR DATA SE ESTIVER NO FORMATO yyyy-MM-dd
-                            if (dataStr.Length == 10 && dataStr.Contains("-"))
+                            while (reader.Read())
                             {
-                                try
-                                {
-                                    string[] partes = dataStr.Split('-');
-                                    if (partes.Length == 3 && partes[0].Length == 4)
-                                    {
-                                        dataStr = $"{partes[2]}/{partes[1]}/{partes[0]}";
-                                    }
-                                }
-                                catch
-                                {
-                                    // Manter o formato original se der erro
-                                }
+                                dgvReservas.Rows.Add(
+                                    reader["Id"].ToString(),
+                                    reader["ClienteNome"].ToString(),
+                                    reader["ClienteEmail"].ToString(),
+                                    reader["ComputadorNome"].ToString(),
+                                    Convert.ToDateTime(reader["DataReserva"]).ToString("dd/MM/yyyy"),
+                                    $"{reader["HoraInicio"]} - {reader["HoraFim"]}",
+                                    reader["Status"].ToString(),
+                                    $"R$ {Convert.ToDecimal(reader["ValorTotal"]):F2}",
+                                    reader["UsuarioCriador"].ToString()
+                                );
                             }
-
-                            // FORMATAR VALOR
-                            string valorFormatado = "R$ 0,00";
-                            if (decimal.TryParse(valorTotal, out decimal valor))
-                            {
-                                valorFormatado = $"R$ {valor:F2}";
-                            }
-
-                            dataGridViewReservas.Rows.Add(
-                                id,
-                                cliente,
-                                computador,
-                                dataStr,
-                                horario,
-                                status,
-                                valorFormatado
-                            );
                         }
                     }
                 }
 
                 AplicarCoresStatus();
+                VerificarPermissoesBotoes();
+                AtualizarEstatisticas(dgvReservas.Rows.Count);
             }
             catch (Exception ex)
             {
-                // VERSÃO DE EMERGÊNCIA - CARREGAR SEM DADOS
-                dataGridViewReservas.Columns.Clear();
-                dataGridViewReservas.Rows.Clear();
-
-                dataGridViewReservas.Columns.Add("Id", "ID");
-                dataGridViewReservas.Columns.Add("Cliente", "CLIENTE");
-                dataGridViewReservas.Columns.Add("Computador", "COMPUTADOR");
-                dataGridViewReservas.Columns.Add("Data", "DATA");
-                dataGridViewReservas.Columns.Add("Horario", "HORÁRIO");
-                dataGridViewReservas.Columns.Add("Status", "STATUS");
-                dataGridViewReservas.Columns.Add("Valor", "VALOR");
-
-                dataGridViewReservas.Rows.Add("ERRO", "Erro ao carregar", "dados", "-", "-", "Verifique console", "-");
-
-                // Não mostrar MessageBox para não interromper o usuário
-                Console.WriteLine($"Erro silencioso ao carregar reservas: {ex.Message}");
+                MessageBox.Show($"Erro ao carregar reservas:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void AplicarCoresStatus()
         {
-            foreach (DataGridViewRow row in dataGridViewReservas.Rows)
+            foreach (DataGridViewRow row in dgvReservas.Rows)
             {
                 if (row.Cells["Status"].Value != null)
                 {
                     string status = row.Cells["Status"].Value.ToString();
-                    if (status.Contains("CONFIRMADA"))
-                    {
-                        row.Cells["Status"].Style.ForeColor = Color.Green;
-                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
-                    }
-                    else if (status.Contains("PENDENTE"))
-                    {
-                        row.Cells["Status"].Style.ForeColor = Color.Orange;
-                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
-                    }
-                    else if (status.Contains("CANCELADA"))
-                    {
-                        row.Cells["Status"].Style.ForeColor = Color.Red;
-                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
-                    }
-                    else if (status.Contains("CONCLUÍDA"))
-                    {
-                        row.Cells["Status"].Style.ForeColor = Color.Blue;
-                        row.Cells["Status"].Style.Font = new Font(dataGridViewReservas.Font, FontStyle.Bold);
-                    }
+                    Color cor = Color.Black;
+
+                    if (status.Contains("CONFIRMADA")) cor = Color.Green;
+                    else if (status.Contains("PENDENTE")) cor = Color.Orange;
+                    else if (status.Contains("CANCELADA")) cor = Color.Red;
+                    else if (status.Contains("CONCLUÍDA")) cor = Color.Blue;
+
+                    row.Cells["Status"].Style.ForeColor = cor;
+                    row.Cells["Status"].Style.Font = new Font(dgvReservas.Font, FontStyle.Bold);
                 }
             }
         }
 
+        private void VerificarPermissoesBotoes()
+        {
+            // Inicialmente desabilita os botões
+            btnEditarReserva.Enabled = false;
+            btnCancelarReserva.Enabled = false;
+            btnConcluirReserva.Enabled = false;
+            btnApagarReserva.Enabled = false;
+
+            // Se não há linha selecionada, mantém desabilitado
+            if (dgvReservas.CurrentRow == null) return;
+
+            string reservaId = dgvReservas.CurrentRow.Cells["Id"].Value.ToString();
+            string status = dgvReservas.CurrentRow.Cells["Status"].Value.ToString();
+            string usuarioCriador = dgvReservas.CurrentRow.Cells["UsuarioCriador"].Value.ToString();
+
+            // ✅ ADMIN tem acesso total a todas as reservas
+            // ✅ Usuário comum só tem acesso às próprias reservas
+            bool podeEditar = isAdmin || (usuarioCriador == usuarioLogadoId);
+            bool podeCancelar = isAdmin || (usuarioCriador == usuarioLogadoId);
+            bool podeConcluir = isAdmin; // Apenas admin pode concluir reservas
+            bool podeApagar = isAdmin;   // ← APENAS ADMIN pode apagar
+
+            // Habilita/desabilita botões baseado nas permissões
+            btnEditarReserva.Enabled = podeEditar &&
+                                     !status.Contains("CONCLUÍDA") &&
+                                     !status.Contains("CANCELADA");
+
+            btnCancelarReserva.Enabled = podeCancelar &&
+                                       !status.Contains("CONCLUÍDA") &&
+                                       !status.Contains("CANCELADA");
+
+            btnConcluirReserva.Enabled = podeConcluir &&
+                                       !status.Contains("CONCLUÍDA") &&
+                                       !status.Contains("CANCELADA");
+
+            btnApagarReserva.Enabled = podeApagar; // ← SEMPRE que for admin
+
+            // Atualiza os textos dos botões para mostrar permissões
+            AtualizarTextosBotoes(podeEditar, podeCancelar, podeConcluir);
+        }
+
+        private void AtualizarTextosBotoes(bool podeEditar, bool podeCancelar, bool podeConcluir)
+        {
+            // ✅ Admin sempre vê "EDITAR", usuário comum vê "VISUALIZAR" quando não é dono
+            btnEditarReserva.Text = (isAdmin || podeEditar) ? "✏️ EDITAR" : "👁️ VISUALIZAR";
+            btnCancelarReserva.Text = "❌ CANCELAR";
+            btnConcluirReserva.Text = "✅ CONCLUIR";
+            btnApagarReserva.Text = "🗑️ APAGAR";
+
+            // Muda cores para indicar permissões
+            if (!podeEditar && !isAdmin)
+            {
+                btnEditarReserva.BackColor = Color.Gray;
+                btnEditarReserva.ForeColor = Color.White;
+            }
+            else
+            {
+                btnEditarReserva.BackColor = Color.FromArgb(255, 193, 7);
+                btnEditarReserva.ForeColor = Color.Black;
+            }
+
+            if (!podeCancelar && !isAdmin)
+            {
+                btnCancelarReserva.BackColor = Color.Gray;
+                btnCancelarReserva.Enabled = false;
+            }
+            else
+            {
+                btnCancelarReserva.BackColor = Color.FromArgb(220, 53, 69);
+            }
+        }
+
+        private void AtualizarEstatisticas(int total)
+        {
+            lblTitulo.Text = $"📅 GERENCIAR RESERVAS ({total} encontrada{(total != 1 ? "s" : "")})";
+        }
+
         private void btnNovaReserva_Click(object sender, EventArgs e)
         {
-            // ABRIR FORM NOVA RESERVA
-            FormNovaReserva formNovaReserva = new FormNovaReserva();
-            DialogResult result = formNovaReserva.ShowDialog();
-
-            if (result == DialogResult.OK)
+            using (var form = new FormNovaReserva())
             {
-                // Recarregar a lista se uma nova reserva foi criada
-                CarregarReservas();
-                MessageBox.Show("Nova reserva criada com sucesso!", "Sucesso",
-                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    CarregarReservas();
+                    MessageBox.Show("✅ Reserva criada com sucesso e lista atualizada!", "Sucesso",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
 
         private void btnEditarReserva_Click(object sender, EventArgs e)
         {
-            if (dataGridViewReservas.CurrentRow != null)
+            if (dgvReservas.CurrentRow == null)
             {
-                string reservaId = dataGridViewReservas.CurrentRow.Cells["Id"].Value?.ToString() ?? "";
-                MessageBox.Show($"✏️ Editando reserva: {reservaId}\n\n" +
-                              "Funcionalidade de edição em desenvolvimento...",
-                              "Editar Reserva", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Selecione uma reserva para editar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            else
+
+            string reservaId = dgvReservas.CurrentRow.Cells["Id"].Value.ToString();
+            string status = dgvReservas.CurrentRow.Cells["Status"].Value.ToString();
+            string usuarioCriador = dgvReservas.CurrentRow.Cells["UsuarioCriador"].Value.ToString();
+
+            // Verifica permissão para editar
+            if (usuarioCriador != usuarioLogadoId && !isAdmin)
             {
-                MessageBox.Show("⚠️ Selecione uma reserva para editar.",
-                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("❌ Você só pode editar suas próprias reservas.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (status.Contains("CONCLUÍDA") || status.Contains("CANCELADA"))
+            {
+                MessageBox.Show("❌ Não é possível editar reservas concluídas ou canceladas.",
+                    "Operação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (var form = new FormEditarReserva(reservaId))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    CarregarReservas();
+                    MessageBox.Show("✅ Reserva atualizada com sucesso!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void btnConcluirReserva_Click(object sender, EventArgs e)
+        {
+            if (dgvReservas.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione uma reserva para concluir.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Apenas admin pode concluir reservas
+            if (!isAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem concluir reservas.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string reservaId = dgvReservas.CurrentRow.Cells["Id"].Value.ToString();
+            string cliente = dgvReservas.CurrentRow.Cells["Cliente"].Value.ToString();
+            string status = dgvReservas.CurrentRow.Cells["Status"].Value.ToString();
+
+            if (status.Contains("CONCLUÍDA"))
+            {
+                MessageBox.Show("ℹ️ Esta reserva já está concluída.", "Informação",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (status.Contains("CANCELADA"))
+            {
+                MessageBox.Show("❌ Não é possível concluir uma reserva cancelada.",
+                    "Operação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                $"Confirmar conclusão da reserva?\n\nCliente: {cliente}\nReserva: {reservaId}",
+                "Concluir Reserva", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    using (var connection = DatabaseHelper.GetConnection())
+                    {
+                        connection.Open();
+                        string query = "UPDATE Reservas SET Status = '✅ CONCLUÍDA' WHERE Id = @Id";
+
+                        using (var cmd = new SqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", reservaId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    CarregarReservas();
+                    MessageBox.Show("✅ Reserva concluída com sucesso!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao concluir reserva:\n{ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
         private void btnCancelarReserva_Click(object sender, EventArgs e)
         {
-            if (dataGridViewReservas.CurrentRow != null)
+            if (dgvReservas.CurrentRow == null)
             {
-                string reservaId = dataGridViewReservas.CurrentRow.Cells["Id"].Value?.ToString() ?? "";
-                string cliente = dataGridViewReservas.CurrentRow.Cells["Cliente"].Value?.ToString() ?? "";
-                string statusAtual = dataGridViewReservas.CurrentRow.Cells["Status"].Value?.ToString() ?? "";
+                MessageBox.Show("Selecione uma reserva para cancelar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-                if (statusAtual.Contains("CANCELADA"))
+            string reservaId = dgvReservas.CurrentRow.Cells["Id"].Value.ToString();
+            string cliente = dgvReservas.CurrentRow.Cells["Cliente"].Value.ToString();
+            string status = dgvReservas.CurrentRow.Cells["Status"].Value.ToString();
+            string usuarioCriador = dgvReservas.CurrentRow.Cells["UsuarioCriador"].Value.ToString();
+            decimal valorReserva = 0;
+
+            // Obter o valor da reserva antes de cancelar (para relatório)
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
                 {
-                    MessageBox.Show("Esta reserva já está cancelada.", "Reserva Cancelada",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-
-                DialogResult result = MessageBox.Show(
-                    $"Tem certeza que deseja cancelar a reserva?\n\n" +
-                    $"Cliente: {cliente}\n" +
-                    $"Reserva: {reservaId}",
-                    "Confirmar Cancelamento",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    try
+                    connection.Open();
+                    string queryValor = "SELECT ValorTotal FROM Reservas WHERE Id = @Id";
+                    using (var cmd = new SqlCommand(queryValor, connection))
                     {
-                        using (var connection = DatabaseHelper.GetConnection())
+                        cmd.Parameters.AddWithValue("@Id", reservaId);
+                        var valorResult = cmd.ExecuteScalar();
+                        if (valorResult != null && valorResult != DBNull.Value)
                         {
-                            connection.Open();
-                            string query = "UPDATE Reservas SET Status = '❌ CANCELADA' WHERE Id = @Id";
-
-                            using (var command = new SQLiteCommand(query, connection))
-                            {
-                                command.Parameters.AddWithValue("@Id", reservaId);
-                                command.ExecuteNonQuery();
-                            }
+                            valorReserva = Convert.ToDecimal(valorResult);
                         }
-
-                        MessageBox.Show($"✅ Reserva cancelada com sucesso!", "Cancelamento Concluído",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        CarregarReservas();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Erro ao cancelar reserva: {ex.Message}", "Erro",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("⚠️ Selecione uma reserva para cancelar.",
-                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show($"Erro ao obter valor da reserva: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-        }
 
-       
-       private void btnRelatorio_Click(object sender, EventArgs e)
-{
-    try
-    {
-        string relatorio = "📊 RELATÓRIO COMPLETO - COMPUTADORES\n\n";
-        decimal receitaGeral = 0;
-        decimal horasTotais = 0;
-        int reservasTotais = 0;
-
-        using (var reader = DatabaseHelper.ObterRelatorioUso())
-        {
-            while (reader.Read())
+            // Verifica permissão para cancelar
+            if (usuarioCriador != usuarioLogadoId && !isAdmin)
             {
-                string computador = reader["ComputadorNome"].ToString();
-                int totalReservas = Convert.ToInt32(reader["TotalReservas"]);
-                decimal receita = reader["ReceitaTotal"] != DBNull.Value ?
-                                Convert.ToDecimal(reader["ReceitaTotal"]) : 0;
-                decimal horas = Convert.ToDecimal(reader["TotalHorasUtilizadas"]);
-                decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
+                MessageBox.Show("❌ Você só pode cancelar suas próprias reservas.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-                receitaGeral += receita;
-                horasTotais += horas;
-                reservasTotais += totalReservas;
+            if (status.Contains("CANCELADA"))
+            {
+                MessageBox.Show("ℹ️ Esta reserva já está cancelada.", "Informação",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
-                relatorio += $"🖥️ {computador}\n";
-                relatorio += $"   📅 Reservas: {totalReservas}\n";
-                relatorio += $"   ⏱️ Horas Utilizadas: {horas:F1}h\n";
-                relatorio += $"   💰 Receita: R$ {receita:F2}\n";
-                relatorio += $"   💵 Preço/Hora: R$ {precoHora:F2}\n";
-                
-                // Calcular valor médio por hora
-                if (horas > 0)
+            if (status.Contains("CONCLUÍDA"))
+            {
+                MessageBox.Show("❌ Não é possível cancelar uma reserva já concluída.",
+                    "Operação Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var dialogResult = MessageBox.Show(
+                $"Confirmar cancelamento da reserva?\n\nCliente: {cliente}\nReserva: {reservaId}\nValor: R$ {valorReserva:F2}",
+                "Cancelar Reserva", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                try
                 {
-                    decimal valorMedioHora = receita / horas;
-                    relatorio += $"   📊 Média/Hora: R$ {valorMedioHora:F2}\n";
+                    using (var connection = DatabaseHelper.GetConnection())
+                    {
+                        connection.Open();
+
+                        // Atualiza o status para cancelada e zera o valor
+                        string query = @"UPDATE Reservas 
+                               SET Status = '❌ CANCELADA', 
+                                   ValorTotal = 0,
+                                   DataAtualizacao = GETDATE() 
+                               WHERE Id = @Id";
+
+                        using (var cmd = new SqlCommand(query, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", reservaId);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    CarregarReservas();
+                    MessageBox.Show($"✅ Reserva cancelada com sucesso!\nValor removido do relatório: R$ {valorReserva:F2}",
+                        "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                relatorio += "\n";
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao cancelar reserva:\n{ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        relatorio += $"📈 RESUMO GERAL:\n";
-        relatorio += $"   📅 Total de Reservas: {reservasTotais}\n";
-        relatorio += $"   ⏱️ Total de Horas: {horasTotais:F1}h\n";
-        relatorio += $"   💰 Receita Total: R$ {receitaGeral:F2}\n";
-        
-        // Calcular média geral
-        if (horasTotais > 0)
+        private void btnApagarReserva_Click(object sender, EventArgs e)
         {
-            decimal mediaGeralHora = receitaGeral / horasTotais;
-            relatorio += $"   📊 Média Geral/Hora: R$ {mediaGeralHora:F2}";
+            MessageBox.Show("Botão APAGAR clicado!", "Debug",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            if (dgvReservas.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione uma reserva para apagar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Apenas admin pode apagar reservas
+            if (!isAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem apagar reservas.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            MessageBox.Show("Admin confirmado - prosseguindo com exclusão...", "Debug",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // Resto do código...
         }
 
-        MessageBox.Show(relatorio, "Relatório Completo",
-                      MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Erro ao gerar relatório: {ex.Message}", "Erro",
-                      MessageBoxButtons.OK, MessageBoxIcon.Error);
-    }
-}
+        private void btnRelatorio_Click(object sender, EventArgs e)
+        {
+            if (!isAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem acessar relatórios.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var dt = DatabaseHelper.ObterRelatorioUso();
+
+                string relatorio = "📊 RELATÓRIO DE USO - COMPUTADORES\n";
+                relatorio += $"Data: {DateTime.Now:dd/MM/yyyy HH:mm}\n\n";
+
+                decimal receitaTotal = 0;
+                decimal horasTotal = 0;
+                int reservasTotal = 0;
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    string nome = row["ComputadorNome"].ToString();
+                    int reservas = Convert.ToInt32(row["TotalReservas"]);
+                    decimal receita = Convert.ToDecimal(row["ReceitaTotal"]);
+                    decimal horas = Convert.ToDecimal(row["TotalHorasUtilizadas"]);
+                    decimal precoHora = Convert.ToDecimal(row["PrecoHora"]);
+
+                    receitaTotal += receita;
+                    horasTotal += horas;
+                    reservasTotal += reservas;
+
+                    relatorio += $"🖥️ {nome}\n";
+                    relatorio += $"   📅 Reservas: {reservas}\n";
+                    relatorio += $"   ⏱️ Horas: {horas:F1}h\n";
+                    relatorio += $"   💰 Receita: R$ {receita:F2}\n";
+                    relatorio += $"   💵 Preço/Hora: R$ {precoHora:F2}\n\n";
+                }
+
+                relatorio += "=" + new string('=', 40) + "\n";
+                relatorio += $"📈 TOTAIS:\n";
+                relatorio += $"   Reservas: {reservasTotal}\n";
+                relatorio += $"   Horas: {horasTotal:F1}h\n";
+                relatorio += $"   Receita: R$ {receitaTotal:F2}\n";
+
+                if (horasTotal > 0)
+                    relatorio += $"   Média/Hora: R$ {(receitaTotal / horasTotal):F2}";
+
+                MessageBox.Show(relatorio, "Relatório de Uso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao gerar relatório:\n{ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnAtualizar_Click(object sender, EventArgs e)
+        {
+            CarregarReservas();
+        }
 
         private void btnFechar_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
+        private void cmbFiltroStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            CarregarReservas();
+        }
+
+        private void dtpFiltroData_ValueChanged(object sender, EventArgs e)
+        {
+            CarregarReservas();
+        }
+
+        private void btnLimparFiltro_Click(object sender, EventArgs e)
+        {
+            cmbFiltroStatus.SelectedIndex = 0;
+            dtpFiltroData.Value = DateTime.Now;
+            CarregarReservas();
+        }
+
+        private void dgvReservas_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+                btnEditarReserva_Click(sender, e);
+        }
+
+        private void dgvReservas_SelectionChanged(object sender, EventArgs e)
+        {
+            VerificarPermissoesBotoes();
+        }
+
+        private void btnApagarReserva_Click_1(object sender, EventArgs e)
+        {
+            if (dgvReservas.CurrentRow == null)
+            {
+                MessageBox.Show("Selecione uma reserva para apagar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Apenas admin pode apagar reservas
+            if (!isAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem apagar reservas.",
+                    "Permissão Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string reservaId = dgvReservas.CurrentRow.Cells["Id"].Value.ToString();
+            string cliente = dgvReservas.CurrentRow.Cells["Cliente"].Value.ToString();
+            string computador = dgvReservas.CurrentRow.Cells["Computador"].Value.ToString();
+            string data = dgvReservas.CurrentRow.Cells["Data"].Value.ToString();
+            string horario = dgvReservas.CurrentRow.Cells["Horario"].Value.ToString();
+
+            // Confirmação EXTRA para apagar (ação irreversível)
+            var resultado = MessageBox.Show(
+                $"🚨🚨🚨 ATENÇÃO 🚨🚨🚨\n\n" +
+                $"Você está prestes a APAGAR PERMANENTEMENTE esta reserva:\n\n" +
+                $"Cliente: {cliente}\n" +
+                $"Computador: {computador}\n" +
+                $"Data: {data}\n" +
+                $"Horário: {horario}\n\n" +
+                $"✅ CONCLUÍDA - Apaga do histórico\n" +
+                $"❌ CANCELADA - Remove completamente\n" +
+                $"🟢 CONFIRMADA - Cancela e remove\n\n" +
+                $"Esta ação NÃO PODE ser desfeita!\n" +
+                $"Tem certeza absoluta que deseja continuar?",
+                "CONFIRMAR EXCLUSÃO PERMANENTE",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (resultado == DialogResult.Yes)
+            {
+                try
+                {
+                    using (var connection = DatabaseHelper.GetConnection())
+                    {
+                        connection.Open();
+
+                        // Primeiro apaga da tabela filha (UsoComputadores) se existir
+                        try
+                        {
+                            string queryDeleteUso = "DELETE FROM UsoComputadores WHERE ReservaId = @ReservaId";
+                            using (var cmdUso = new SqlCommand(queryDeleteUso, connection))
+                            {
+                                cmdUso.Parameters.AddWithValue("@ReservaId", reservaId);
+                                cmdUso.ExecuteNonQuery();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Pode ignorar se a tabela não existir ou não tiver registros
+                            Console.WriteLine("Info: Nenhum registro em UsoComputadores para esta reserva");
+                        }
+
+                        // Depois apaga da tabela Reservas
+                        string queryDeleteReserva = "DELETE FROM Reservas WHERE Id = @Id";
+                        using (var cmd = new SqlCommand(queryDeleteReserva, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", reservaId);
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                MessageBox.Show("✅ Reserva apagada permanentemente do banco de dados!", "Sucesso",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                                CarregarReservas();
+                            }
+                            else
+                            {
+                                MessageBox.Show("❌ Nenhuma reserva foi apagada.", "Erro",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao apagar reserva:\n{ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
+    
 }
