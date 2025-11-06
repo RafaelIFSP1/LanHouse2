@@ -454,5 +454,48 @@ namespace lanhause
                 return false;
             }
         }
+
+
+
+            public static bool ExcluirUsuarioPermanentemente(int usuarioId)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+
+                    // EXCLUSÃO PERMANENTE - DELETE sem WHERE para manter histórico se necessário
+                    string query = "DELETE FROM Usuarios WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao excluir usuário: {ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
     }
 }
