@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -15,13 +16,14 @@ namespace lanhause
         private Label lblTitulo;
         private Label lblTipoRelatorio;
         private Label lblPeriodo;
+        private Label lblAte;
         private GroupBox groupBox1;
         private DataGridView dataGridViewRelatorio;
 
         public FormRelatorios()
         {
             InitializeComponent();
-            CarregarRelatorioExemplo();
+            ConfigurarInicial();
         }
 
         private void InitializeComponent()
@@ -41,9 +43,8 @@ namespace lanhause
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewRelatorio)).BeginInit();
             this.SuspendLayout();
-            // 
+
             // lblTitulo
-            // 
             this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
             this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(111)))), ((int)(((byte)(66)))), ((int)(((byte)(193)))));
             this.lblTitulo.Location = new System.Drawing.Point(20, 20);
@@ -51,9 +52,8 @@ namespace lanhause
             this.lblTitulo.Size = new System.Drawing.Size(350, 30);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "📊 RELATÓRIOS DO SISTEMA";
-            // 
+
             // groupBox1
-            // 
             this.groupBox1.Controls.Add(this.lblTipoRelatorio);
             this.groupBox1.Controls.Add(this.comboBoxRelatorios);
             this.groupBox1.Controls.Add(this.lblPeriodo);
@@ -67,66 +67,60 @@ namespace lanhause
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Configurações do Relatório";
-            // 
+
             // lblTipoRelatorio
-            // 
             this.lblTipoRelatorio.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblTipoRelatorio.Location = new System.Drawing.Point(20, 35);
             this.lblTipoRelatorio.Name = "lblTipoRelatorio";
             this.lblTipoRelatorio.Size = new System.Drawing.Size(120, 20);
             this.lblTipoRelatorio.TabIndex = 0;
             this.lblTipoRelatorio.Text = "Tipo de Relatório:";
-            // 
+
             // comboBoxRelatorios
-            // 
             this.comboBoxRelatorios.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxRelatorios.Items.AddRange(new object[] {
-            "📈 Relatório de Uso de Computadores",
-            "📅 Relatório de Reservas",
-            "💰 Relatório Financeiro",
-            "👥 Relatório de Usuários",
-            "🖥️ Relatório de Computadores"});
+                "📈 Relatório de Uso de Computadores",
+                "📅 Relatório de Reservas",
+                "💰 Relatório Financeiro"});
             this.comboBoxRelatorios.Location = new System.Drawing.Point(140, 32);
             this.comboBoxRelatorios.Name = "comboBoxRelatorios";
             this.comboBoxRelatorios.Size = new System.Drawing.Size(250, 23);
             this.comboBoxRelatorios.TabIndex = 1;
-            // 
+            this.comboBoxRelatorios.SelectedIndex = 0;
+
             // lblPeriodo
-            // 
             this.lblPeriodo.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblPeriodo.Location = new System.Drawing.Point(420, 35);
             this.lblPeriodo.Name = "lblPeriodo";
             this.lblPeriodo.Size = new System.Drawing.Size(60, 20);
             this.lblPeriodo.TabIndex = 2;
             this.lblPeriodo.Text = "Período:";
-            // 
+
             // dateTimePickerInicio
-            // 
             this.dateTimePickerInicio.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dateTimePickerInicio.Location = new System.Drawing.Point(480, 32);
             this.dateTimePickerInicio.Name = "dateTimePickerInicio";
             this.dateTimePickerInicio.Size = new System.Drawing.Size(120, 23);
             this.dateTimePickerInicio.TabIndex = 3;
-            // 
+
             // lblAte
-            // 
             this.lblAte.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblAte.Location = new System.Drawing.Point(610, 35);
             this.lblAte.Name = "lblAte";
             this.lblAte.Size = new System.Drawing.Size(25, 20);
             this.lblAte.TabIndex = 4;
             this.lblAte.Text = "até";
-            // 
+
             // dateTimePickerFim
-            // 
             this.dateTimePickerFim.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dateTimePickerFim.Location = new System.Drawing.Point(640, 32);
             this.dateTimePickerFim.Name = "dateTimePickerFim";
             this.dateTimePickerFim.Size = new System.Drawing.Size(120, 23);
             this.dateTimePickerFim.TabIndex = 5;
-            // 
+
             // dataGridViewRelatorio
-            // 
+            this.dataGridViewRelatorio.AllowUserToAddRows = false;
+            this.dataGridViewRelatorio.AllowUserToDeleteRows = false;
             this.dataGridViewRelatorio.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewRelatorio.BackgroundColor = System.Drawing.Color.White;
             this.dataGridViewRelatorio.Location = new System.Drawing.Point(20, 180);
@@ -135,9 +129,8 @@ namespace lanhause
             this.dataGridViewRelatorio.RowHeadersVisible = false;
             this.dataGridViewRelatorio.Size = new System.Drawing.Size(850, 350);
             this.dataGridViewRelatorio.TabIndex = 2;
-            // 
+
             // btnGerarRelatorio
-            // 
             this.btnGerarRelatorio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
             this.btnGerarRelatorio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGerarRelatorio.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
@@ -149,10 +142,10 @@ namespace lanhause
             this.btnGerarRelatorio.Text = "📊 GERAR RELATÓRIO";
             this.btnGerarRelatorio.UseVisualStyleBackColor = false;
             this.btnGerarRelatorio.Click += new System.EventHandler(this.btnGerarRelatorio_Click);
-            // 
+
             // btnExportar
-            // 
             this.btnExportar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.btnExportar.Enabled = false;
             this.btnExportar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnExportar.ForeColor = System.Drawing.Color.White;
@@ -163,9 +156,8 @@ namespace lanhause
             this.btnExportar.Text = "📤 EXPORTAR EXCEL";
             this.btnExportar.UseVisualStyleBackColor = false;
             this.btnExportar.Click += new System.EventHandler(this.btnExportar_Click);
-            // 
+
             // btnFechar
-            // 
             this.btnFechar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.btnFechar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnFechar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
@@ -177,9 +169,8 @@ namespace lanhause
             this.btnFechar.Text = "🔙 VOLTAR";
             this.btnFechar.UseVisualStyleBackColor = false;
             this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
-            // 
+
             // FormRelatorios
-            // 
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(909, 598);
             this.Controls.Add(this.lblTitulo);
@@ -197,44 +188,179 @@ namespace lanhause
             this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewRelatorio)).EndInit();
             this.ResumeLayout(false);
-
         }
 
-        private void CarregarRelatorioExemplo()
+        private void ConfigurarInicial()
         {
-            dataGridViewRelatorio.Columns.Clear();
+            // Define período padrão: últimos 30 dias
+            dateTimePickerFim.Value = DateTime.Now;
+            dateTimePickerInicio.Value = DateTime.Now.AddDays(-30);
 
-            dataGridViewRelatorio.Columns.Add("Computador", "COMPUTADOR");
-            dataGridViewRelatorio.Columns.Add("HorasUso", "HORAS DE USO");
-            dataGridViewRelatorio.Columns.Add("Reservas", "TOTAL RESERVAS");
-            dataGridViewRelatorio.Columns.Add("Receita", "RECEITA GERADA");
-            dataGridViewRelatorio.Columns.Add("Ocupacao", "TAXA DE OCUPAÇÃO");
-
-            dataGridViewRelatorio.Rows.Add("PC-001", "48h", "12", "R$ 240,00", "85%");
-            dataGridViewRelatorio.Rows.Add("PC-002", "36h", "9", "R$ 288,00", "75%");
-            dataGridViewRelatorio.Rows.Add("PC-003", "24h", "6", "R$ 72,00", "60%");
-            dataGridViewRelatorio.Rows.Add("PC-004", "42h", "10", "R$ 210,00", "80%");
+            comboBoxRelatorios.SelectedIndex = 0;
         }
 
         private void btnGerarRelatorio_Click(object sender, EventArgs e)
         {
-            string relatorioSelecionado = comboBoxRelatorios.Text;
-            string periodo = $"{dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}";
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                btnGerarRelatorio.Enabled = false;
 
-            MessageBox.Show($"✅ Relatório gerado com sucesso!\n\n" +
-                          $"Tipo: {relatorioSelecionado}\n" +
-                          $"Período: {periodo}\n\n" +
-                          $"Os dados foram carregados na tabela abaixo.",
-                          "Relatório Gerado",
-                          MessageBoxButtons.OK,
-                          MessageBoxIcon.Information);
+                string tipoRelatorio = comboBoxRelatorios.SelectedIndex.ToString();
+
+                switch (comboBoxRelatorios.SelectedIndex)
+                {
+                    case 0: // Uso de Computadores
+                        GerarRelatorioUsoComputadores();
+                        break;
+                    case 1: // Reservas
+                        GerarRelatorioReservas();
+                        break;
+                    case 2: // Financeiro
+                        GerarRelatorioFinanceiro();
+                        break;
+                }
+
+                btnExportar.Enabled = dataGridViewRelatorio.Rows.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao gerar relatório:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+                btnGerarRelatorio.Enabled = true;
+            }
+        }
+
+        private void GerarRelatorioUsoComputadores()
+        {
+            DataTable dt = DatabaseHelper.ObterRelatorioUso();
+            dataGridViewRelatorio.DataSource = dt;
+
+            // Formatar colunas
+            if (dataGridViewRelatorio.Columns.Count > 0)
+            {
+                dataGridViewRelatorio.Columns["ComputadorNome"].HeaderText = "COMPUTADOR";
+                dataGridViewRelatorio.Columns["PrecoHora"].HeaderText = "PREÇO/HORA";
+                dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
+                dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
+                dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].HeaderText = "HORAS";
+
+                // Formatar moeda
+                dataGridViewRelatorio.Columns["PrecoHora"].DefaultCellStyle.Format = "C2";
+                dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
+                dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].DefaultCellStyle.Format = "N1";
+            }
+
+            MessageBox.Show("✅ Relatório de Uso de Computadores gerado com sucesso!", "Sucesso",
+                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void GerarRelatorioReservas()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                string query = @"
+                    SELECT 
+                        r.Id as ReservaID,
+                        r.ClienteNome as Cliente,
+                        c.Nome as Computador,
+                        CONVERT(VARCHAR, r.DataReserva, 103) as Data,
+                        r.HoraInicio + ' - ' + r.HoraFim as Horario,
+                        r.Status,
+                        r.ValorTotal as Valor
+                    FROM Reservas r
+                    JOIN Computadores c ON r.ComputadorId = c.Id
+                    WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
+                    ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
+
+                using (var cmd = new System.Data.SqlClient.SqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
+                    cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
+
+                    DataTable dt = new DataTable();
+                    using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+
+                    dataGridViewRelatorio.DataSource = dt;
+
+                    if (dataGridViewRelatorio.Columns.Count > 0)
+                    {
+                        dataGridViewRelatorio.Columns["Valor"].DefaultCellStyle.Format = "C2";
+                    }
+                }
+            }
+
+            MessageBox.Show($"✅ Relatório de Reservas gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
+                          "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void GerarRelatorioFinanceiro()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+                string query = @"
+                    SELECT 
+                        CONVERT(VARCHAR, r.DataReserva, 103) as Data,
+                        COUNT(*) as TotalReservas,
+                        SUM(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.ValorTotal ELSE 0 END) as ReceitaTotal,
+                        SUM(CASE WHEN r.Status = '❌ CANCELADA' THEN 1 ELSE 0 END) as ReservasCanceladas
+                    FROM Reservas r
+                    WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
+                    GROUP BY r.DataReserva
+                    ORDER BY r.DataReserva DESC";
+
+                using (var cmd = new System.Data.SqlClient.SqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
+                    cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
+
+                    DataTable dt = new DataTable();
+                    using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+
+                    dataGridViewRelatorio.DataSource = dt;
+
+                    if (dataGridViewRelatorio.Columns.Count > 0)
+                    {
+                        dataGridViewRelatorio.Columns["Data"].HeaderText = "DATA";
+                        dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
+                        dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
+                        dataGridViewRelatorio.Columns["ReservasCanceladas"].HeaderText = "CANCELADAS";
+
+                        dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
+                    }
+                }
+            }
+
+            MessageBox.Show($"✅ Relatório Financeiro gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
+                          "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnExportar_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"📤 Relatório exportado para Excel com sucesso!\n\n" +
-                          $"Arquivo salvo em: C:\\Relatorios\\relatorio_{DateTime.Now:yyyyMMdd}.xlsx",
-                          "Exportação Concluída",
+            if (dataGridViewRelatorio.Rows.Count == 0)
+            {
+                MessageBox.Show("⚠️ Não há dados para exportar!", "Aviso",
+                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Funcionalidade de exportação simplificada
+            MessageBox.Show($"📤 Exportação para Excel em desenvolvimento.\n\n" +
+                          $"Registros disponíveis: {dataGridViewRelatorio.Rows.Count}\n" +
+                          $"Tipo: {comboBoxRelatorios.Text}",
+                          "Exportar Excel",
                           MessageBoxButtons.OK,
                           MessageBoxIcon.Information);
         }
@@ -244,11 +370,9 @@ namespace lanhause
             this.Close();
         }
 
-        private Label lblAte;
-
         private void FormRelatorios_Load(object sender, EventArgs e)
         {
-
+            // Configuração inicial já feita
         }
     }
 }

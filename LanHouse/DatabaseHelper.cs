@@ -142,12 +142,12 @@ namespace lanhause
                 {
                     string insertPcs = @"
                         INSERT INTO Computadores (Id, Nome, Processador, RAM, Status, PrecoHora) VALUES
-                        ('PC-001', 'Computador 1', 'Intel i5-10400F', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-002', 'Computador 2', 'Intel i7-10700K', '16GB DDR4', '🟢 DISPONÍVEL', 7.00),
-                        ('PC-003', 'Computador 3', 'AMD Ryzen 5 3600', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-004', 'Computador 4', 'Intel i3-10100', '4GB DDR4', '🔴 EM MANUTENÇÃO', 3.00),
-                        ('PC-005', 'Computador 5', 'Intel i5-11400', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-006', 'Computador 6', 'AMD Ryzen 7 3700X', '16GB DDR4', '🟢 DISPONÍVEL', 8.00)";
+                        ('PC-001', 'Computador 1', 'Intel i5-10400F', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('PC-002', 'Computador 2', 'Intel i7-10700K', '16GB DDR4', 'DISPONÍVEL', 7.00),
+                        ('PC-003', 'Computador 3', 'AMD Ryzen 5 3600', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('PC-004', 'Computador 4', 'Intel i3-10100', '4GB DDR4', 'EM MANUTENÇÃO', 3.00),
+                        ('PC-005', 'Computador 5', 'Intel i5-11400', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('PC-006', 'Computador 6', 'AMD Ryzen 7 3700X', '16GB DDR4', 'DISPONÍVEL', 8.00)";
 
                     using (var cmdInsert = new SqlCommand(insertPcs, connection))
                         cmdInsert.ExecuteNonQuery();
@@ -299,36 +299,40 @@ namespace lanhause
         }
 
         /// <summary>
-        /// Obtém relatório completo de uso dos computadores
+        /// Obtém relatório completo de uso dos computadores - CORRIGIDO
         /// </summary>
         public static DataTable ObterRelatorioUso()
         {
             using (var connection = GetConnection())
             {
                 connection.Open();
+
+                // QUERY CORRIGIDA - Calcula horas diretamente em minutos
                 string query = @"
-            SELECT 
-                c.Nome as ComputadorNome,
-                c.PrecoHora,
-                COUNT(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.Id END) as TotalReservas,
-                ISNULL(SUM(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.ValorTotal ELSE 0 END), 0) as ReceitaTotal,
-                ISNULL(SUM(CASE 
-                    WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN 
-                        -- Calcula horas manualmente sem conversão para datetime
-                        CASE 
-                            WHEN REPLACE(r.HoraFim, '.', ':') > REPLACE(r.HoraInicio, '.', ':') THEN
-                                (CAST(REPLACE(LEFT(r.HoraFim, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraFim, 2) AS int) -
-                                 CAST(REPLACE(LEFT(r.HoraInicio, 2), '.', '') AS int) * 60 - CAST(RIGHT(r.HoraInicio, 2) AS int)) / 60.0
-                            ELSE
-                                ((24 * 60 - (CAST(REPLACE(LEFT(r.HoraInicio, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraInicio, 2) AS int)) +
-                                 CAST(REPLACE(LEFT(r.HoraFim, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraFim, 2) AS int)) / 60.0)
-                        END
-                    ELSE 0 
-                END), 0) as TotalHorasUtilizadas
-            FROM Computadores c
-            LEFT JOIN Reservas r ON c.Id = r.ComputadorId
-            GROUP BY c.Id, c.Nome, c.PrecoHora
-            ORDER BY c.Nome";
+                    SELECT 
+                        c.Nome as ComputadorNome,
+                        c.PrecoHora,
+                        COUNT(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.Id END) as TotalReservas,
+                        ISNULL(SUM(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.ValorTotal ELSE 0 END), 0) as ReceitaTotal,
+                        ISNULL(SUM(CASE 
+                            WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN 
+                                CASE 
+                                    WHEN CHARINDEX('.', r.HoraFim) > 0 AND CHARINDEX('.', r.HoraInicio) > 0 THEN
+                                        -- Formato com ponto (HH.MM)
+                                        (
+                                            (CAST(LEFT(r.HoraFim, CHARINDEX('.', r.HoraFim)-1) AS INT) * 60 + 
+                                             CAST(SUBSTRING(r.HoraFim, CHARINDEX('.', r.HoraFim)+1, 2) AS INT)) -
+                                            (CAST(LEFT(r.HoraInicio, CHARINDEX('.', r.HoraInicio)-1) AS INT) * 60 + 
+                                             CAST(SUBSTRING(r.HoraInicio, CHARINDEX('.', r.HoraInicio)+1, 2) AS INT))
+                                        ) / 60.0
+                                    ELSE 0
+                                END
+                            ELSE 0 
+                        END), 0) as TotalHorasUtilizadas
+                    FROM Computadores c
+                    LEFT JOIN Reservas r ON c.Id = r.ComputadorId
+                    GROUP BY c.Id, c.Nome, c.PrecoHora
+                    ORDER BY c.Nome";
 
                 using (var cmd = new SqlCommand(query, connection))
                 {
@@ -388,6 +392,65 @@ namespace lanhause
             {
                 MessageBox.Show($"Erro na conexão com o banco:\n{ex.Message}",
                               "Erro de Conexão", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém todos os usuários cadastrados (apenas admin)
+        /// </summary>
+        public static DataTable ObterTodosUsuarios()
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                string query = @"
+                    SELECT 
+                        Id, 
+                        Nome, 
+                        Email, 
+                        TipoUsuario, 
+                        CASE WHEN Ativo = 1 THEN '🟢 ATIVO' ELSE '🔴 INATIVO' END as Status,
+                        CONVERT(VARCHAR, DataCadastro, 103) as DataCadastro
+                    FROM Usuarios
+                    ORDER BY Nome";
+
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    DataTable dt = new DataTable();
+                    using (var adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                    return dt;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Altera o status (ativo/inativo) de um usuário
+        /// </summary>
+        public static bool AlterarStatusUsuario(int usuarioId, bool ativo)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "UPDATE Usuarios SET Ativo = @Ativo WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Ativo", ativo);
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao alterar status do usuário:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
