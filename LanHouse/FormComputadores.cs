@@ -21,17 +21,17 @@ namespace lanhause
             listViewComputadores.Items.Clear();
             listViewComputadores.Columns.Clear();
 
-            // Configurar colunas do ListView com design moderno
-            listViewComputadores.Columns.Add("Computador", 180);
-            listViewComputadores.Columns.Add("Status", 120);
+            // Configurar colunas do ListView com design dark mode
+            listViewComputadores.Columns.Add("Computador", 120);
+            listViewComputadores.Columns.Add("Status", 100);
             listViewComputadores.Columns.Add("Especificações", 200);
             listViewComputadores.View = View.Details;
             listViewComputadores.FullRowSelect = true;
             listViewComputadores.BorderStyle = BorderStyle.None;
-            listViewComputadores.BackColor = Color.FromArgb(248, 249, 250);
-            listViewComputadores.ForeColor = Color.FromArgb(33, 37, 41);
-            listViewComputadores.Font = new Font("Segoe UI", 10);
-            listViewComputadores.GridLines = true;
+            listViewComputadores.BackColor = Color.FromArgb(51, 51, 55);
+            listViewComputadores.ForeColor = Color.White;
+            listViewComputadores.Font = new Font("Segoe UI", 9);
+            listViewComputadores.GridLines = false;
 
             try
             {
@@ -75,18 +75,17 @@ namespace lanhause
                                 NomeFormatado = nomeFormatado
                             };
 
-                            // Cores baseadas no status
-                            item.BackColor = Color.White;
-                            item.ForeColor = Color.FromArgb(33, 37, 41);
-                            item.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+                            // Cores baseadas no status (dark mode)
+                            item.BackColor = Color.FromArgb(51, 51, 55);
+                            item.ForeColor = Color.White;
 
                             // Destacar linha baseada no status
                             if (status.ToUpper().Contains("DISPON"))
-                                item.BackColor = Color.FromArgb(230, 255, 237); // Verde claro
+                                item.BackColor = Color.FromArgb(60, 80, 60); // Verde escuro
                             else if (status.ToUpper().Contains("USO") || status.ToUpper().Contains("OCUPADO"))
-                                item.BackColor = Color.FromArgb(255, 243, 205); // Amarelo claro
+                                item.BackColor = Color.FromArgb(80, 70, 50); // Amarelo escuro
                             else if (status.ToUpper().Contains("MANUTEN"))
-                                item.BackColor = Color.FromArgb(248, 215, 218); // Vermelho claro
+                                item.BackColor = Color.FromArgb(80, 50, 50); // Vermelho escuro
 
                             listViewComputadores.Items.Add(item);
                         }
@@ -141,6 +140,25 @@ namespace lanhause
             }
         }
 
+        private Color ObterCorStatusDark(string status)
+        {
+            switch (status.ToUpper())
+            {
+                case "DISPONÍVEL":
+                case "DISPONIVEL":
+                    return Color.FromArgb(100, 200, 100); // Verde claro
+                case "EM USO":
+                case "OCUPADO":
+                    return Color.FromArgb(255, 200, 100); // Amarelo claro
+                case "MANUTENÇÃO":
+                case "MANUTENCAO":
+                case "EM MANUTENÇÃO":
+                    return Color.FromArgb(255, 100, 100); // Vermelho claro
+                default:
+                    return Color.FromArgb(200, 200, 200); // Cinza claro
+            }
+        }
+
         private void MostrarPrimeiroComputador()
         {
             if (listViewComputadores != null && listViewComputadores.Items.Count > 0)
@@ -177,7 +195,7 @@ namespace lanhause
                     {
                         cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
                         int totalReservas = Convert.ToInt32(cmd.ExecuteScalar());
-                        lblInfoReservas.Text = $"{totalReservas} reserva{(totalReservas != 1 ? "s" : "")} hoje";
+                        lblInfoReservas.Text = $"{totalReservas} reserva{(totalReservas != 1 ? "s" : "")}";
                     }
 
                     // Horas de uso (apenas reservas concluídas)
@@ -203,15 +221,15 @@ namespace lanhause
                     {
                         cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
                         decimal totalHoras = Convert.ToDecimal(cmd.ExecuteScalar());
-                        lblInfoUso.Text = $"{totalHoras:F1} horas (30 dias)";
+                        lblInfoUso.Text = $"{totalHoras:F1} horas";
                     }
                 }
             }
             catch (Exception ex)
             {
                 // Se der erro, mostra valores padrão
-                lblInfoReservas.Text = "0 reservas hoje";
-                lblInfoUso.Text = "0 horas (30 dias)";
+                lblInfoReservas.Text = "0 reservas";
+                lblInfoUso.Text = "0 horas";
                 Console.WriteLine($"Erro ao carregar estatísticas: {ex.Message}");
             }
         }
@@ -232,38 +250,41 @@ namespace lanhause
                 decimal precoHora = dados.PrecoHora;
                 string nomeFormatado = dados.NomeFormatado;
 
-                // Atualizar interface com dados reais - Design similar ao principal
+                // Atualizar interface com dados reais - Design dark mode
                 lblDetalhesTitulo.Text = nomeFormatado;
-                lblDetalhesTitulo.ForeColor = Color.FromArgb(23, 162, 184);
-                lblDetalhesTitulo.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+                lblDetalhesTitulo.ForeColor = Color.White;
+                lblDetalhesTitulo.Font = new Font("Segoe UI", 18, FontStyle.Bold);
 
                 lblInfoProcessador.Text = processador;
-                lblInfoProcessador.ForeColor = Color.FromArgb(108, 117, 125);
+                lblInfoProcessador.ForeColor = Color.White;
                 lblInfoProcessador.Font = new Font("Segoe UI", 10);
 
                 lblInfoRAM.Text = ram;
-                lblInfoRAM.ForeColor = Color.FromArgb(108, 117, 125);
+                lblInfoRAM.ForeColor = Color.White;
                 lblInfoRAM.Font = new Font("Segoe UI", 10);
 
-                lblInfoPreco.Text = $"R$ {precoHora:F2}/hora";
-                lblInfoPreco.ForeColor = Color.FromArgb(40, 167, 69);
-                lblInfoPreco.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+                lblInfoPreco.Text = $"R$ {precoHora:F2}";
+                lblInfoPreco.ForeColor = Color.FromArgb(100, 200, 100); // Verde
+                lblInfoPreco.Font = new Font("Segoe UI", 10);
 
-                // Status com design moderno
+                // Status com design dark mode
                 string statusComEmoji = ObterStatusComEmoji(status);
                 lblInfoStatus.Text = statusComEmoji;
-                lblInfoStatus.ForeColor = ObterCorStatus(status);
-                lblInfoStatus.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+                lblInfoStatus.ForeColor = ObterCorStatusDark(status);
+                lblInfoStatus.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+
+                lblInfoReservas.ForeColor = Color.White;
+                lblInfoReservas.Font = new Font("Segoe UI", 10);
+
+                lblInfoUso.ForeColor = Color.White;
+                lblInfoUso.Font = new Font("Segoe UI", 10);
 
                 // Atualizar status visual
                 if (lblStatusVisual != null)
                 {
-                    lblStatusVisual.Text = statusComEmoji;
-                    lblStatusVisual.ForeColor = ObterCorStatus(status);
-                    lblStatusVisual.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-                    lblStatusVisual.BackColor = Color.FromArgb(248, 249, 250);
-                    lblStatusVisual.BorderStyle = BorderStyle.FixedSingle;
-                    lblStatusVisual.Padding = new Padding(10, 5, 10, 5);
+                    lblStatusVisual.Text = $"● STATUS: {status.ToUpper()}";
+                    lblStatusVisual.ForeColor = ObterCorStatusDark(status);
+                    lblStatusVisual.Font = new Font("Segoe UI", 14, FontStyle.Bold);
                 }
 
                 // Carregar estatísticas em tempo real
@@ -338,13 +359,13 @@ namespace lanhause
                     string statusComEmoji = ObterStatusComEmoji(novoStatus);
                     item.SubItems[1].Text = statusComEmoji;
 
-                    // Atualizar cor de fundo baseada no status
+                    // Atualizar cor de fundo baseada no status (dark mode)
                     if (novoStatus.ToUpper().Contains("DISPON"))
-                        item.BackColor = Color.FromArgb(230, 255, 237);
+                        item.BackColor = Color.FromArgb(60, 80, 60);
                     else if (novoStatus.ToUpper().Contains("USO") || novoStatus.ToUpper().Contains("OCUPADO"))
-                        item.BackColor = Color.FromArgb(255, 243, 205);
+                        item.BackColor = Color.FromArgb(80, 70, 50);
                     else if (novoStatus.ToUpper().Contains("MANUTEN"))
-                        item.BackColor = Color.FromArgb(248, 215, 218);
+                        item.BackColor = Color.FromArgb(80, 50, 50);
 
                     // Atualizar dados no Tag
                     item.Tag = new
@@ -432,26 +453,19 @@ namespace lanhause
             Close();
         }
 
-        private void btnAtualizar_Click(object sender, EventArgs e)
-        {
-            CarregarComputadores();
-            MessageBox.Show("✅ Lista de computadores atualizada!", "Atualizado",
-                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
         private void FormComputadores_Load(object sender, EventArgs e)
         {
-            // Configurações iniciais de design
-            this.BackColor = Color.FromArgb(248, 249, 250);
+            // Configurações iniciais de design - Dark mode
+            this.BackColor = Color.FromArgb(30, 30, 30);
         }
 
         private void panelCabecalho_Paint(object sender, PaintEventArgs e)
         {
-            // Gradiente no cabeçalho
+            // Gradiente no cabeçalho (azul escuro)
             using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
                 panelCabecalho.ClientRectangle,
-                Color.FromArgb(23, 162, 184),
-                Color.FromArgb(20, 140, 160),
+                Color.FromArgb(0, 122, 204),
+                Color.FromArgb(0, 90, 170),
                 90f))
             {
                 e.Graphics.FillRectangle(brush, panelCabecalho.ClientRectangle);
