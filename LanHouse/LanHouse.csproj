@@ -65,6 +65,12 @@
     <Compile Include="FormComputadores.Designer.cs">
       <DependentUpon>FormComputadores.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormEditarComputador.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormEditarComputador.Designer.cs">
+      <DependentUpon>FormEditarComputador.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormEditarReserva.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +94,12 @@
     </Compile>
     <Compile Include="FormNovaReserva.Designer.cs">
       <DependentUpon>FormNovaReserva.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormNovoComputador.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormNovoComputador.Designer.cs">
+      <DependentUpon>FormNovoComputador.cs</DependentUpon>
     </Compile>
     <Compile Include="FormPrincipal.cs">
       <SubType>Form</SubType>
@@ -116,6 +128,9 @@
     <EmbeddedResource Include="FormComputadores.resx">
       <DependentUpon>FormComputadores.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormEditarComputador.resx">
+      <DependentUpon>FormEditarComputador.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormEditarReserva.resx">
       <DependentUpon>FormEditarReserva.cs</DependentUpon>
     </EmbeddedResource>
@@ -127,6 +142,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormNovaReserva.resx">
       <DependentUpon>FormNovaReserva.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormNovoComputador.resx">
+      <DependentUpon>FormNovoComputador.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormPrincipal.resx">
       <DependentUpon>FormPrincipal.cs</DependentUpon>
