@@ -22,7 +22,7 @@ namespace lanhause
                 {
                     connection.Open();
 
-                    // TABELA USUARIOS (se não existir)
+                    // TABELA USUARIOS - COM BIT (2 estados)
                     string createUsuarios = @"
                         IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Usuarios')
                         BEGIN
@@ -31,9 +31,9 @@ namespace lanhause
                                 Nome NVARCHAR(100) NOT NULL,
                                 Email NVARCHAR(100) UNIQUE NOT NULL,
                                 Senha NVARCHAR(100) NOT NULL,
-                                TipoUsuario NVARCHAR(20) DEFAULT 'Comum',
-                                DataCadastro DATETIME DEFAULT GETDATE(),
-                                Ativo BIT DEFAULT 1
+                                TipoUsuario NVARCHAR(20) DEFAULT 'Cliente',
+                                Ativo BIT DEFAULT 1,  -- 1=ATIVO, 0=INATIVO
+                                DataCadastro DATETIME DEFAULT GETDATE()
                             )
                         END";
 
@@ -73,23 +73,6 @@ namespace lanhause
                             )
                         END";
 
-                    // TABELA USO COMPUTADORES (para relatórios)
-                    string createUsoComputadores = @"
-                        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UsoComputadores')
-                        BEGIN
-                            CREATE TABLE UsoComputadores (
-                                Id INT IDENTITY(1,1) PRIMARY KEY,
-                                ComputadorId NVARCHAR(50) NOT NULL,
-                                ReservaId NVARCHAR(50) NULL,
-                                DataUso DATE NOT NULL,
-                                HorasUtilizadas DECIMAL(5,2) NOT NULL,
-                                ValorGerado DECIMAL(10,2) NOT NULL,
-                                DataRegistro DATETIME DEFAULT GETDATE(),
-                                FOREIGN KEY (ComputadorId) REFERENCES Computadores(Id),
-                                FOREIGN KEY (ReservaId) REFERENCES Reservas(Id)
-                            )
-                        END";
-
                     using (var cmd = new SqlCommand(createUsuarios, connection))
                         cmd.ExecuteNonQuery();
 
@@ -99,10 +82,6 @@ namespace lanhause
                     using (var cmd = new SqlCommand(createReservas, connection))
                         cmd.ExecuteNonQuery();
 
-                    using (var cmd = new SqlCommand(createUsoComputadores, connection))
-                        cmd.ExecuteNonQuery();
-
-                    // INSERIR DADOS INICIAIS
                     InserirDadosIniciais(connection);
                 }
             }
@@ -114,7 +93,7 @@ namespace lanhause
         }
 
         /// <summary>
-        /// Insere dados iniciais no banco (admin e computadores)
+        /// Insere dados iniciais no banco
         /// </summary>
         private static void InserirDadosIniciais(SqlConnection connection)
         {
@@ -126,9 +105,27 @@ namespace lanhause
                 if (count == 0)
                 {
                     string insertAdmin = @"
-                        INSERT INTO Usuarios (Nome, Email, Senha, TipoUsuario) 
-                        VALUES ('Administrador', 'admin@gmail.com', 'admin@123456', 'Administrador')";
+                        INSERT INTO Usuarios (Nome, Email, Senha, TipoUsuario, Ativo) 
+                        VALUES ('Administrador', 'admin@gmail.com', 'admin@123456', 'Administrador', 1)";
                     using (var cmdInsert = new SqlCommand(insertAdmin, connection))
+                        cmdInsert.ExecuteNonQuery();
+                }
+            }
+
+            // INSERIR USUÁRIOS DE EXEMPLO ADICIONAIS
+            string checkUsuarios = "SELECT COUNT(*) FROM Usuarios WHERE Email <> 'admin@gmail.com'";
+            using (var cmd = new SqlCommand(checkUsuarios, connection))
+            {
+                int count = (int)cmd.ExecuteScalar();
+                if (count == 0)
+                {
+                    string insertUsuarios = @"
+                        INSERT INTO Usuarios (Nome, Email, Senha, TipoUsuario, Ativo) VALUES
+                        ('João Silva', 'joao@email.com', 'senha123', 'Cliente', 1),
+                        ('Maria Santos', 'maria@email.com', 'senha123', 'Cliente', 1),
+                        ('Pedro Costa', 'pedro@email.com', 'senha123', 'Cliente', 0)";
+
+                    using (var cmdInsert = new SqlCommand(insertUsuarios, connection))
                         cmdInsert.ExecuteNonQuery();
                 }
             }
@@ -142,12 +139,12 @@ namespace lanhause
                 {
                     string insertPcs = @"
                         INSERT INTO Computadores (Id, Nome, Processador, RAM, Status, PrecoHora) VALUES
-                        ('PC-001', 'Computador 1', 'Intel i5-10400F', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-002', 'Computador 2', 'Intel i7-10700K', '16GB DDR4', '🟢 DISPONÍVEL', 7.00),
-                        ('PC-003', 'Computador 3', 'AMD Ryzen 5 3600', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-004', 'Computador 4', 'Intel i3-10100', '4GB DDR4', '🔴 EM MANUTENÇÃO', 3.00),
-                        ('PC-005', 'Computador 5', 'Intel i5-11400', '8GB DDR4', '🟢 DISPONÍVEL', 5.00),
-                        ('PC-006', 'Computador 6', 'AMD Ryzen 7 3700X', '16GB DDR4', '🟢 DISPONÍVEL', 8.00)";
+                        ('1', 'Computador 1', 'Intel i5-10400F', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('2', 'Computador 2', 'Intel i7-10700K', '16GB DDR4', 'DISPONÍVEL', 7.00),
+                        ('3', 'Computador 3', 'AMD Ryzen 5 3600', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('4', 'Computador 4', 'Intel i3-10100', '4GB DDR4', 'EM MANUTENÇÃO', 3.00),
+                        ('5', 'Computador 5', 'Intel i5-11400', '8GB DDR4', 'DISPONÍVEL', 5.00),
+                        ('6', 'Computador 6', 'AMD Ryzen 7 3700X', '16GB DDR4', 'DISPONÍVEL', 8.00)";
 
                     using (var cmdInsert = new SqlCommand(insertPcs, connection))
                         cmdInsert.ExecuteNonQuery();
@@ -161,56 +158,6 @@ namespace lanhause
         public static SqlConnection GetConnection()
         {
             return new SqlConnection(connectionString);
-        }
-
-        /// <summary>
-        /// Verifica se um computador está disponível no horário especificado
-        /// </summary>
-        public static bool ComputadorDisponivelNoHorario(string computadorId, DateTime data,
-                                                         string horaInicio, string horaFim,
-                                                         string reservaIdExcluir = null)
-        {
-            try
-            {
-                using (var connection = GetConnection())
-                {
-                    connection.Open();
-
-                    string query = @"
-                        SELECT COUNT(*) FROM Reservas 
-                        WHERE ComputadorId = @ComputadorId 
-                        AND DataReserva = @Data
-                        AND Status NOT IN ('❌ CANCELADA', '✅ CONCLUÍDA')
-                        AND (
-                            (@HoraInicio >= HoraInicio AND @HoraInicio < HoraFim) OR
-                            (@HoraFim > HoraInicio AND @HoraFim <= HoraFim) OR
-                            (@HoraInicio <= HoraInicio AND @HoraFim >= HoraFim)
-                        )";
-
-                    if (!string.IsNullOrEmpty(reservaIdExcluir))
-                        query += " AND Id <> @ReservaId";
-
-                    using (var cmd = new SqlCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        cmd.Parameters.AddWithValue("@Data", data.Date);
-                        cmd.Parameters.AddWithValue("@HoraInicio", horaInicio);
-                        cmd.Parameters.AddWithValue("@HoraFim", horaFim);
-
-                        if (!string.IsNullOrEmpty(reservaIdExcluir))
-                            cmd.Parameters.AddWithValue("@ReservaId", reservaIdExcluir);
-
-                        int conflitos = (int)cmd.ExecuteScalar();
-                        return conflitos == 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao verificar disponibilidade:\n{ex.Message}",
-                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
         }
 
         /// <summary>
@@ -229,7 +176,7 @@ namespace lanhause
                         FROM Reservas 
                         WHERE ComputadorId = @ComputadorId 
                         AND DataReserva = @DataReserva 
-                        AND Status NOT IN ('❌ CANCELADA', '✅ CONCLUÍDA')
+                        AND Status NOT IN ('CANCELADA', 'CONCLUÍDA')
                         AND (
                             (@HoraInicio >= HoraInicio AND @HoraInicio < HoraFim) OR
                             (@HoraFim > HoraInicio AND @HoraFim <= HoraFim) OR
@@ -266,10 +213,59 @@ namespace lanhause
         }
 
         /// <summary>
-        /// Registra o uso de um computador para fins de relatório
+        /// Verifica se um computador está disponível no horário especificado
         /// </summary>
-        public static void RegistrarUsoComputador(string computadorId, string reservaId,
-                                                  DateTime dataUso, decimal horas, decimal valor)
+        public static bool ComputadorDisponivelNoHorario(string computadorId, DateTime data,
+                                                         string horaInicio, string horaFim,
+                                                         string reservaIdExcluir = null)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+
+                    string query = @"
+                        SELECT COUNT(*) FROM Reservas 
+                        WHERE ComputadorId = @ComputadorId 
+                        AND DataReserva = @Data
+                        AND Status NOT IN ('CANCELADA', 'CONCLUÍDA')
+                        AND (
+                            (@HoraInicio >= HoraInicio AND @HoraInicio < HoraFim) OR
+                            (@HoraFim > HoraInicio AND @HoraFim <= HoraFim) OR
+                            (@HoraInicio <= HoraInicio AND @HoraFim >= HoraFim)
+                        )";
+
+                    if (!string.IsNullOrEmpty(reservaIdExcluir))
+                        query += " AND Id <> @ReservaId";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        cmd.Parameters.AddWithValue("@Data", data.Date);
+                        cmd.Parameters.AddWithValue("@HoraInicio", horaInicio);
+                        cmd.Parameters.AddWithValue("@HoraFim", horaFim);
+
+                        if (!string.IsNullOrEmpty(reservaIdExcluir))
+                            cmd.Parameters.AddWithValue("@ReservaId", reservaIdExcluir);
+
+                        int conflitos = (int)cmd.ExecuteScalar();
+                        return conflitos == 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar disponibilidade:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém todos os usuários cadastrados - 2 ESTADOS (ATIVO/INATIVO)
+        /// </summary>
+        public static DataTable ObterTodosUsuarios()
         {
             try
             {
@@ -277,117 +273,289 @@ namespace lanhause
                 {
                     connection.Open();
                     string query = @"
-                        INSERT INTO UsoComputadores (ComputadorId, ReservaId, DataUso, HorasUtilizadas, ValorGerado)
-                        VALUES (@ComputadorId, @ReservaId, @DataUso, @HorasUtilizadas, @ValorGerado)";
+                        SELECT 
+                            Id, 
+                            Nome, 
+                            Email, 
+                            TipoUsuario, 
+                            CASE 
+                                WHEN Ativo = 1 THEN 'ATIVO' 
+                                ELSE 'INATIVO' 
+                            END as Status,
+                            CONVERT(VARCHAR, DataCadastro, 103) as DataCadastro
+                        FROM Usuarios
+                        ORDER BY Id";
 
                     using (var cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        cmd.Parameters.AddWithValue("@ReservaId", reservaId ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@DataUso", dataUso.Date);
-                        cmd.Parameters.AddWithValue("@HorasUtilizadas", horas);
-                        cmd.Parameters.AddWithValue("@ValorGerado", valor);
-                        cmd.ExecuteNonQuery();
+                        DataTable dt = new DataTable();
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                        return dt;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao registrar uso:\n{ex.Message}",
-                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Erro ao carregar usuários: {ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
         }
 
         /// <summary>
-        /// Obtém relatório completo de uso dos computadores
+        /// Altera o status de um usuário - 2 ESTADOS (ATIVO/INATIVO)
         /// </summary>
-        public static DataTable ObterRelatorioUso()
-        {
-            using (var connection = GetConnection())
-            {
-                connection.Open();
-                string query = @"
-            SELECT 
-                c.Nome as ComputadorNome,
-                c.PrecoHora,
-                COUNT(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.Id END) as TotalReservas,
-                ISNULL(SUM(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.ValorTotal ELSE 0 END), 0) as ReceitaTotal,
-                ISNULL(SUM(CASE 
-                    WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN 
-                        -- Calcula horas manualmente sem conversão para datetime
-                        CASE 
-                            WHEN REPLACE(r.HoraFim, '.', ':') > REPLACE(r.HoraInicio, '.', ':') THEN
-                                (CAST(REPLACE(LEFT(r.HoraFim, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraFim, 2) AS int) -
-                                 CAST(REPLACE(LEFT(r.HoraInicio, 2), '.', '') AS int) * 60 - CAST(RIGHT(r.HoraInicio, 2) AS int)) / 60.0
-                            ELSE
-                                ((24 * 60 - (CAST(REPLACE(LEFT(r.HoraInicio, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraInicio, 2) AS int)) +
-                                 CAST(REPLACE(LEFT(r.HoraFim, 2), '.', '') AS int) * 60 + CAST(RIGHT(r.HoraFim, 2) AS int)) / 60.0)
-                        END
-                    ELSE 0 
-                END), 0) as TotalHorasUtilizadas
-            FROM Computadores c
-            LEFT JOIN Reservas r ON c.Id = r.ComputadorId
-            GROUP BY c.Id, c.Nome, c.PrecoHora
-            ORDER BY c.Nome";
-
-                using (var cmd = new SqlCommand(query, connection))
-                {
-                    DataTable dt = new DataTable();
-                    using (var adapter = new SqlDataAdapter(cmd))
-                    {
-                        adapter.Fill(dt);
-                    }
-                    return dt;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Atualiza o status de um computador
-        /// </summary>
-        public static bool AtualizarStatusComputador(string computadorId, string novoStatus)
+        public static bool AlterarStatusUsuario(int usuarioId, bool ativo)
         {
             try
             {
                 using (var connection = GetConnection())
                 {
                     connection.Open();
-                    string query = "UPDATE Computadores SET Status = @Status WHERE Id = @Id";
+                    string query = "UPDATE Usuarios SET Ativo = @Ativo WHERE Id = @Id";
 
                     using (var cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@Status", novoStatus);
-                        cmd.Parameters.AddWithValue("@Id", computadorId);
-                        int rows = cmd.ExecuteNonQuery();
-                        return rows > 0;
+                        cmd.Parameters.AddWithValue("@Ativo", ativo ? 1 : 0);
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao atualizar status:\n{ex.Message}",
+                MessageBox.Show($"Erro ao alterar status do usuário:\n{ex.Message}",
                               "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
 
         /// <summary>
-        /// Testa a conexão com o banco de dados
+        /// Valida login do usuário
         /// </summary>
-        public static bool TestarConexao()
+        public static bool ValidarLogin(string email, string senha)
         {
             try
             {
                 using (var connection = GetConnection())
                 {
                     connection.Open();
-                    return true;
+                    string query = @"
+                        SELECT COUNT(*) FROM Usuarios 
+                        WHERE Email = @Email AND Senha = @Senha AND Ativo = 1";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        cmd.Parameters.AddWithValue("@Senha", senha);
+                        int count = (int)cmd.ExecuteScalar();
+                        return count > 0;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro na conexão com o banco:\n{ex.Message}",
-                              "Erro de Conexão", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erro ao validar login:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém informações do usuário logado
+        /// </summary>
+        public static DataTable ObterUsuarioPorEmail(string email)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = @"
+                        SELECT 
+                            Id, 
+                            Nome, 
+                            Email, 
+                            TipoUsuario, 
+                            CASE 
+                                WHEN Ativo = 1 THEN 'ATIVO' 
+                                ELSE 'INATIVO' 
+                            END as Ativo
+                        FROM Usuarios 
+                        WHERE Email = @Email";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        DataTable dt = new DataTable();
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                        return dt;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao obter usuário:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Cadastra um novo usuário
+        /// </summary>
+        public static bool CadastrarUsuario(string nome, string email, string senha, string tipoUsuario)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = @"
+                        INSERT INTO Usuarios (Nome, Email, Senha, TipoUsuario, Ativo)
+                        VALUES (@Nome, @Email, @Senha, @TipoUsuario, 1)";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Nome", nome);
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        cmd.Parameters.AddWithValue("@Senha", senha);
+                        cmd.Parameters.AddWithValue("@TipoUsuario", tipoUsuario);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627) // Violação de chave única (email duplicado)
+                {
+                    MessageBox.Show("Este email já está cadastrado no sistema.", "Erro de Cadastro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show($"Erro ao cadastrar usuário:\n{ex.Message}", "Erro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao cadastrar usuário:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Apaga um usuário permanentemente do banco de dados - SOMENTE ADMIN
+        /// </summary>
+        public static bool ApagarUsuario(int usuarioId)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+
+                    // Verificar se o usuário tem reservas ativas
+                    string checkReservas = @"
+                        SELECT COUNT(*) FROM Reservas 
+                        WHERE UsuarioId = @UsuarioId 
+                        AND Status NOT IN ('CANCELADA', 'CONCLUÍDA')";
+
+                    using (var cmdCheck = new SqlCommand(checkReservas, connection))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@UsuarioId", usuarioId);
+                        int reservasAtivas = (int)cmdCheck.ExecuteScalar();
+
+                        if (reservasAtivas > 0)
+                        {
+                            MessageBox.Show("❌ Não é possível apagar este usuário pois ele possui reservas ativas!\n" +
+                                          "Cancele as reservas primeiro ou altere seu status para inativo.",
+                                          "Erro de Operação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return false;
+                        }
+                    }
+
+                    // Apagar o usuário
+                    string query = "DELETE FROM Usuarios WHERE Id = @Id";
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao apagar usuário:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tipo de usuário por email
+        /// </summary>
+        public static string ObterTipoUsuario(string email)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT TipoUsuario FROM Usuarios WHERE Email = @Email";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        var result = cmd.ExecuteScalar();
+                        return result?.ToString() ?? "";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao obter tipo de usuário:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Verifica se email já existe
+        /// </summary>
+        public static bool EmailExiste(string email)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT COUNT(*) FROM Usuarios WHERE Email = @Email";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        int count = (int)cmd.ExecuteScalar();
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar email:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }

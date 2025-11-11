@@ -26,7 +26,6 @@
             this.ajudaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sobreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelCabecalho = new System.Windows.Forms.Panel();
-            this.lblAdminBadge = new System.Windows.Forms.Label();
             this.lblTipoUsuario = new System.Windows.Forms.Label();
             this.lblBemVindo = new System.Windows.Forms.Label();
             this.panelBotoes = new System.Windows.Forms.Panel();
@@ -111,7 +110,6 @@
             // panelCabecalho
             // 
             this.panelCabecalho.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.panelCabecalho.Controls.Add(this.lblAdminBadge);
             this.panelCabecalho.Controls.Add(this.lblTipoUsuario);
             this.panelCabecalho.Controls.Add(this.lblBemVindo);
             this.panelCabecalho.Dock = System.Windows.Forms.DockStyle.Top;
@@ -119,21 +117,6 @@
             this.panelCabecalho.Name = "panelCabecalho";
             this.panelCabecalho.Size = new System.Drawing.Size(1000, 80);
             this.panelCabecalho.TabIndex = 1;
-            // 
-            // lblAdminBadge
-            // 
-            this.lblAdminBadge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblAdminBadge.AutoSize = true;
-            this.lblAdminBadge.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.lblAdminBadge.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAdminBadge.ForeColor = System.Drawing.Color.White;
-            this.lblAdminBadge.Location = new System.Drawing.Point(179, 15);
-            this.lblAdminBadge.Name = "lblAdminBadge";
-            this.lblAdminBadge.Padding = new System.Windows.Forms.Padding(5, 2, 5, 2);
-            this.lblAdminBadge.Size = new System.Drawing.Size(134, 19);
-            this.lblAdminBadge.TabIndex = 2;
-            this.lblAdminBadge.Text = "👑 ADMINISTRADOR";
-            this.lblAdminBadge.Visible = false;
             // 
             // lblTipoUsuario
             // 
@@ -298,6 +281,5 @@
         private System.Windows.Forms.Button btnRelatorios;
         private System.Windows.Forms.Button btnComputadores;
         private System.Windows.Forms.Button btnReservas;
-        private System.Windows.Forms.Label lblAdminBadge;
     }
 }
