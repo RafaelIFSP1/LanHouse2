@@ -2,6 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace lanhause
 {
@@ -28,6 +29,7 @@ namespace lanhause
 
         private void InitializeComponent()
         {
+            // ... (código do InitializeComponent permanece igual) ...
             this.lblTitulo = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblTipoRelatorio = new System.Windows.Forms.Label();
@@ -199,14 +201,53 @@ namespace lanhause
             comboBoxRelatorios.SelectedIndex = 0;
         }
 
+        // MÉTODO MOVIDO PARA CIMA - declarado antes de ser usado
+        private DataTable ObterRelatorioUso()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                connection.Open();
+
+                // QUERY SEGURA - cálculo baseado no valor total
+                string query = @"
+                    SELECT 
+                        c.Nome as ComputadorNome,
+                        c.PrecoHora,
+                        COUNT(r.Id) as TotalReservas,
+                        SUM(r.ValorTotal) as ReceitaTotal,
+                        -- Cálculo seguro baseado no valor total e preço por hora
+                        CASE 
+                            WHEN c.PrecoHora > 0 THEN SUM(r.ValorTotal) / c.PrecoHora
+                            ELSE 0 
+                        END as TotalHorasUtilizadas
+                    FROM Computadores c
+                    LEFT JOIN Reservas r ON c.Id = r.ComputadorId 
+                        AND r.Status NOT IN ('CANCELADA')
+                        AND r.DataReserva BETWEEN @DataInicio AND @DataFim
+                    GROUP BY c.Id, c.Nome, c.PrecoHora
+                    ORDER BY ReceitaTotal DESC";
+
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
+                    cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
+
+                    DataTable dt = new DataTable();
+                    using (var adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                    return dt;
+                }
+            }
+        }
+
         private void btnGerarRelatorio_Click(object sender, EventArgs e)
         {
             try
             {
                 Cursor = Cursors.WaitCursor;
                 btnGerarRelatorio.Enabled = false;
-
-                string tipoRelatorio = comboBoxRelatorios.SelectedIndex.ToString();
 
                 switch (comboBoxRelatorios.SelectedIndex)
                 {
@@ -237,114 +278,138 @@ namespace lanhause
 
         private void GerarRelatorioUsoComputadores()
         {
-            DataTable dt = DatabaseHelper.ObterRelatorioUso();
-            dataGridViewRelatorio.DataSource = dt;
-
-            // Formatar colunas
-            if (dataGridViewRelatorio.Columns.Count > 0)
+            try
             {
-                dataGridViewRelatorio.Columns["ComputadorNome"].HeaderText = "COMPUTADOR";
-                dataGridViewRelatorio.Columns["PrecoHora"].HeaderText = "PREÇO/HORA";
-                dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
-                dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
-                dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].HeaderText = "HORAS";
+                DataTable dt = ObterRelatorioUso(); // Agora o método já está declarado
+                dataGridViewRelatorio.DataSource = dt;
 
-                // Formatar moeda
-                dataGridViewRelatorio.Columns["PrecoHora"].DefaultCellStyle.Format = "C2";
-                dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
-                dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].DefaultCellStyle.Format = "N1";
+                // Formatar colunas
+                if (dataGridViewRelatorio.Columns.Count > 0)
+                {
+                    dataGridViewRelatorio.Columns["ComputadorNome"].HeaderText = "COMPUTADOR";
+                    dataGridViewRelatorio.Columns["PrecoHora"].HeaderText = "PREÇO/HORA";
+                    dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
+                    dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
+                    dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].HeaderText = "HORAS";
+
+                    // Formatar moeda
+                    dataGridViewRelatorio.Columns["PrecoHora"].DefaultCellStyle.Format = "C2";
+                    dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
+                    dataGridViewRelatorio.Columns["TotalHorasUtilizadas"].DefaultCellStyle.Format = "N1";
+                }
+
+                MessageBox.Show("✅ Relatório de Uso de Computadores gerado com sucesso!", "Sucesso",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            MessageBox.Show("✅ Relatório de Uso de Computadores gerado com sucesso!", "Sucesso",
-                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao gerar relatório de uso:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void GerarRelatorioReservas()
         {
-            using (var connection = DatabaseHelper.GetConnection())
+            try
             {
-                connection.Open();
-                string query = @"
-                    SELECT 
-                        r.Id as ReservaID,
-                        r.ClienteNome as Cliente,
-                        c.Nome as Computador,
-                        CONVERT(VARCHAR, r.DataReserva, 103) as Data,
-                        r.HoraInicio + ' - ' + r.HoraFim as Horario,
-                        r.Status,
-                        r.ValorTotal as Valor
-                    FROM Reservas r
-                    JOIN Computadores c ON r.ComputadorId = c.Id
-                    WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
-                    ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
-
-                using (var cmd = new System.Data.SqlClient.SqlCommand(query, connection))
+                using (var connection = DatabaseHelper.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
-                    cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
+                    connection.Open();
+                    string query = @"
+                        SELECT 
+                            r.Id as ReservaID,
+                            r.ClienteNome as Cliente,
+                            c.Nome as Computador,
+                            CONVERT(VARCHAR, r.DataReserva, 103) as Data,
+                            r.HoraInicio + ' - ' + r.HoraFim as Horario,
+                            r.Status,
+                            r.ValorTotal as Valor
+                        FROM Reservas r
+                        JOIN Computadores c ON r.ComputadorId = c.Id
+                        WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
+                        ORDER BY r.DataReserva DESC, r.HoraInicio DESC";
 
-                    DataTable dt = new DataTable();
-                    using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                    using (var cmd = new SqlCommand(query, connection))
                     {
-                        adapter.Fill(dt);
-                    }
+                        cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
+                        cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
 
-                    dataGridViewRelatorio.DataSource = dt;
+                        DataTable dt = new DataTable();
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
 
-                    if (dataGridViewRelatorio.Columns.Count > 0)
-                    {
-                        dataGridViewRelatorio.Columns["Valor"].DefaultCellStyle.Format = "C2";
+                        dataGridViewRelatorio.DataSource = dt;
+
+                        if (dataGridViewRelatorio.Columns.Count > 0)
+                        {
+                            dataGridViewRelatorio.Columns["Valor"].DefaultCellStyle.Format = "C2";
+                        }
                     }
                 }
-            }
 
-            MessageBox.Show($"✅ Relatório de Reservas gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
-                          "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"✅ Relatório de Reservas gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
+                              "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao gerar relatório de reservas:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void GerarRelatorioFinanceiro()
         {
-            using (var connection = DatabaseHelper.GetConnection())
+            try
             {
-                connection.Open();
-                string query = @"
-                    SELECT 
-                        CONVERT(VARCHAR, r.DataReserva, 103) as Data,
-                        COUNT(*) as TotalReservas,
-                        SUM(CASE WHEN r.Status IN ('✅ CONCLUÍDA', '● CONFIRMADA') THEN r.ValorTotal ELSE 0 END) as ReceitaTotal,
-                        SUM(CASE WHEN r.Status = '❌ CANCELADA' THEN 1 ELSE 0 END) as ReservasCanceladas
-                    FROM Reservas r
-                    WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
-                    GROUP BY r.DataReserva
-                    ORDER BY r.DataReserva DESC";
-
-                using (var cmd = new System.Data.SqlClient.SqlCommand(query, connection))
+                using (var connection = DatabaseHelper.GetConnection())
                 {
-                    cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
-                    cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
+                    connection.Open();
+                    string query = @"
+                        SELECT 
+                            CONVERT(VARCHAR, r.DataReserva, 103) as Data,
+                            COUNT(*) as TotalReservas,
+                            SUM(CASE WHEN r.Status IN ('CONCLUÍDA', 'CONFIRMADA') THEN r.ValorTotal ELSE 0 END) as ReceitaTotal,
+                            SUM(CASE WHEN r.Status = 'CANCELADA' THEN 1 ELSE 0 END) as ReservasCanceladas
+                        FROM Reservas r
+                        WHERE r.DataReserva BETWEEN @DataInicio AND @DataFim
+                        GROUP BY r.DataReserva
+                        ORDER BY r.DataReserva DESC";
 
-                    DataTable dt = new DataTable();
-                    using (var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd))
+                    using (var cmd = new SqlCommand(query, connection))
                     {
-                        adapter.Fill(dt);
-                    }
+                        cmd.Parameters.AddWithValue("@DataInicio", dateTimePickerInicio.Value.Date);
+                        cmd.Parameters.AddWithValue("@DataFim", dateTimePickerFim.Value.Date);
 
-                    dataGridViewRelatorio.DataSource = dt;
+                        DataTable dt = new DataTable();
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
 
-                    if (dataGridViewRelatorio.Columns.Count > 0)
-                    {
-                        dataGridViewRelatorio.Columns["Data"].HeaderText = "DATA";
-                        dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
-                        dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
-                        dataGridViewRelatorio.Columns["ReservasCanceladas"].HeaderText = "CANCELADAS";
+                        dataGridViewRelatorio.DataSource = dt;
 
-                        dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
+                        if (dataGridViewRelatorio.Columns.Count > 0)
+                        {
+                            dataGridViewRelatorio.Columns["Data"].HeaderText = "DATA";
+                            dataGridViewRelatorio.Columns["TotalReservas"].HeaderText = "RESERVAS";
+                            dataGridViewRelatorio.Columns["ReceitaTotal"].HeaderText = "RECEITA";
+                            dataGridViewRelatorio.Columns["ReservasCanceladas"].HeaderText = "CANCELADAS";
+
+                            dataGridViewRelatorio.Columns["ReceitaTotal"].DefaultCellStyle.Format = "C2";
+                        }
                     }
                 }
-            }
 
-            MessageBox.Show($"✅ Relatório Financeiro gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
-                          "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"✅ Relatório Financeiro gerado!\nPeríodo: {dateTimePickerInicio.Value:dd/MM/yyyy} a {dateTimePickerFim.Value:dd/MM/yyyy}",
+                              "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao gerar relatório financeiro:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnExportar_Click(object sender, EventArgs e)

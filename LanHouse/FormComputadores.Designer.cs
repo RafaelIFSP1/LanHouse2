@@ -358,7 +358,7 @@ namespace lanhause
             // FormComputadores
             // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.ClientSize = new System.Drawing.Size(984, 561);
+            this.ClientSize = new System.Drawing.Size(984, 558);
             this.Controls.Add(this.panelCabecalho);
             this.Controls.Add(this.panelLista);
             this.Controls.Add(this.panelDetalhes);
@@ -377,6 +377,7 @@ namespace lanhause
             this.panelLista.ResumeLayout(false);
             this.panelDetalhes.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
     }
 }

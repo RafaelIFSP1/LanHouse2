@@ -18,9 +18,10 @@ namespace lanhause
             // Buscar o tipo de usuário do FormLogin
             usuarioLogadoTipo = FormLogin.TipoUsuarioLogado ?? "Cliente";
             InitializeComponent();
+            CarregarUsuarios(); // Chama o método para carregar os usuários
         }
 
-        private void CarregarUsuarios()
+        private void InitializeComponent()
         {
             this.lblTitulo = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -235,118 +236,120 @@ namespace lanhause
             }
         }
 
-        private void btnNovoUsuario_Click(object sender, EventArgs e)
+        private void btnEditarUsuario_Click(object sender, EventArgs e)
         {
-            using (var form = new FormCadastro())
-            {
-                // Obter dados do usuário selecionado
-                int rowIndex = dataGridViewUsuarios.CurrentRow.Index;
-                string idFormatado = dataGridViewUsuarios.Rows[rowIndex].Cells["ID"].Value.ToString();
-                string id = idFormatado.Replace("USR-", ""); // Remover prefixo para obter ID real
-                string nome = dataGridViewUsuarios.CurrentRow.Cells["Nome"].Value.ToString();
-                string email = dataGridViewUsuarios.CurrentRow.Cells["Email"].Value.ToString();
-                string tipoUsuario = dataGridViewUsuarios.CurrentRow.Cells["Tipo"].Value.ToString();
-                string status = dataGridViewUsuarios.CurrentRow.Cells["Status"].Value.ToString();
-
-                MessageBox.Show($"✏️ Editando usuário:\n\n" +
-                              $"ID: {idFormatado}\n" +
-                              $"Nome: {nome}\n" +
-                              $"Email: {email}\n" +
-                              $"Tipo: {tipoUsuario}\n" +
-                              $"Status: {status}\n\n" +
-                              $"Funcionalidade de edição em desenvolvimento...",
-                              "Editar Usuário", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("⚠️ Selecione um usuário para editar.",
-                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            string nome = dataGridViewUsuarios.CurrentRow.Cells["Nome"].Value.ToString();
-            MessageBox.Show($"✏️ Funcionalidade de edição em desenvolvimento.\n\nUsuário: {nome}",
-                          "Em Desenvolvimento", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void btnDesativarUsuario_Click(object sender, EventArgs e)
-        {
-            // VERIFICAÇÃO ADICIONADA
-            if (dataGridViewUsuarios == null || dataGridViewUsuarios.CurrentRow == null)
+            if (dataGridViewUsuarios.CurrentRow != null)
             {
                 try
                 {
                     // Obter dados do usuário selecionado
                     int rowIndex = dataGridViewUsuarios.CurrentRow.Index;
                     string idFormatado = dataGridViewUsuarios.Rows[rowIndex].Cells["ID"].Value.ToString();
-                    string id = idFormatado.Replace("USR-", "");
+                    string id = idFormatado.Replace("USR-", ""); // Remover prefixo para obter ID real
                     string nome = dataGridViewUsuarios.CurrentRow.Cells["Nome"].Value.ToString();
                     string email = dataGridViewUsuarios.CurrentRow.Cells["Email"].Value.ToString();
-                    string statusAtual = dataGridViewUsuarios.CurrentRow.Cells["Status"].Value.ToString();
+                    string tipoUsuario = dataGridViewUsuarios.CurrentRow.Cells["Tipo"].Value.ToString();
+                    string status = dataGridViewUsuarios.CurrentRow.Cells["Status"].Value.ToString();
 
-                    // Verificar se é o admin principal (não pode ser desativado)
-                    if (email.ToLower() == "admin@gmail.com")
-                    {
-                        MessageBox.Show("❌ O usuário administrador principal não pode ser desativado!",
-                                      "Operação Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    // Determinar ação baseada no status atual (2 estados)
-                    string acao = "";
-                    bool novoStatus = false;
-
-                    if (statusAtual.Contains("🟢") || statusAtual.Contains("ATIVO"))
-                    {
-                        acao = "desativar";
-                        novoStatus = false; // Muda para INATIVO
-                    }
-                    else
-                    {
-                        acao = "reativar";
-                        novoStatus = true; // Muda para ATIVO
-                    }
-
-                    DialogResult result = MessageBox.Show(
-                        $"Tem certeza que deseja {acao} o usuário?\n\n" +
-                        $"Nome: {nome}\n" +
-                        $"Email: {email}\n" +
-                        $"Status atual: {statusAtual}\n" +
-                        $"Novo status: {(novoStatus ? "🟢 ATIVO" : "🔴 INATIVO")}",
-                        $"Confirmar {acao.ToUpper()}",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        if (DatabaseHelper.AlterarStatusUsuario(int.Parse(id), novoStatus))
-                        {
-                            // Recarregar lista IMEDIATAMENTE
-                            CarregarUsuarios();
-
-                            MessageBox.Show($"✅ Usuário {acao} com sucesso!\n" +
-                                          $"Status: {(novoStatus ? "🟢 ATIVO" : "🔴 INATIVO")}",
-                                          "Operação Concluída",
-                                          MessageBoxButtons.OK,
-                                          MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            MessageBox.Show("❌ Erro ao alterar status do usuário.",
-                                          "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
+                    MessageBox.Show($"✏️ Editando usuário:\n\n" +
+                                  $"ID: {idFormatado}\n" +
+                                  $"Nome: {nome}\n" +
+                                  $"Email: {email}\n" +
+                                  $"Tipo: {tipoUsuario}\n" +
+                                  $"Status: {status}\n\n" +
+                                  $"Funcionalidade de edição em desenvolvimento...",
+                                  "Editar Usuário", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Erro ao processar operação:\n{ex.Message}", "Erro",
+                    MessageBox.Show($"Erro ao editar usuário:\n{ex.Message}", "Erro",
                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
+                MessageBox.Show("⚠️ Selecione um usuário para editar.",
+                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void btnDesativarUsuario_Click(object sender, EventArgs e)
+        {
+            // VERIFICAÇÃO CORRIGIDA
+            if (dataGridViewUsuarios == null || dataGridViewUsuarios.CurrentRow == null)
+            {
                 MessageBox.Show("⚠️ Selecione um usuário para desativar/reativar.",
                               "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            try
+            {
+                // Obter dados do usuário selecionado
+                int rowIndex = dataGridViewUsuarios.CurrentRow.Index;
+                string idFormatado = dataGridViewUsuarios.Rows[rowIndex].Cells["ID"].Value.ToString();
+                string id = idFormatado.Replace("USR-", "");
+                string nome = dataGridViewUsuarios.CurrentRow.Cells["Nome"].Value.ToString();
+                string email = dataGridViewUsuarios.CurrentRow.Cells["Email"].Value.ToString();
+                string statusAtual = dataGridViewUsuarios.CurrentRow.Cells["Status"].Value.ToString();
+
+                // Verificar se é o admin principal (não pode ser desativado)
+                if (email.ToLower() == "admin@gmail.com")
+                {
+                    MessageBox.Show("❌ O usuário administrador principal não pode ser desativado!",
+                                  "Operação Negada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Determinar ação baseada no status atual (2 estados)
+                string acao = "";
+                bool novoStatus = false;
+
+                if (statusAtual.Contains("🟢") || statusAtual.Contains("ATIVO"))
+                {
+                    acao = "desativar";
+                    novoStatus = false; // Muda para INATIVO
+                }
+                else
+                {
+                    acao = "reativar";
+                    novoStatus = true; // Muda para ATIVO
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Tem certeza que deseja {acao} o usuário?\n\n" +
+                    $"Nome: {nome}\n" +
+                    $"Email: {email}\n" +
+                    $"Status atual: {statusAtual}\n" +
+                    $"Novo status: {(novoStatus ? "🟢 ATIVO" : "🔴 INATIVO")}",
+                    $"Confirmar {acao.ToUpper()}",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    if (DatabaseHelper.AlterarStatusUsuario(int.Parse(id), novoStatus))
+                    {
+                        // Recarregar lista IMEDIATAMENTE
+                        CarregarUsuarios();
+
+                        MessageBox.Show($"✅ Usuário {acao} com sucesso!\n" +
+                                      $"Status: {(novoStatus ? "🟢 ATIVO" : "🔴 INATIVO")}",
+                                      "Operação Concluída",
+                                      MessageBoxButtons.OK,
+                                      MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("❌ Erro ao alterar status do usuário.",
+                                      "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao processar operação:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

@@ -7,11 +7,35 @@ namespace lanhause
 {
     public partial class FormComputadores : Form
     {
+        private Button btnExcluir;
+
         public FormComputadores()
         {
             InitializeComponent();
             CarregarComputadores();
             MostrarPrimeiroComputador();
+            ConfigurarBotaoExcluir(); // Adicionar o botão excluir após inicialização
+        }
+
+        private void ConfigurarBotaoExcluir()
+        {
+            this.btnExcluir = new System.Windows.Forms.Button();
+
+            // Configurar botão Excluir
+            this.btnExcluir.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.btnExcluir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExcluir.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnExcluir.ForeColor = System.Drawing.Color.White;
+            this.btnExcluir.Location = new System.Drawing.Point(650, 550);
+            this.btnExcluir.Name = "btnExcluir";
+            this.btnExcluir.Size = new System.Drawing.Size(120, 40);
+            this.btnExcluir.TabIndex = 10;
+            this.btnExcluir.Text = "🗑️ EXCLUIR";
+            this.btnExcluir.UseVisualStyleBackColor = false;
+            this.btnExcluir.Click += new System.EventHandler(this.btnExcluir_Click);
+
+            // Adicionar o botão aos controles do formulário
+            this.Controls.Add(this.btnExcluir);
         }
 
         private void CarregarComputadores()
@@ -446,6 +470,197 @@ namespace lanhause
                 MessageBox.Show("⚠️ Selecione um computador para manutenção.",
                               "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        // MÉTODO PARA EXCLUIR COMPUTADOR - NOVO
+        private void btnExcluir_Click(object sender, EventArgs e)
+        {
+            if (listViewComputadores.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("⚠️ Selecione um computador para excluir.",
+                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            ListViewItem item = listViewComputadores.SelectedItems[0];
+            var dados = item.Tag as dynamic;
+            string computadorId = dados.Id;
+            string nomeFormatado = dados.NomeFormatado;
+            string status = dados.Status;
+
+            // Verificar se o computador está em uso
+            if (status.ToUpper().Contains("USO") || status.ToUpper().Contains("OCUPADO"))
+            {
+                MessageBox.Show("❌ Não é possível excluir um computador que está em uso!\n" +
+                              "Altere o status para 'DISPONÍVEL' ou 'EM MANUTENÇÃO' antes de excluir.",
+                              "Computador em Uso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Verificar se existem reservas futuras para este computador
+            if (ExistemReservasFuturas(computadorId))
+            {
+                MessageBox.Show("❌ Não é possível excluir este computador!\n\n" +
+                              "Existem reservas futuras agendadas para este computador.\n" +
+                              "Cancele todas as reservas primeiro antes de excluir.",
+                              "Reservas Ativas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Confirmação de exclusão
+            DialogResult result = MessageBox.Show(
+                $"🚨 ATENÇÃO: EXCLUSÃO PERMANENTE 🚨\n\n" +
+                $"Você está prestes a EXCLUIR PERMANENTEMENTE o computador:\n\n" +
+                $"🔹 {nomeFormatado}\n" +
+                $"🔹 {dados.Processador}\n" +
+                $"🔹 {dados.RAM}\n" +
+                $"🔹 Status: {status}\n\n" +
+                $"⚠️  Esta ação NÃO PODE ser desfeita!\n" +
+                $"⚠️  Todos os dados do computador serão perdidos!\n\n" +
+                $"Tem certeza ABSOLUTA que deseja continuar?",
+                "CONFIRMAR EXCLUSÃO PERMANENTE",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                ExcluirComputador(computadorId, item);
+            }
+        }
+
+        // VERIFICAR SE EXISTEM RESERVAS FUTURAS
+        private bool ExistemReservasFuturas(string computadorId)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = @"
+                        SELECT COUNT(*) 
+                        FROM Reservas 
+                        WHERE ComputadorId = @ComputadorId 
+                        AND (DataReserva > CAST(GETDATE() AS DATE) 
+                             OR (DataReserva = CAST(GETDATE() AS DATE) AND HoraInicio > FORMAT(GETDATE(), 'HH:mm')))
+                        AND Status NOT IN ('CANCELADA', 'CONCLUÍDA')";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        int count = (int)cmd.ExecuteScalar();
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao verificar reservas:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return true; // Em caso de erro, assume que existem reservas (para segurança)
+            }
+        }
+
+        // EXCLUIR COMPUTADOR DO BANCO DE DADOS
+        private void ExcluirComputador(string computadorId, ListViewItem item)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+
+                    // Primeiro, verificar se existem reservas históricas
+                    string queryCheckReservas = @"
+                        SELECT COUNT(*) 
+                        FROM Reservas 
+                        WHERE ComputadorId = @ComputadorId";
+
+                    int totalReservas = 0;
+                    using (var cmdCheck = new SqlCommand(queryCheckReservas, connection))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@ComputadorId", computadorId);
+                        totalReservas = (int)cmdCheck.ExecuteScalar();
+                    }
+
+                    // Excluir o computador
+                    string queryDelete = "DELETE FROM Computadores WHERE Id = @Id";
+                    using (var cmd = new SqlCommand(queryDelete, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", computadorId);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // Remover da lista
+                            listViewComputadores.Items.Remove(item);
+
+                            // Mostrar mensagem de sucesso
+                            string mensagem = $"✅ Computador excluído com sucesso!";
+                            if (totalReservas > 0)
+                            {
+                                mensagem += $"\n\n📊 Histórico: {totalReservas} reserva{(totalReservas != 1 ? "s" : "")} foram mantidas no histórico.";
+                            }
+
+                            MessageBox.Show(mensagem, "Exclusão Concluída",
+                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                            // Atualizar detalhes se ainda houver computadores
+                            if (listViewComputadores.Items.Count > 0)
+                            {
+                                listViewComputadores.Items[0].Selected = true;
+                            }
+                            else
+                            {
+                                // Limpar detalhes se não houver mais computadores
+                                LimparDetalhes();
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("❌ Erro ao excluir computador.", "Erro",
+                                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547) // Erro de chave estrangeira
+                {
+                    MessageBox.Show("❌ Não é possível excluir este computador!\n\n" +
+                                  "Existem reservas vinculadas a este computador no sistema.\n" +
+                                  "É necessário cancelar ou transferir as reservas primeiro.",
+                                  "Erro de Integridade", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show($"❌ Erro ao excluir computador:\n{ex.Message}", "Erro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Erro ao excluir computador:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // MÉTODO PARA LIMPAR DETALHES QUANDO NÃO HÁ COMPUTADORES
+        private void LimparDetalhes()
+        {
+            if (lblDetalhesTitulo != null)
+            {
+                lblDetalhesTitulo.Text = "Nenhum computador selecionado";
+                lblDetalhesTitulo.ForeColor = Color.Gray;
+            }
+
+            if (lblInfoProcessador != null) lblInfoProcessador.Text = "-";
+            if (lblInfoRAM != null) lblInfoRAM.Text = "-";
+            if (lblInfoPreco != null) lblInfoPreco.Text = "-";
+            if (lblInfoStatus != null) lblInfoStatus.Text = "-";
+            if (lblInfoReservas != null) lblInfoReservas.Text = "-";
+            if (lblInfoUso != null) lblInfoUso.Text = "-";
+            if (lblStatusVisual != null) lblStatusVisual.Text = "● STATUS: -";
         }
 
         private void btnFechar_Click(object sender, EventArgs e)
