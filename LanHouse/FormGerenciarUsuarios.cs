@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace lanhause
 {
-    public class FormGerenciarUsuarios : Form
+    public partial class FormGerenciarUsuarios : Form
     {
         private DataGridView dataGridViewUsuarios;
         private Button btnNovoUsuario, btnEditarUsuario, btnDesativarUsuario, btnExcluirUsuario, btnFechar;
@@ -18,10 +18,9 @@ namespace lanhause
             // Buscar o tipo de usuário do FormLogin
             usuarioLogadoTipo = FormLogin.TipoUsuarioLogado ?? "Cliente";
             InitializeComponent();
-            CarregarUsuarios();
         }
 
-        private void InitializeComponent()
+        private void CarregarUsuarios()
         {
             this.lblTitulo = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -236,9 +235,9 @@ namespace lanhause
             }
         }
 
-        private void btnEditarUsuario_Click(object sender, EventArgs e)
+        private void btnNovoUsuario_Click(object sender, EventArgs e)
         {
-            if (dataGridViewUsuarios.CurrentRow != null)
+            using (var form = new FormCadastro())
             {
                 // Obter dados do usuário selecionado
                 int rowIndex = dataGridViewUsuarios.CurrentRow.Index;
@@ -261,13 +260,19 @@ namespace lanhause
             else
             {
                 MessageBox.Show("⚠️ Selecione um usuário para editar.",
-                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                              "Seleção Necessária", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            string nome = dataGridViewUsuarios.CurrentRow.Cells["Nome"].Value.ToString();
+            MessageBox.Show($"✏️ Funcionalidade de edição em desenvolvimento.\n\nUsuário: {nome}",
+                          "Em Desenvolvimento", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnDesativarUsuario_Click(object sender, EventArgs e)
         {
-            if (dataGridViewUsuarios.CurrentRow != null)
+            // VERIFICAÇÃO ADICIONADA
+            if (dataGridViewUsuarios == null || dataGridViewUsuarios.CurrentRow == null)
             {
                 try
                 {

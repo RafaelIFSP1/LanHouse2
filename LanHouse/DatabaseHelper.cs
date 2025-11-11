@@ -559,5 +559,107 @@ namespace lanhause
                 return false;
             }
         }
+
+        /// <summary>
+        /// Obtém todos os usuários cadastrados (apenas admin)
+        /// </summary>
+        public static DataTable ObterTodosUsuarios()
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                string query = @"
+                    SELECT 
+                        Id, 
+                        Nome, 
+                        Email, 
+                        TipoUsuario, 
+                        CASE WHEN Ativo = 1 THEN '🟢 ATIVO' ELSE '🔴 INATIVO' END as Status,
+                        CONVERT(VARCHAR, DataCadastro, 103) as DataCadastro
+                    FROM Usuarios
+                    ORDER BY Nome";
+
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    DataTable dt = new DataTable();
+                    using (var adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                    return dt;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Altera o status (ativo/inativo) de um usuário
+        /// </summary>
+        public static bool AlterarStatusUsuario(int usuarioId, bool ativo)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "UPDATE Usuarios SET Ativo = @Ativo WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Ativo", ativo);
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao alterar status do usuário:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+
+
+            public static bool ExcluirUsuarioPermanentemente(int usuarioId)
+        {
+            try
+            {
+                using (var connection = GetConnection())
+                {
+                    connection.Open();
+
+                    // EXCLUSÃO PERMANENTE - DELETE sem WHERE para manter histórico se necessário
+                    string query = "DELETE FROM Usuarios WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", usuarioId);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao excluir usuário: {ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
     }
 }
