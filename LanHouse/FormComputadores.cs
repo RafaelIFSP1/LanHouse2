@@ -8,27 +8,49 @@ namespace lanhause
     public partial class FormComputadores : Form
     {
         private Button btnExcluir;
+        private bool isAdmin; // NOVO: Armazenar se é admin
 
         public FormComputadores()
         {
             InitializeComponent();
+            isAdmin = FormLogin.IsAdmin; // NOVO: Obter permissão do usuário
             CarregarComputadores();
             MostrarPrimeiroComputador();
             ConfigurarBotaoExcluir(); // Adicionar o botão excluir após inicialização
+            ConfigurarPermissoesAdmin(); // NOVO: Configurar permissões
+        }
+
+        // NOVO MÉTODO: Configurar visibilidade baseada em permissões
+        private void ConfigurarPermissoesAdmin()
+        {
+            if (!isAdmin)
+            {
+                // Ocultar botões administrativos para usuários comuns
+                btnAjustarStatus.Visible = false;
+                btnExcluir.Visible = false;
+                btnManutencao.Visible = false;
+            }
+            else
+            {
+                // Admin vê todos os botões
+                btnAjustarStatus.Visible = true;
+                btnExcluir.Visible = true;
+                btnManutencao.Visible = false; // REMOVIDO conforme solicitado
+            }
         }
 
         private void ConfigurarBotaoExcluir()
         {
             this.btnExcluir = new System.Windows.Forms.Button();
 
-            // Configurar botão Excluir
+            // CORREÇÃO: Posição corrigida do botão Excluir
             this.btnExcluir.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
             this.btnExcluir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExcluir.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnExcluir.ForeColor = System.Drawing.Color.White;
-            this.btnExcluir.Location = new System.Drawing.Point(650, 550);
+            this.btnExcluir.Location = new System.Drawing.Point(830, 509); // CORREÇÃO: Posição ajustada
             this.btnExcluir.Name = "btnExcluir";
-            this.btnExcluir.Size = new System.Drawing.Size(120, 40);
+            this.btnExcluir.Size = new System.Drawing.Size(140, 40);
             this.btnExcluir.TabIndex = 10;
             this.btnExcluir.Text = "🗑️ EXCLUIR";
             this.btnExcluir.UseVisualStyleBackColor = false;
