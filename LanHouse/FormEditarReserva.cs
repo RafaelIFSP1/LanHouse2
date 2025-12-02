@@ -2,6 +2,8 @@
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using LanHouseSystem;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace lanhause
 {
@@ -163,6 +165,7 @@ namespace lanhause
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void CarregarHorarios()
         {
             cmbHoraInicio.Items.Clear();
@@ -200,10 +203,78 @@ namespace lanhause
             {
                 TimeSpan duracao = CalcularDuracao();
                 int horas = (int)Math.Ceiling(duracao.TotalHours);
-                valorTotal = pc.PrecoHora * horas;
 
-                lblHoras.Text = $"{horas} hora{(horas != 1 ? "s" : "")} ({duracao.TotalHours:F1}h)";
-                lblValor.Text = $"R$ {valorTotal:F2}";
+                // NOVO: Calcular preço ajustado pelo horário
+                string horaInicio = cmbHoraInicio.SelectedItem.ToString();
+                decimal precoAjustado = DatabaseHelper.CalcularPrecoComHorario(pc.PrecoHora, horaInicio);
+
+                valorTotal = precoAjustado * horas;
+
+                // Mostrar informações detalhadas
+                string periodoDia = DatabaseHelper.ObterPeriodoDia(horaInicio);
+                lblHoras.Text = $"{horas} hora{(horas != 1 ? "s" : "")} ({duracao.TotalHours:F1}h)\n{periodoDia}";
+                lblValor.Text = $"R$ {valorTotal:F2}\n(Base: R$ {pc.PrecoHora:F2} → Ajustado: R$ {precoAjustado:F2})";
+            }
+        }
+
+
+        // Método local para obter período do dia
+        private string ObterPeriodoDiaLocal(string hora)
+        {
+            try
+            {
+                // Converter formato "08.30" para TimeSpan
+                string horaFormatada = hora.Replace('.', ':');
+                TimeSpan horario = TimeSpan.Parse(horaFormatada);
+
+                if (horario >= TimeSpan.FromHours(8) && horario < TimeSpan.FromHours(12))
+                    return "🕗 Período: Manhã";
+                else if (horario >= TimeSpan.FromHours(12) && horario < TimeSpan.FromHours(18))
+                    return "🕛 Período: Tarde";
+                else if (horario >= TimeSpan.FromHours(18) && horario <= TimeSpan.FromHours(22))
+                    return "🕕 Período: Noite";
+                else
+                    return "⏰ Fora do horário comercial";
+            }
+            catch
+            {
+                return "⏰ Período não identificado";
+            }
+        }
+
+        // Método local para calcular preço com horário
+        private decimal CalcularPrecoComHorarioLocal(decimal precoBase, string hora)
+        {
+            try
+            {
+                string horaFormatada = hora.Replace('.', ':');
+                TimeSpan horario = TimeSpan.Parse(horaFormatada);
+
+                // Ajuste de preço por período
+                if (horario >= TimeSpan.FromHours(8) && horario < TimeSpan.FromHours(12))
+                {
+                    // Manhã: preço normal
+                    return precoBase;
+                }
+                else if (horario >= TimeSpan.FromHours(12) && horario < TimeSpan.FromHours(18))
+                {
+                    // Tarde: +10%
+                    return precoBase * 1.10m;
+                }
+                else if (horario >= TimeSpan.FromHours(18) && horario <= TimeSpan.FromHours(22))
+                {
+                    // Noite: +20%
+                    return precoBase * 1.20m;
+                }
+                else
+                {
+                    // Fora do horário comercial: preço normal
+                    return precoBase;
+                }
+            }
+            catch
+            {
+                return precoBase;
             }
         }
 
@@ -228,11 +299,6 @@ namespace lanhause
             }
             return TimeSpan.Zero;
         }
-
-
-
-
-
 
         private bool ValidarDados()
         {
@@ -293,12 +359,6 @@ namespace lanhause
             return true;
         }
 
-
-
-
-
-
-
         private void BtnSalvar_Click(object sender, EventArgs e)
         {
             if (!ValidarDados()) return;
@@ -309,7 +369,7 @@ namespace lanhause
                 string horaIni = cmbHoraInicio.SelectedItem.ToString();
                 string horaFim = cmbHoraFim.SelectedItem.ToString();
 
-                // Verificar disponibilidade
+                // Verificar disponibilidade usando método existente
                 if (!DatabaseHelper.ComputadorDisponivelNoHorario(
                     pc.Id, dtpData.Value, horaIni, horaFim, reservaId))
                 {
@@ -401,11 +461,5 @@ namespace lanhause
         {
             CalcularValor();
         }
-
-
-
-
-
-
     }
 }

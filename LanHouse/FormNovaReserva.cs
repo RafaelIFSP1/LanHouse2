@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using lanhause;
 
 namespace lanhause
 {
@@ -119,10 +120,17 @@ namespace lanhause
             {
                 TimeSpan duracao = CalcularDuracao();
                 int horas = (int)Math.Ceiling(duracao.TotalHours);
-                valorTotal = pc.PrecoHora * horas;
 
-                lblHoras.Text = $"{horas} hora{(horas != 1 ? "s" : "")} ({duracao.TotalHours:F1}h)";
-                lblValor.Text = $"R$ {valorTotal:F2}";
+                // NOVO: Calcular preço ajustado pelo horário
+                string horaInicio = cmbHoraInicio.SelectedItem.ToString();
+                decimal precoAjustado = DatabaseHelper.CalcularPrecoComHorario(pc.PrecoHora, horaInicio);
+
+                valorTotal = precoAjustado * horas;
+
+                // Mostrar informações detalhadas
+                string periodoDia = DatabaseHelper.ObterPeriodoDia(horaInicio);
+                lblHoras.Text = $"{horas} hora{(horas != 1 ? "s" : "")} ({duracao.TotalHours:F1}h)\n{periodoDia}";
+                lblValor.Text = $"R$ {valorTotal:F2}\n(Base: R$ {pc.PrecoHora:F2} → Ajustado: R$ {precoAjustado:F2})";
             }
         }
 
@@ -320,13 +328,5 @@ namespace lanhause
         {
             CalcularValor();
         }
-
-
-
-
-
-
-
-
     }
 }

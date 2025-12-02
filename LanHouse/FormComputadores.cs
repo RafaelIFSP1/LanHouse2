@@ -8,219 +8,138 @@ namespace lanhause
     public partial class FormComputadores : Form
     {
         private Button btnExcluir;
-        private bool isAdmin; // NOVO: Armazenar se é admin
+        private Button btnVoltar;
 
         public FormComputadores()
         {
             InitializeComponent();
-            isAdmin = FormLogin.IsAdmin; // NOVO: Obter permissão do usuário
+            ConfigurarBotoes();
             CarregarComputadores();
             MostrarPrimeiroComputador();
-            ConfigurarBotaoExcluir(); // Adicionar o botão excluir após inicialização
-            ConfigurarPermissoesAdmin(); // NOVO: Configurar permissões
+            AplicarTemaUsuario();
         }
 
-        // NOVO MÉTODO: Configurar visibilidade baseada em permissões
-        private void ConfigurarPermissoesAdmin()
+        private void ConfigurarBotoes()
         {
-            if (!isAdmin)
+            // Configurar botão Voltar (sempre visível)
+            this.btnVoltar = new System.Windows.Forms.Button();
+            this.btnVoltar.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this.btnVoltar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnVoltar.FlatAppearance.BorderSize = 0;
+            this.btnVoltar.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnVoltar.ForeColor = System.Drawing.Color.White;
+            this.btnVoltar.Location = new System.Drawing.Point(20, 509);
+            this.btnVoltar.Name = "btnVoltar";
+            this.btnVoltar.Size = new System.Drawing.Size(140, 40);
+            this.btnVoltar.TabIndex = 11;
+            this.btnVoltar.Text = "🔙 VOLTAR";
+            this.btnVoltar.UseVisualStyleBackColor = false;
+            this.btnVoltar.Click += new System.EventHandler(this.btnVoltar_Click);
+            this.Controls.Add(this.btnVoltar);
+
+            if (!FormLogin.IsAdmin)
             {
-                // Ocultar botões administrativos para usuários comuns
-                btnAjustarStatus.Visible = false;
-                btnExcluir.Visible = false;
+                // USUÁRIO COMUM: Esconder todos os botões de admin
+                btnAdicionar.Visible = false;
+                btnEditar.Visible = false;
                 btnManutencao.Visible = false;
+                btnAjustarStatus.Visible = false;
+                btnFechar.Visible = false;
             }
             else
             {
-                // Admin vê todos os botões
+                // ADMIN: Mostrar botão Excluir e outros botões admin
+                this.btnExcluir = new System.Windows.Forms.Button();
+                this.btnExcluir.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+                this.btnExcluir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+                this.btnExcluir.FlatAppearance.BorderSize = 0;
+                this.btnExcluir.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+                this.btnExcluir.ForeColor = System.Drawing.Color.White;
+                this.btnExcluir.Location = new System.Drawing.Point(170, 509);
+                this.btnExcluir.Name = "btnExcluir";
+                this.btnExcluir.Size = new System.Drawing.Size(140, 40);
+                this.btnExcluir.TabIndex = 10;
+                this.btnExcluir.Text = "🗑️ EXCLUIR";
+                this.btnExcluir.UseVisualStyleBackColor = false;
+                this.btnExcluir.Click += new System.EventHandler(this.btnExcluir_Click);
+                this.Controls.Add(this.btnExcluir);
+
+                // Garantir que os botões de admin estão visíveis
+                btnAdicionar.Visible = true;
+                btnEditar.Visible = true;
+                btnManutencao.Visible = true;
                 btnAjustarStatus.Visible = true;
-                btnExcluir.Visible = true;
-                btnManutencao.Visible = false; // REMOVIDO conforme solicitado
+                btnFechar.Visible = true;
             }
         }
 
-        private void ConfigurarBotaoExcluir()
+        private void AplicarTemaUsuario()
         {
-            this.btnExcluir = new System.Windows.Forms.Button();
-
-            // CORREÇÃO: Posição corrigida do botão Excluir
-            this.btnExcluir.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.btnExcluir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExcluir.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnExcluir.ForeColor = System.Drawing.Color.White;
-            this.btnExcluir.Location = new System.Drawing.Point(830, 509); // CORREÇÃO: Posição ajustada
-            this.btnExcluir.Name = "btnExcluir";
-            this.btnExcluir.Size = new System.Drawing.Size(140, 40);
-            this.btnExcluir.TabIndex = 10;
-            this.btnExcluir.Text = "🗑️ EXCLUIR";
-            this.btnExcluir.UseVisualStyleBackColor = false;
-            this.btnExcluir.Click += new System.EventHandler(this.btnExcluir_Click);
-
-            // Adicionar o botão aos controles do formulário
-            this.Controls.Add(this.btnExcluir);
+            if (FormLogin.IsAdmin)
+            {
+                // Tema para Administrador
+                lblTitulo.ForeColor = Color.FromArgb(0, 91, 158); // Azul mais escuro
+            }
+            else
+            {
+                // Tema para Usuário Comum
+                lblTitulo.ForeColor = Color.FromArgb(0, 122, 204); // Azul padrão
+            }
         }
 
-        private void CarregarComputadores()
+        private void btnVoltar_Click(object sender, EventArgs e)
         {
-            if (listViewComputadores == null) return;
+            this.Close();
+        }
 
-            listViewComputadores.Items.Clear();
-            listViewComputadores.Columns.Clear();
-
-            // Configurar colunas do ListView com design dark mode
-            listViewComputadores.Columns.Add("Computador", 120);
-            listViewComputadores.Columns.Add("Status", 100);
-            listViewComputadores.Columns.Add("Especificações", 200);
-            listViewComputadores.View = View.Details;
-            listViewComputadores.FullRowSelect = true;
-            listViewComputadores.BorderStyle = BorderStyle.None;
-            listViewComputadores.BackColor = Color.FromArgb(51, 51, 55);
-            listViewComputadores.ForeColor = Color.White;
-            listViewComputadores.Font = new Font("Segoe UI", 9);
-            listViewComputadores.GridLines = false;
+        // MÉTODO ADICIONADO: Atualizar detalhes quando selecionar um computador
+        private void AtualizarDetalhesComputador(dynamic dados)
+        {
+            if (dados == null) return;
 
             try
             {
-                using (var connection = DatabaseHelper.GetConnection())
+                // Atualizar título e informações básicas
+                lblDetalhesTitulo.Text = dados.NomeFormatado;
+                lblInfoProcessador.Text = dados.Processador;
+                lblInfoRAM.Text = dados.RAM;
+                lblInfoStatus.Text = ObterStatusComEmoji(dados.Status);
+                lblInfoPreco.Text = $"R$ {dados.PrecoHora:F2}/h";
+
+                // Atualizar status visual
+                string statusUpper = dados.Status.ToUpper();
+                if (statusUpper.Contains("DISPON"))
                 {
-                    connection.Open();
-                    string query = "SELECT Id, Nome, Processador, RAM, Status, PrecoHora FROM Computadores ORDER BY Id";
-
-                    using (var cmd = new SqlCommand(query, connection))
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            string id = reader["Id"].ToString();
-                            string nome = reader["Nome"].ToString();
-                            string processador = reader["Processador"].ToString();
-                            string ram = reader["RAM"].ToString();
-                            string status = reader["Status"].ToString();
-                            decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
-
-                            // Formatar o nome como "PC-001", "PC-002", etc.
-                            string nomeFormatado = $"PC-{id.PadLeft(3, '0')}";
-
-                            // Status com emojis
-                            string statusComEmoji = ObterStatusComEmoji(status);
-                            string especificacoes = $"{processador} • {ram}";
-
-                            ListViewItem item = new ListViewItem(nomeFormatado);
-                            item.SubItems.Add(statusComEmoji);
-                            item.SubItems.Add(especificacoes);
-
-                            // Armazenar dados completos para mostrar nos detalhes
-                            item.Tag = new
-                            {
-                                Id = id,
-                                NomeOriginal = nome,
-                                Processador = processador,
-                                RAM = ram,
-                                Status = status,
-                                PrecoHora = precoHora,
-                                NomeFormatado = nomeFormatado
-                            };
-
-                            // Cores baseadas no status (dark mode)
-                            item.BackColor = Color.FromArgb(51, 51, 55);
-                            item.ForeColor = Color.White;
-
-                            // Destacar linha baseada no status
-                            if (status.ToUpper().Contains("DISPON"))
-                                item.BackColor = Color.FromArgb(60, 80, 60); // Verde escuro
-                            else if (status.ToUpper().Contains("USO") || status.ToUpper().Contains("OCUPADO"))
-                                item.BackColor = Color.FromArgb(80, 70, 50); // Amarelo escuro
-                            else if (status.ToUpper().Contains("MANUTEN"))
-                                item.BackColor = Color.FromArgb(80, 50, 50); // Vermelho escuro
-
-                            listViewComputadores.Items.Add(item);
-                        }
-                    }
+                    lblStatusVisual.Text = "● STATUS: DISPONÍVEL";
+                    lblStatusVisual.ForeColor = Color.Green;
+                }
+                else if (statusUpper.Contains("USO") || statusUpper.Contains("OCUPADO"))
+                {
+                    lblStatusVisual.Text = "● STATUS: EM USO";
+                    lblStatusVisual.ForeColor = Color.Red;
+                }
+                else if (statusUpper.Contains("MANUTEN"))
+                {
+                    lblStatusVisual.Text = "● STATUS: EM MANUTENÇÃO";
+                    lblStatusVisual.ForeColor = Color.Orange;
+                }
+                else
+                {
+                    lblStatusVisual.Text = $"● STATUS: {dados.Status}";
+                    lblStatusVisual.ForeColor = Color.Yellow;
                 }
 
-                if (listViewComputadores.Items.Count > 0)
-                    listViewComputadores.Items[0].Selected = true;
+                // Carregar estatísticas (reservas e horas de uso)
+                CarregarEstatisticasComputador(dados.Id);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao carregar computadores:\n{ex.Message}", "Erro",
+                MessageBox.Show($"Erro ao atualizar detalhes: {ex.Message}", "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private string ObterStatusComEmoji(string status)
-        {
-            switch (status.ToUpper())
-            {
-                case "DISPONÍVEL":
-                case "DISPONIVEL":
-                    return "🟢 DISPONÍVEL";
-                case "EM USO":
-                case "OCUPADO":
-                    return "🟡 EM USO";
-                case "MANUTENÇÃO":
-                case "MANUTENCAO":
-                case "EM MANUTENÇÃO":
-                    return "🔴 EM MANUTENÇÃO";
-                default:
-                    return "⚪ " + status;
-            }
-        }
-
-        private Color ObterCorStatus(string status)
-        {
-            switch (status.ToUpper())
-            {
-                case "DISPONÍVEL":
-                case "DISPONIVEL":
-                    return Color.FromArgb(40, 167, 69); // Verde
-                case "EM USO":
-                case "OCUPADO":
-                    return Color.FromArgb(255, 193, 7);  // Amarelo/Laranja
-                case "MANUTENÇÃO":
-                case "MANUTENCAO":
-                case "EM MANUTENÇÃO":
-                    return Color.FromArgb(220, 53, 69);  // Vermelho
-                default:
-                    return Color.FromArgb(108, 117, 125); // Cinza
-            }
-        }
-
-        private Color ObterCorStatusDark(string status)
-        {
-            switch (status.ToUpper())
-            {
-                case "DISPONÍVEL":
-                case "DISPONIVEL":
-                    return Color.FromArgb(100, 200, 100); // Verde claro
-                case "EM USO":
-                case "OCUPADO":
-                    return Color.FromArgb(255, 200, 100); // Amarelo claro
-                case "MANUTENÇÃO":
-                case "MANUTENCAO":
-                case "EM MANUTENÇÃO":
-                    return Color.FromArgb(255, 100, 100); // Vermelho claro
-                default:
-                    return Color.FromArgb(200, 200, 200); // Cinza claro
-            }
-        }
-
-        private void MostrarPrimeiroComputador()
-        {
-            if (listViewComputadores != null && listViewComputadores.Items.Count > 0)
-            {
-                listViewComputadores.Items[0].Selected = true;
-            }
-        }
-
-        private void listViewComputadores_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (listViewComputadores.SelectedItems.Count > 0)
-            {
-                MostrarDetalhesComputador(listViewComputadores.SelectedItems[0]);
-            }
-        }
-
+        // MÉTODO CORRIGIDO: Carregar estatísticas do computador
         private void CarregarEstatisticasComputador(string computadorId)
         {
             try
@@ -229,122 +148,163 @@ namespace lanhause
                 {
                     connection.Open();
 
-                    // Reservas de hoje
-                    string queryReservas = @"
-                        SELECT COUNT(*) as TotalReservas
+                    // 1. Contar reservas para hoje
+                    string queryCount = @"
+                        SELECT COUNT(*) 
                         FROM Reservas 
                         WHERE ComputadorId = @ComputadorId 
-                        AND DataReserva = CAST(GETDATE() AS DATE)
-                        AND Status IN ('CONFIRMADA', 'CONCLUÍDA')";
+                        AND DataReserva = @DataAtual
+                        AND Status NOT LIKE '%CANCELADA%'";
 
-                    using (var cmd = new SqlCommand(queryReservas, connection))
+                    int totalReservas = 0;
+                    using (var cmd = new SqlCommand(queryCount, connection))
                     {
                         cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        int totalReservas = Convert.ToInt32(cmd.ExecuteScalar());
-                        lblInfoReservas.Text = $"{totalReservas} reserva{(totalReservas != 1 ? "s" : "")}";
+                        cmd.Parameters.AddWithValue("@DataAtual", DateTime.Today);
+                        var result = cmd.ExecuteScalar();
+                        totalReservas = result != DBNull.Value ? Convert.ToInt32(result) : 0;
                     }
 
-                    // Horas de uso (apenas reservas concluídas)
-                    string queryHorasUso = @"
-                        SELECT ISNULL(SUM(
-                            CASE 
-                                WHEN HoraFim > HoraInicio THEN
-                                    DATEDIFF(MINUTE, 
-                                        CAST(HoraInicio AS datetime), 
-                                        CAST(HoraFim AS datetime)
-                                    ) / 60.0
-                                ELSE
-                                    (24 - CAST(LEFT(HoraInicio, 2) AS int) + CAST(LEFT(HoraFim, 2) AS int)) +
-                                    (CAST(RIGHT(HoraFim, 2) AS int) - CAST(RIGHT(HoraInicio, 2) AS int)) / 60.0
-                            END
-                        ), 0) as TotalHoras
-                        FROM Reservas 
-                        WHERE ComputadorId = @ComputadorId 
-                        AND Status = 'CONCLUÍDA'
-                        AND DataReserva >= DATEADD(DAY, -30, GETDATE())";
+                    // 2. Tentar calcular horas totais
+                    decimal horasTotais = 0;
 
-                    using (var cmd = new SqlCommand(queryHorasUso, connection))
+                    // Primeiro verificar se existe alguma reserva
+                    if (totalReservas > 0)
                     {
-                        cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        decimal totalHoras = Convert.ToDecimal(cmd.ExecuteScalar());
-                        lblInfoUso.Text = $"{totalHoras:F1} horas";
+                        string queryHoras = @"
+                            SELECT HoraInicio, HoraFim 
+                            FROM Reservas 
+                            WHERE ComputadorId = @ComputadorId 
+                            AND DataReserva = @DataAtual
+                            AND Status NOT LIKE '%CANCELADA%'";
+
+                        using (var cmd = new SqlCommand(queryHoras, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
+                            cmd.Parameters.AddWithValue("@DataAtual", DateTime.Today);
+
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    string horaInicioStr = reader["HoraInicio"].ToString();
+                                    string horaFimStr = reader["HoraFim"].ToString();
+
+                                    try
+                                    {
+                                        // Converter formato "08.00" para TimeSpan
+                                        string horaInicioFormatada = horaInicioStr.Replace('.', ':');
+                                        string horaFimFormatada = horaFimStr.Replace('.', ':');
+
+                                        TimeSpan horaInicio = TimeSpan.Parse(horaInicioFormatada);
+                                        TimeSpan horaFim = TimeSpan.Parse(horaFimFormatada);
+
+                                        // Calcular duração
+                                        TimeSpan duracao;
+                                        if (horaFim > horaInicio)
+                                        {
+                                            duracao = horaFim - horaInicio;
+                                        }
+                                        else
+                                        {
+                                            // Reserva que passa da meia-noite
+                                            duracao = (TimeSpan.FromHours(24) - horaInicio) + horaFim;
+                                        }
+
+                                        horasTotais += (decimal)duracao.TotalHours;
+                                    }
+                                    catch
+                                    {
+                                        // Se não conseguir converter, adiciona 1 hora como padrão
+                                        horasTotais += 1.0m;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Atualizar as labels
+                    if (totalReservas > 0)
+                    {
+                        lblInfoReservas.Text = $"{totalReservas} reserva{(totalReservas != 1 ? "s" : "")}";
+                        lblInfoUso.Text = $"{horasTotais:F1} horas";
+                    }
+                    else
+                    {
+                        lblInfoReservas.Text = "Nenhuma reserva hoje";
+                        lblInfoUso.Text = "0 horas";
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Se der erro, mostra valores padrão
+                // Em caso de erro, mostrar valores padrão
                 lblInfoReservas.Text = "0 reservas";
                 lblInfoUso.Text = "0 horas";
-                Console.WriteLine($"Erro ao carregar estatísticas: {ex.Message}");
+
+                // Para debug apenas (descomente se necessário)
+                // Console.WriteLine($"Erro ao carregar estatísticas: {ex.Message}");
             }
         }
 
-        private void MostrarDetalhesComputador(ListViewItem item)
+        // MÉTODO ADICIONADO: listViewComputadores_SelectedIndexChanged
+        private void listViewComputadores_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lblDetalhesTitulo == null || item.Tag == null) return;
-
-            try
+            if (listViewComputadores.SelectedItems.Count > 0)
             {
-                // Recuperar dados do Tag
+                var item = listViewComputadores.SelectedItems[0];
                 var dados = item.Tag as dynamic;
-                string id = dados.Id;
-                string nomeOriginal = dados.NomeOriginal;
-                string processador = dados.Processador;
-                string ram = dados.RAM;
-                string status = dados.Status;
-                decimal precoHora = dados.PrecoHora;
-                string nomeFormatado = dados.NomeFormatado;
-
-                // Atualizar interface com dados reais - Design dark mode
-                lblDetalhesTitulo.Text = nomeFormatado;
-                lblDetalhesTitulo.ForeColor = Color.White;
-                lblDetalhesTitulo.Font = new Font("Segoe UI", 18, FontStyle.Bold);
-
-                lblInfoProcessador.Text = processador;
-                lblInfoProcessador.ForeColor = Color.White;
-                lblInfoProcessador.Font = new Font("Segoe UI", 10);
-
-                lblInfoRAM.Text = ram;
-                lblInfoRAM.ForeColor = Color.White;
-                lblInfoRAM.Font = new Font("Segoe UI", 10);
-
-                lblInfoPreco.Text = $"R$ {precoHora:F2}";
-                lblInfoPreco.ForeColor = Color.FromArgb(100, 200, 100); // Verde
-                lblInfoPreco.Font = new Font("Segoe UI", 10);
-
-                // Status com design dark mode
-                string statusComEmoji = ObterStatusComEmoji(status);
-                lblInfoStatus.Text = statusComEmoji;
-                lblInfoStatus.ForeColor = ObterCorStatusDark(status);
-                lblInfoStatus.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-
-                lblInfoReservas.ForeColor = Color.White;
-                lblInfoReservas.Font = new Font("Segoe UI", 10);
-
-                lblInfoUso.ForeColor = Color.White;
-                lblInfoUso.Font = new Font("Segoe UI", 10);
-
-                // Atualizar status visual
-                if (lblStatusVisual != null)
-                {
-                    lblStatusVisual.Text = $"● STATUS: {status.ToUpper()}";
-                    lblStatusVisual.ForeColor = ObterCorStatusDark(status);
-                    lblStatusVisual.Font = new Font("Segoe UI", 14, FontStyle.Bold);
-                }
-
-                // Carregar estatísticas em tempo real
-                CarregarEstatisticasComputador(id);
+                AtualizarDetalhesComputador(dados);
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Erro ao carregar detalhes:\n{ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LimparDetalhes();
             }
         }
 
+        // MÉTODO ADICIONADO: Limpar detalhes quando não há seleção
+        private void LimparDetalhes()
+        {
+            lblDetalhesTitulo.Text = "Detalhes do Computador";
+            lblInfoProcessador.Text = "Selecione um computador";
+            lblInfoRAM.Text = "";
+            lblInfoStatus.Text = "";
+            lblInfoPreco.Text = "";
+            lblInfoReservas.Text = "";
+            lblInfoUso.Text = "";
+            lblStatusVisual.Text = "● STATUS: NÃO SELECIONADO";
+            lblStatusVisual.ForeColor = Color.Gray;
+        }
+
+        // MÉTODO ADICIONADO: Mostrar primeiro computador ao carregar
+        private void MostrarPrimeiroComputador()
+        {
+            if (listViewComputadores.Items.Count > 0)
+            {
+                listViewComputadores.Items[0].Selected = true;
+                listViewComputadores.Select();
+
+                // Garantir que os detalhes são atualizados
+                var item = listViewComputadores.Items[0];
+                var dados = item.Tag as dynamic;
+                AtualizarDetalhesComputador(dados);
+            }
+            else
+            {
+                LimparDetalhes();
+            }
+        }
+
+        // MÉTODOS DE ADMINISTRAÇÃO - SÓ EXECUTAM SE FOR ADMIN
         private void btnAjustarStatus_Click(object sender, EventArgs e)
         {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem ajustar status!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (listViewComputadores.SelectedItems.Count > 0)
             {
                 ListViewItem item = listViewComputadores.SelectedItems[0];
@@ -352,13 +312,10 @@ namespace lanhause
                 string computador = dados.NomeFormatado;
                 string statusAtual = dados.Status;
 
-                using (var formStatus = new FormSelecionarStatus(computador, statusAtual))
+                string novoStatus = MostrarDialogoStatus(computador, statusAtual);
+                if (!string.IsNullOrEmpty(novoStatus))
                 {
-                    if (formStatus.ShowDialog() == DialogResult.OK)
-                    {
-                        string novoStatus = formStatus.NovoStatus;
-                        AlterarStatusComputador(item, novoStatus);
-                    }
+                    AlterarStatusComputador(item, novoStatus);
                 }
             }
             else
@@ -368,78 +325,111 @@ namespace lanhause
             }
         }
 
-        private void AlterarStatusComputador(ListViewItem item, string novoStatus)
+        // Método simplificado para mostrar diálogo de status
+        private string MostrarDialogoStatus(string computador, string statusAtual)
         {
-            if (item.Tag == null) return;
-
-            var dados = item.Tag as dynamic;
-            string computadorId = dados.Id;
-            string nomeFormatado = dados.NomeFormatado;
-
-            DialogResult result = MessageBox.Show(
-                $"Confirmar alteração de status:\n\n" +
-                $"Computador: {nomeFormatado}\n" +
-                $"Novo Status: {novoStatus}",
-                "Confirmar Alteração de Status",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
+            using (var form = new Form())
             {
-                try
+                form.Size = new Size(400, 280);
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.Text = "Alterar Status do Computador";
+                form.BackColor = Color.White;
+
+                var lblTitulo = new Label
                 {
-                    using (var connection = DatabaseHelper.GetConnection())
-                    {
-                        connection.Open();
-                        string query = "UPDATE Computadores SET Status = @Status WHERE Id = @Id";
+                    Text = $"Alterar Status:\n{computador}",
+                    Location = new Point(20, 20),
+                    Size = new Size(350, 50),
+                    Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(0, 122, 204),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
 
-                        using (var cmd = new SqlCommand(query, connection))
-                        {
-                            cmd.Parameters.AddWithValue("@Status", novoStatus);
-                            cmd.Parameters.AddWithValue("@Id", computadorId);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-
-                    // Atualizar interface
-                    string statusComEmoji = ObterStatusComEmoji(novoStatus);
-                    item.SubItems[1].Text = statusComEmoji;
-
-                    // Atualizar cor de fundo baseada no status (dark mode)
-                    if (novoStatus.ToUpper().Contains("DISPON"))
-                        item.BackColor = Color.FromArgb(60, 80, 60);
-                    else if (novoStatus.ToUpper().Contains("USO") || novoStatus.ToUpper().Contains("OCUPADO"))
-                        item.BackColor = Color.FromArgb(80, 70, 50);
-                    else if (novoStatus.ToUpper().Contains("MANUTEN"))
-                        item.BackColor = Color.FromArgb(80, 50, 50);
-
-                    // Atualizar dados no Tag
-                    item.Tag = new
-                    {
-                        Id = dados.Id,
-                        NomeOriginal = dados.NomeOriginal,
-                        Processador = dados.Processador,
-                        RAM = dados.RAM,
-                        Status = novoStatus,
-                        PrecoHora = dados.PrecoHora,
-                        NomeFormatado = dados.NomeFormatado
-                    };
-
-                    MostrarDetalhesComputador(item);
-
-                    MessageBox.Show($"✅ Status do computador {nomeFormatado} atualizado!",
-                                  "Status Atualizado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
+                var btnDisponivel = new Button
                 {
-                    MessageBox.Show($"Erro ao atualizar status:\n{ex.Message}", "Erro",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Text = "🟢 DISPONÍVEL",
+                    Location = new Point(75, 90),
+                    Size = new Size(250, 45),
+                    BackColor = Color.FromArgb(40, 167, 69),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                    FlatStyle = FlatStyle.Flat,
+                    Tag = "DISPONÍVEL"
+                };
+                btnDisponivel.FlatAppearance.BorderSize = 0;
+
+                var btnEmUso = new Button
+                {
+                    Text = "🟡 EM USO",
+                    Location = new Point(75, 145),
+                    Size = new Size(250, 45),
+                    BackColor = Color.FromArgb(255, 193, 7),
+                    ForeColor = Color.Black,
+                    Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                    FlatStyle = FlatStyle.Flat,
+                    Tag = "EM USO"
+                };
+                btnEmUso.FlatAppearance.BorderSize = 0;
+
+                var btnManutencao = new Button
+                {
+                    Text = "🔴 EM MANUTENÇÃO",
+                    Location = new Point(75, 200),
+                    Size = new Size(250, 45),
+                    BackColor = Color.FromArgb(220, 53, 69),
+                    ForeColor = Color.White,
+                    Font = new Font("Segoe UI", 11, FontStyle.Bold),
+                    FlatStyle = FlatStyle.Flat,
+                    Tag = "EM MANUTENÇÃO"
+                };
+                btnManutencao.FlatAppearance.BorderSize = 0;
+
+                string resultado = null;
+
+                btnDisponivel.Click += (s, e) =>
+                {
+                    resultado = btnDisponivel.Tag as string;
+                    form.DialogResult = DialogResult.OK;
+                };
+                btnEmUso.Click += (s, e) =>
+                {
+                    resultado = btnEmUso.Tag as string;
+                    form.DialogResult = DialogResult.OK;
+                };
+                btnManutencao.Click += (s, e) =>
+                {
+                    resultado = btnManutencao.Tag as string;
+                    form.DialogResult = DialogResult.OK;
+                };
+
+                // Desabilitar botão do status atual
+                string statusUpper = statusAtual.ToUpper();
+                if (statusUpper.Contains("DISPON")) btnDisponivel.Enabled = false;
+                if (statusUpper.Contains("USO")) btnEmUso.Enabled = false;
+                if (statusUpper.Contains("MANUTEN")) btnManutencao.Enabled = false;
+
+                form.Controls.AddRange(new Control[] { lblTitulo, btnDisponivel, btnEmUso, btnManutencao });
+
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    return resultado;
                 }
+                return null;
             }
         }
 
         private void btnAdicionar_Click(object sender, EventArgs e)
         {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem adicionar computadores!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using (var formNovoPC = new FormNovoComputador())
             {
                 if (formNovoPC.ShowDialog() == DialogResult.OK)
@@ -453,6 +443,13 @@ namespace lanhause
 
         private void btnEditar_Click(object sender, EventArgs e)
         {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem editar computadores!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (listViewComputadores.SelectedItems.Count > 0)
             {
                 var item = listViewComputadores.SelectedItems[0];
@@ -477,11 +474,17 @@ namespace lanhause
 
         private void btnManutencao_Click(object sender, EventArgs e)
         {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem alterar status de manutenção!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (listViewComputadores.SelectedItems.Count > 0)
             {
                 ListViewItem item = listViewComputadores.SelectedItems[0];
                 var dados = item.Tag as dynamic;
-                string nome = dados.NomeFormatado;
                 string statusAtual = dados.Status;
 
                 string novoStatus = statusAtual.ToUpper().Contains("MANUTEN") ? "DISPONÍVEL" : "EM MANUTENÇÃO";
@@ -494,9 +497,15 @@ namespace lanhause
             }
         }
 
-        // MÉTODO PARA EXCLUIR COMPUTADOR - NOVO
         private void btnExcluir_Click(object sender, EventArgs e)
         {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem excluir computadores!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (listViewComputadores.SelectedItems.Count == 0)
             {
                 MessageBox.Show("⚠️ Selecione um computador para excluir.",
@@ -510,7 +519,6 @@ namespace lanhause
             string nomeFormatado = dados.NomeFormatado;
             string status = dados.Status;
 
-            // Verificar se o computador está em uso
             if (status.ToUpper().Contains("USO") || status.ToUpper().Contains("OCUPADO"))
             {
                 MessageBox.Show("❌ Não é possível excluir um computador que está em uso!\n" +
@@ -519,30 +527,29 @@ namespace lanhause
                 return;
             }
 
-            // Verificar se existem reservas futuras para este computador
             if (ExistemReservasFuturas(computadorId))
             {
                 MessageBox.Show("❌ Não é possível excluir este computador!\n\n" +
-                              "Existem reservas futuras agendadas para este computador.\n" +
-                              "Cancele todas as reservas primeiro antes de excluir.",
+                              "Existem reservas futuras agendadas.\n" +
+                              "Cancele todas as reservas primeiro.",
                               "Reservas Ativas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Confirmação de exclusão
             DialogResult result = MessageBox.Show(
                 $"🚨 ATENÇÃO: EXCLUSÃO PERMANENTE 🚨\n\n" +
-                $"Você está prestes a EXCLUIR PERMANENTEMENTE o computador:\n\n" +
+                $"Você está prestes a EXCLUIR PERMANENTEMENTE:\n\n" +
                 $"🔹 {nomeFormatado}\n" +
                 $"🔹 {dados.Processador}\n" +
                 $"🔹 {dados.RAM}\n" +
                 $"🔹 Status: {status}\n\n" +
                 $"⚠️  Esta ação NÃO PODE ser desfeita!\n" +
-                $"⚠️  Todos os dados do computador serão perdidos!\n\n" +
+                $"⚠️  Todos os dados serão perdidos!\n\n" +
                 $"Tem certeza ABSOLUTA que deseja continuar?",
                 "CONFIRMAR EXCLUSÃO PERMANENTE",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
 
             if (result == DialogResult.Yes)
             {
@@ -550,7 +557,163 @@ namespace lanhause
             }
         }
 
-        // VERIFICAR SE EXISTEM RESERVAS FUTURAS
+        private void btnFechar_Click(object sender, EventArgs e)
+        {
+            if (!FormLogin.IsAdmin)
+            {
+                MessageBox.Show("❌ Apenas administradores podem usar este botão!",
+                              "Acesso Negado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            Close();
+        }
+
+        private void CarregarComputadores()
+        {
+            if (listViewComputadores == null) return;
+
+            listViewComputadores.Items.Clear();
+            listViewComputadores.Columns.Clear();
+
+            // Configurar colunas
+            listViewComputadores.Columns.Add("Computador", 150);
+            listViewComputadores.Columns.Add("Status", 130);
+            listViewComputadores.Columns.Add("Especificações", 280);
+            listViewComputadores.View = View.Details;
+            listViewComputadores.FullRowSelect = true;
+            listViewComputadores.BorderStyle = BorderStyle.None;
+            listViewComputadores.BackColor = Color.FromArgb(51, 51, 55);
+            listViewComputadores.ForeColor = Color.White;
+            listViewComputadores.Font = new Font("Segoe UI", 10);
+            listViewComputadores.GridLines = false;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT Id, Nome, Processador, RAM, Status, PrecoHora FROM Computadores ORDER BY Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string id = reader["Id"].ToString();
+                            string nome = reader["Nome"].ToString();
+                            string processador = reader["Processador"].ToString();
+                            string ram = reader["RAM"].ToString();
+                            string status = reader["Status"].ToString();
+                            decimal precoHora = Convert.ToDecimal(reader["PrecoHora"]);
+
+                            string nomeFormatado = nome;
+                            if (!nome.StartsWith("PC-"))
+                            {
+                                if (int.TryParse(id, out int idNumero))
+                                {
+                                    nomeFormatado = $"PC-{idNumero.ToString().PadLeft(3, '0')}";
+                                }
+                                else
+                                {
+                                    nomeFormatado = $"PC-{id}";
+                                }
+                            }
+
+                            string statusComEmoji = ObterStatusComEmoji(status);
+                            string especificacoes = $"{processador} • {ram} • R$ {precoHora:F2}/h";
+
+                            ListViewItem item = new ListViewItem(nomeFormatado);
+                            item.SubItems.Add(statusComEmoji);
+                            item.SubItems.Add(especificacoes);
+
+                            item.Tag = new
+                            {
+                                Id = id,
+                                NomeOriginal = nome,
+                                Processador = processador,
+                                RAM = ram,
+                                Status = status,
+                                PrecoHora = precoHora,
+                                NomeFormatado = nomeFormatado
+                            };
+
+                            item.BackColor = Color.FromArgb(51, 51, 55);
+                            item.ForeColor = Color.White;
+
+                            if (status.ToUpper().Contains("DISPON"))
+                                item.BackColor = Color.FromArgb(60, 80, 60);
+                            else if (status.ToUpper().Contains("USO") || status.ToUpper().Contains("OCUPADO"))
+                                item.BackColor = Color.FromArgb(80, 70, 50);
+                            else if (status.ToUpper().Contains("MANUTEN"))
+                                item.BackColor = Color.FromArgb(80, 50, 50);
+
+                            listViewComputadores.Items.Add(item);
+                        }
+                    }
+                }
+
+                if (listViewComputadores.Items.Count > 0)
+                    listViewComputadores.Items[0].Selected = true;
+
+                AtualizarTitulo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar computadores:\n{ex.Message}", "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AtualizarTitulo()
+        {
+            int total = listViewComputadores.Items.Count;
+            int disponiveis = 0;
+            int emUso = 0;
+            int manutencao = 0;
+
+            foreach (ListViewItem item in listViewComputadores.Items)
+            {
+                var dados = item.Tag as dynamic;
+                string status = dados.Status.ToUpper();
+
+                if (status.Contains("DISPON")) disponiveis++;
+                else if (status.Contains("USO")) emUso++;
+                else if (status.Contains("MANUTEN")) manutencao++;
+            }
+
+            // Ajustar título baseado no tipo de usuário
+            if (!FormLogin.IsAdmin)
+            {
+                lblTitulo.Text = $"🖥️ COMPUTADORES DISPONÍVEIS ({disponiveis} de {total})";
+            }
+            else
+            {
+                lblTitulo.Text = $"🖥️ COMPUTADORES ({total} total | {disponiveis} disponíveis | {emUso} em uso | {manutencao} manutenção)";
+            }
+        }
+
+        // MÉTODOS CORRIGIDOS PARA C# 7.3
+
+        private string ObterStatusComEmoji(string status)
+        {
+            if (string.IsNullOrEmpty(status))
+                return "❓ Desconhecido";
+
+            string statusUpper = status.ToUpper();
+
+            if (statusUpper.Contains("DISPONÍVEL") || statusUpper.Contains("DISPONIVEL"))
+                return "✅ Disponível";
+            else if (statusUpper.Contains("EM USO") || statusUpper.Contains("OCUPADO"))
+                return "🔴 Em Uso";
+            else if (statusUpper.Contains("MANUTENÇÃO") || statusUpper.Contains("MANUTENCAO") ||
+                     statusUpper.Contains("EM MANUTENÇÃO") || statusUpper.Contains("EM MANUTENCAO"))
+                return "🛠️ Manutenção";
+            else if (statusUpper.Contains("RESERVADO"))
+                return "📅 Reservado";
+            else
+                return "❓ " + status;
+        }
+
         private bool ExistemReservasFuturas(string computadorId)
         {
             try
@@ -558,31 +721,29 @@ namespace lanhause
                 using (var connection = DatabaseHelper.GetConnection())
                 {
                     connection.Open();
-                    string query = @"
-                        SELECT COUNT(*) 
-                        FROM Reservas 
-                        WHERE ComputadorId = @ComputadorId 
-                        AND (DataReserva > CAST(GETDATE() AS DATE) 
-                             OR (DataReserva = CAST(GETDATE() AS DATE) AND HoraInicio > FORMAT(GETDATE(), 'HH:mm')))
-                        AND Status NOT IN ('CANCELADA', 'CONCLUÍDA')";
+                    string query = @"SELECT COUNT(*) FROM Reservas 
+                                   WHERE ComputadorId = @ComputadorId 
+                                   AND DataReserva >= @DataAtual 
+                                   AND Status NOT LIKE '%CANCELADA%'";
 
                     using (var cmd = new SqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        int count = (int)cmd.ExecuteScalar();
+                        cmd.Parameters.AddWithValue("@DataAtual", DateTime.Today);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
                         return count > 0;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao verificar reservas:\n{ex.Message}", "Erro",
+                MessageBox.Show($"Erro ao verificar reservas: {ex.Message}", "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return true; // Em caso de erro, assume que existem reservas (para segurança)
+                return true; // Por segurança, assume que existem reservas em caso de erro
             }
         }
 
-        // EXCLUIR COMPUTADOR DO BANCO DE DADOS
         private void ExcluirComputador(string computadorId, ListViewItem item)
         {
             try
@@ -591,198 +752,132 @@ namespace lanhause
                 {
                     connection.Open();
 
-                    // Primeiro, verificar se existem reservas históricas
-                    string queryCheckReservas = @"
-                        SELECT COUNT(*) 
-                        FROM Reservas 
-                        WHERE ComputadorId = @ComputadorId";
-
-                    int totalReservas = 0;
-                    using (var cmdCheck = new SqlCommand(queryCheckReservas, connection))
+                    // Iniciar transação para garantir consistência
+                    using (var transaction = connection.BeginTransaction())
                     {
-                        cmdCheck.Parameters.AddWithValue("@ComputadorId", computadorId);
-                        totalReservas = (int)cmdCheck.ExecuteScalar();
-                    }
-
-                    // Excluir o computador
-                    string queryDelete = "DELETE FROM Computadores WHERE Id = @Id";
-                    using (var cmd = new SqlCommand(queryDelete, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@Id", computadorId);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-
-                        if (rowsAffected > 0)
+                        try
                         {
-                            // Remover da lista
-                            listViewComputadores.Items.Remove(item);
-
-                            // Mostrar mensagem de sucesso
-                            string mensagem = $"✅ Computador excluído com sucesso!";
-                            if (totalReservas > 0)
+                            // 1. Primeiro excluir reservas relacionadas
+                            string deleteReservas = "DELETE FROM Reservas WHERE ComputadorId = @ComputadorId";
+                            using (var cmdReservas = new SqlCommand(deleteReservas, connection, transaction))
                             {
-                                mensagem += $"\n\n📊 Histórico: {totalReservas} reserva{(totalReservas != 1 ? "s" : "")} foram mantidas no histórico.";
+                                cmdReservas.Parameters.AddWithValue("@ComputadorId", computadorId);
+                                cmdReservas.ExecuteNonQuery();
                             }
 
-                            MessageBox.Show(mensagem, "Exclusão Concluída",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            // 2. Depois excluir o computador
+                            string deleteComputador = "DELETE FROM Computadores WHERE Id = @Id";
+                            using (var cmdComputador = new SqlCommand(deleteComputador, connection, transaction))
+                            {
+                                cmdComputador.Parameters.AddWithValue("@Id", computadorId);
+                                int rowsAffected = cmdComputador.ExecuteNonQuery();
 
-                            // Atualizar detalhes se ainda houver computadores
-                            if (listViewComputadores.Items.Count > 0)
-                            {
-                                listViewComputadores.Items[0].Selected = true;
-                            }
-                            else
-                            {
-                                // Limpar detalhes se não houver mais computadores
-                                LimparDetalhes();
+                                if (rowsAffected > 0)
+                                {
+                                    transaction.Commit();
+
+                                    // Remover da lista visual
+                                    listViewComputadores.Items.Remove(item);
+
+                                    // Limpar detalhes se era o item selecionado
+                                    LimparDetalhes();
+
+                                    MessageBox.Show("✅ Computador excluído com sucesso!",
+                                                  "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                                    AtualizarTitulo();
+                                }
+                                else
+                                {
+                                    transaction.Rollback();
+                                    MessageBox.Show("❌ Computador não encontrado!",
+                                                  "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
                             }
                         }
-                        else
+                        catch
                         {
-                            MessageBox.Show("❌ Erro ao excluir computador.", "Erro",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            transaction.Rollback();
+                            throw;
                         }
                     }
-                }
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 547) // Erro de chave estrangeira
-                {
-                    MessageBox.Show("❌ Não é possível excluir este computador!\n\n" +
-                                  "Existem reservas vinculadas a este computador no sistema.\n" +
-                                  "É necessário cancelar ou transferir as reservas primeiro.",
-                                  "Erro de Integridade", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    MessageBox.Show($"❌ Erro ao excluir computador:\n{ex.Message}", "Erro",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Erro ao excluir computador:\n{ex.Message}", "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"❌ Erro ao excluir computador:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // MÉTODO PARA LIMPAR DETALHES QUANDO NÃO HÁ COMPUTADORES
-        private void LimparDetalhes()
+        private void AlterarStatusComputador(ListViewItem item, string novoStatus)
         {
-            if (lblDetalhesTitulo != null)
+            try
             {
-                lblDetalhesTitulo.Text = "Nenhum computador selecionado";
-                lblDetalhesTitulo.ForeColor = Color.Gray;
+                var dados = item.Tag as dynamic;
+                string computadorId = dados.Id;
+
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    connection.Open();
+                    string query = "UPDATE Computadores SET Status = @Status WHERE Id = @Id";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Status", novoStatus);
+                        cmd.Parameters.AddWithValue("@Id", computadorId);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // Atualizar o item na lista
+                            dados.Status = novoStatus;
+                            item.Tag = dados;
+
+                            string statusComEmoji = ObterStatusComEmoji(novoStatus);
+                            item.SubItems[1].Text = statusComEmoji;
+
+                            // Atualizar cor de fundo baseada no status
+                            item.BackColor = Color.FromArgb(51, 51, 55);
+                            if (novoStatus.ToUpper().Contains("DISPON"))
+                                item.BackColor = Color.FromArgb(60, 80, 60);
+                            else if (novoStatus.ToUpper().Contains("USO") || novoStatus.ToUpper().Contains("OCUPADO"))
+                                item.BackColor = Color.FromArgb(80, 70, 50);
+                            else if (novoStatus.ToUpper().Contains("MANUTEN"))
+                                item.BackColor = Color.FromArgb(80, 50, 50);
+
+                            // Atualizar detalhes se este é o item selecionado
+                            if (item.Selected)
+                            {
+                                AtualizarDetalhesComputador(dados);
+                            }
+
+                            AtualizarTitulo();
+
+                            MessageBox.Show($"✅ Status alterado para: {novoStatus}",
+                                          "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
             }
-
-            if (lblInfoProcessador != null) lblInfoProcessador.Text = "-";
-            if (lblInfoRAM != null) lblInfoRAM.Text = "-";
-            if (lblInfoPreco != null) lblInfoPreco.Text = "-";
-            if (lblInfoStatus != null) lblInfoStatus.Text = "-";
-            if (lblInfoReservas != null) lblInfoReservas.Text = "-";
-            if (lblInfoUso != null) lblInfoUso.Text = "-";
-            if (lblStatusVisual != null) lblStatusVisual.Text = "● STATUS: -";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ Erro ao alterar status:\n{ex.Message}",
+                              "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void btnFechar_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        // MÉTODOS RESTANTES DO FORMULÁRIO
 
         private void FormComputadores_Load(object sender, EventArgs e)
         {
-            // Configurações iniciais de design - Dark mode
-            this.BackColor = Color.FromArgb(30, 30, 30);
+            // Código de carregamento adicional se necessário
         }
 
         private void panelCabecalho_Paint(object sender, PaintEventArgs e)
         {
-            // Gradiente no cabeçalho (azul escuro)
-            using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                panelCabecalho.ClientRectangle,
-                Color.FromArgb(0, 122, 204),
-                Color.FromArgb(0, 90, 170),
-                90f))
-            {
-                e.Graphics.FillRectangle(brush, panelCabecalho.ClientRectangle);
-            }
-        }
-    }
-
-    // Form para seleção de status
-    public class FormSelecionarStatus : Form
-    {
-        public string NovoStatus { get; private set; }
-
-        public FormSelecionarStatus(string computador, string statusAtual)
-        {
-            InitializeComponent(computador, statusAtual);
-        }
-
-        private void InitializeComponent(string computador, string statusAtual)
-        {
-            this.Size = new Size(350, 250);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.Text = "Alterar Status do Computador";
-            this.BackColor = Color.White;
-
-            var lblTitulo = new Label
-            {
-                Text = $"Alterar Status:\n{computador}",
-                Location = new Point(20, 20),
-                Size = new Size(300, 40),
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                ForeColor = Color.FromArgb(23, 162, 184),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            var btnDisponivel = new Button
-            {
-                Text = "🟢 DISPONÍVEL",
-                Location = new Point(50, 80),
-                Size = new Size(250, 40),
-                BackColor = Color.FromArgb(40, 167, 69),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                FlatStyle = FlatStyle.Flat
-            };
-
-            var btnEmUso = new Button
-            {
-                Text = "🟡 EM USO",
-                Location = new Point(50, 130),
-                Size = new Size(250, 40),
-                BackColor = Color.FromArgb(255, 193, 7),
-                ForeColor = Color.Black,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                FlatStyle = FlatStyle.Flat
-            };
-
-            var btnManutencao = new Button
-            {
-                Text = "🔴 EM MANUTENÇÃO",
-                Location = new Point(50, 180),
-                Size = new Size(250, 40),
-                BackColor = Color.FromArgb(220, 53, 69),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                FlatStyle = FlatStyle.Flat
-            };
-
-            btnDisponivel.Click += (s, e) => { NovoStatus = "DISPONÍVEL"; this.DialogResult = DialogResult.OK; };
-            btnEmUso.Click += (s, e) => { NovoStatus = "EM USO"; this.DialogResult = DialogResult.OK; };
-            btnManutencao.Click += (s, e) => { NovoStatus = "EM MANUTENÇÃO"; this.DialogResult = DialogResult.OK; };
-
-            // Desabilitar botão do status atual
-            if (statusAtual.ToUpper().Contains("DISPON")) btnDisponivel.Enabled = false;
-            if (statusAtual.ToUpper().Contains("USO")) btnEmUso.Enabled = false;
-            if (statusAtual.ToUpper().Contains("MANUTEN")) btnManutencao.Enabled = false;
-
-            this.Controls.AddRange(new Control[] { lblTitulo, btnDisponivel, btnEmUso, btnManutencao });
+            // Código de pintura personalizada se necessário
         }
     }
 }

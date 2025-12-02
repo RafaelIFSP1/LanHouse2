@@ -528,5 +528,64 @@ namespace lanhause
         {
             MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
+        /// <summary>
+        /// Calcula o preço ajustado baseado no horário da reserva
+        /// Manhã/Madrugada (00:00-11:59): Preço normal
+        /// Tarde (12:00-17:59): R$ 1,00 mais barato
+        /// Noite (18:00-23:59): R$ 1,00 mais caro
+        /// </summary>
+        public static decimal CalcularPrecoComHorario(decimal precoBase, string horaInicio)
+        {
+            try
+            {
+                // Converter horário para TimeSpan
+                string horaFormatada = horaInicio.Replace('.', ':');
+                TimeSpan hora = TimeSpan.Parse(horaFormatada);
+
+                // Manhã/Madrugada: 00:00 às 11:59 - Preço normal
+                if (hora >= TimeSpan.FromHours(0) && hora < TimeSpan.FromHours(12))
+                {
+                    return precoBase;
+                }
+                // Tarde: 12:00 às 17:59 - R$ 1,00 mais barato
+                else if (hora >= TimeSpan.FromHours(12) && hora < TimeSpan.FromHours(18))
+                {
+                    return Math.Max(precoBase - 1.00m, 0); // Garante que não fique negativo
+                }
+                // Noite: 18:00 às 23:59 - R$ 1,00 mais caro
+                else
+                {
+                    return precoBase + 1.00m;
+                }
+            }
+            catch
+            {
+                return precoBase; // Em caso de erro, retorna preço base
+            }
+        }
+
+        /// <summary>
+        /// Retorna descrição do período do dia baseado no horário
+        /// </summary>
+        public static string ObterPeriodoDia(string horaInicio)
+        {
+            try
+            {
+                string horaFormatada = horaInicio.Replace('.', ':');
+                TimeSpan hora = TimeSpan.Parse(horaFormatada);
+
+                if (hora >= TimeSpan.FromHours(0) && hora < TimeSpan.FromHours(12))
+                    return "Manhã/Madrugada (Preço normal)";
+                else if (hora >= TimeSpan.FromHours(12) && hora < TimeSpan.FromHours(18))
+                    return "Tarde (R$ 1,00 desconto)";
+                else
+                    return "Noite (R$ 1,00 acréscimo)";
+            }
+            catch
+            {
+                return "Período padrão";
+            }
+        }
     }
 }

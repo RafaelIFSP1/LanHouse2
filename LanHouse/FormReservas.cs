@@ -80,6 +80,12 @@ namespace lanhause
             {
                 btnRelatorio.Visible = false;
                 btnApagarReserva.Visible = false;
+
+                // NOVO: Ocultar colunas sensíveis para usuários comuns
+                dgvReservas.Columns["Cliente"].Visible = false;
+                dgvReservas.Columns["Email"].Visible = false;
+                dgvReservas.Columns["Status"].Visible = false;
+                dgvReservas.Columns["Valor"].Visible = false;
             }
         }
 
